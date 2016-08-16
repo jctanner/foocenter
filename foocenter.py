@@ -11,7 +11,8 @@
 import ssl
 import subprocess
 import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import Element  as E
+from xml.etree.ElementTree import Element as E
+from xml.etree.ElementTree import SubElement as SE
 from xml.etree.ElementTree import tostring as TS
 import xml.dom.minidom
 from collections import OrderedDict
@@ -22,164 +23,26 @@ USERNAME = 'test'
 PASSWORD = 'test'
 PORT = 443
 
-## Method calls from smartconnect ...
-# <soapenv:Body><Login
-# <soapenv:Body><RetrieveServiceContent
-# <soapenv:Body><RetrievePropertiesEx
+INVENTORY = {
+             'datacenters': {'datacenter1': {}}, 
+             'clusters': {}, 
+             'hosts':{
+                        'host-28': {
+                                   'name': '10.10.10.1',
+                                   'vms': ['vm-1', 'vm-2']
+                                  }
+                     }, 
+             'vms': {'vm-1': {'name': "testvm1"},
+                     'vm-2': {'name': "testvm2"}}
+            }
 
-
-# 1. GET /sdk/vimServiceVersions.xml HTTP/1.1
-
-schemaurl = "http://schemas.xmlsoap.org"
-xmlschema = "http://www.w3.org/2001/XMLSchema"
-envelopeattr = "xmlns:soapenc=\"%s/soap/encoding/\"" % schemaurl
-envelopeattr += " xmlns:soapenv=\"%s/soap/envelope/\"" % xmlschema
-envelopeattr += " xmlns:xsd=\"%s\"" % xmlschema
-envelopeattr += " xmlns:xsi=\"%s-instance\"" % xmlschema
-envelope_header = "<soapenv:Envelope %s>" % envelopeattr
-envelope_footer = "</soapenv:Envelope>"
-#import pdb; pdb.set_trace()
-
-
-vimServiceVersions = '''<?xml version="1.0" encoding="UTF-8" ?><namespaces
-version="1.0"><namespace><name>urn:vim25</name><version>6.0</version><priorVersions><version>5.5</version><version>5.1</version><version>5.0</version><version>4.1</version><version>4.0</version><version>2.5u2server</version><version>2.5u2</version><version>2.5</version></priorVersions></namespace><namespace><name>urn:vim2</name><version>2.0</version></namespace></namespaces>'''
-
-post1 = '''<?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchea" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-<soapenv:Body><RetrieveServiceContent xmlns="urn:vim25"><_this type="ServiceInstance">ServiceInstance</_this></RetrieveServiceContent></soapenv:Body>
-</soapenv:Envelope>'''
-
-resp2 = '''<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<soapenv:Envelope xmlns:soapenc=\"$schemaurl/soap/encoding/\"xmlns:soapenv=\"$schemaurl/soap/envelope/xmlns:xsd=\"\$xmlschema"\n xmlns:xsi=\"$xmlschema-instance\"\>\n
-    <soapenv:Body>\n
-        <LoginResponse xmlns=\"urn:vim25\">
-            <returnval>
-                <key>52ad453a-13a7-e8af-9186-a1b5c5ab85b7</key>
-                <userName>test</userName>
-                <fullName>test</fullName>
-                <loginTime>2015-10-12T16:18:07.543834Z</loginTime>
-                <lastActiveTime>2015-10-12T16:18:07.543834Z</lastActiveTime>
-                <locale>en</locale>
-                <messageLocale>en</messageLocale>
-                <extensionSession>false</extensionSession>
-                <ipAddress>10.20.125.215</ipAddress>
-                <userAgent></userAgent>
-                <callCount>0</callCount>
-            </returnval>
-        </LoginResponse>
-    </soapenv:Body>
-</soapenv:Envelope>'''
-
-servicecontent = OrderedDict()
-servicecontent['rootFolder'] = {'type': 'Folder', 'value': 'group-d1'}
-servicecontent['propertyCollector'] = {'value': 'propertyCollector'}
-servicecontent['viewManager'] = {}
-servicecontent['about'] = \
-    {'type': 'UNSET',
-     'value': {
-        'name': 'VMware vCenter Server',
-        'fullName': 'VMware vCenter Server 6.0.0 build-3018523',
-        'vendor': 'VMware, Inc',
-        'version': '6.0.0',
-        'build': '3018523',
-        'localeVersion': 'INTL',
-        'localeBuild': '000',
-        'osType': 'linux-x64',
-        'productLineId': 'vpx',
-        'apiType': 'VirtualCenter',
-        'apiVersion': '6.0',
-        'instanceUuid': '6cbd40cc-1416-4b2d-ba7c-ae53a166d00a',
-        'licenseProductName': 'VMware VirtualCenter Server',
-        'licenseProductVersion': '6.0',
-        }
-    }
-servicecontent['setting'] = {'type': 'OptionManager', 'value': 'VpxSettings'}
-servicecontent['userDirectory'] = {}
-servicecontent['sessionManager'] = {}
-servicecontent['authorizationManager'] = {}
-servicecontent['serviceManager'] = {'value': 'ServiceMgr'}
-servicecontent['perfManager'] = {'value': 'PerfMgr'}
-servicecontent['scheduledTaskManager'] = {}
-servicecontent['alarmManager'] = {}
-servicecontent['eventManager'] = {}
-servicecontent['taskManager'] = {}
-servicecontent['extensionManager'] = {}
-servicecontent['customizationSpecManager'] = {}
-servicecontent['customFieldsManager'] = {}
-servicecontent['diagnosticManager'] = {'value': 'DiagMgr'}
-servicecontent['licenseManager'] = {}
-servicecontent['searchIndex'] = {}
-servicecontent['fileManager'] = {}
-servicecontent['datastoreNamespaceManager'] = {}
-servicecontent['virtualDiskManager'] = {}
-servicecontent['snmpSystem'] = {}
-servicecontent['vmProvisioningChecker'] = \
-    {'type': 'VirtualMachineProvisioningChecker', 'value': 'ProvChecker'}
-servicecontent['vmCompatibilityChecker'] = \
-    {'type': 'VirtualMachineCompatibilityChecker', 'value': 'CompatChecker'}
-servicecontent['ovfManager'] = {}
-servicecontent['ipPoolManager'] = {}
-servicecontent['dvSwitchManager'] = \
-    {'type': 'DistributedVirtualSwitchManager', 'value': 'DVSManager'}
-servicecontent['hostProfileManager'] = {}
-servicecontent['clusterProfileManager'] = {}
-servicecontent['complianceManager'] = \
-    {'type': 'ProfileComplianceManager', 'value': 'MoComplianceManager'}
-servicecontent['localizationManager'] = {}
-servicecontent['storageResourceManager'] = {}
-servicecontent['guestOperationsManager'] = {}
-servicecontent['overheadMemoryManager'] = {}
-servicecontent['certificateManager'] = {}
-servicecontent['ioFilterManager'] = {}
-
-
-sc = '''<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\
-        <soapenv:Envelope xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\"\
-        \n xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"\n xmlns:xsd=\"\
-        http://www.w3.org/2001/XMLSchema\"\n xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\
-        >\n<soapenv:Body>\n<RetrieveServiceContentResponse xmlns=\"urn:vim25\"><returnval><rootFolder\
-        \ type=\"Folder\">group-d1</rootFolder><propertyCollector type=\"PropertyCollector\"\
-        >propertyCollector</propertyCollector><viewManager type=\"ViewManager\">ViewManager</viewManager><about><name>VMware\
-        \ vCenter Server</name><fullName>VMware vCenter Server 6.0.0 build-3018523</fullName><vendor>VMware,\
-        \ Inc.</vendor><version>6.0.0</version><build>3018523</build><localeVersion>INTL</localeVersion><localeBuild>000</localeBuild><osType>linux-x64</osType><productLineId>vpx</productLineId><apiType>VirtualCenter</apiType><apiVersion>6.0</apiVersion><instanceUuid>6cbd40cc-1416-4b2d-ba7c-ae53a166d00a</instanceUuid><licenseProductName>VMware\
-        \ VirtualCenter Server</licenseProductName><licenseProductVersion>6.0</licenseProductVersion></about><setting\
-        \ type=\"OptionManager\">VpxSettings</setting><userDirectory type=\"UserDirectory\"\
-        >UserDirectory</userDirectory><sessionManager type=\"SessionManager\">SessionManager</sessionManager><authorizationManager\
-        \ type=\"AuthorizationManager\">AuthorizationManager</authorizationManager><serviceManager\
-        \ type=\"ServiceManager\">ServiceMgr</serviceManager><perfManager type=\"\
-        PerformanceManager\">PerfMgr</perfManager><scheduledTaskManager type=\"ScheduledTaskManager\"\
-        >ScheduledTaskManager</scheduledTaskManager><alarmManager type=\"AlarmManager\"\
-        >AlarmManager</alarmManager><eventManager type=\"EventManager\">EventManager</eventManager><taskManager\
-        \ type=\"TaskManager\">TaskManager</taskManager><extensionManager type=\"\
-        ExtensionManager\">ExtensionManager</extensionManager><customizationSpecManager\
-        \ type=\"CustomizationSpecManager\">CustomizationSpecManager</customizationSpecManager><customFieldsManager\
-        \ type=\"CustomFieldsManager\">CustomFieldsManager</customFieldsManager><diagnosticManager\
-        \ type=\"DiagnosticManager\">DiagMgr</diagnosticManager><licenseManager type=\"\
-        LicenseManager\">LicenseManager</licenseManager><searchIndex type=\"SearchIndex\"\
-        >SearchIndex</searchIndex><fileManager type=\"FileManager\">FileManager</fileManager><datastoreNamespaceManager\
-        \ type=\"DatastoreNamespaceManager\">DatastoreNamespaceManager</datastoreNamespaceManager><virtualDiskManager\
-        \ type=\"VirtualDiskManager\">virtualDiskManager</virtualDiskManager><snmpSystem\
-        \ type=\"HostSnmpSystem\">SnmpSystem</snmpSystem><vmProvisioningChecker type=\"\
-        VirtualMachineProvisioningChecker\">ProvChecker</vmProvisioningChecker><vmCompatibilityChecker\
-        \ type=\"VirtualMachineCompatibilityChecker\">CompatChecker</vmCompatibilityChecker><ovfManager\
-        \ type=\"OvfManager\">OvfManager</ovfManager><ipPoolManager type=\"IpPoolManager\"\
-        >IpPoolManager</ipPoolManager><dvSwitchManager type=\"DistributedVirtualSwitchManager\"\
-        >DVSManager</dvSwitchManager><hostProfileManager type=\"HostProfileManager\"\
-        >HostProfileManager</hostProfileManager><clusterProfileManager type=\"ClusterProfileManager\"\
-        >ClusterProfileManager</clusterProfileManager><complianceManager type=\"ProfileComplianceManager\"\
-        >MoComplianceManager</complianceManager><localizationManager type=\"LocalizationManager\"\
-        >LocalizationManager</localizationManager><storageResourceManager type=\"\
-        StorageResourceManager\">StorageResourceManager</storageResourceManager><guestOperationsManager\
-        \ type=\"GuestOperationsManager\">guestOperationsManager</guestOperationsManager><overheadMemoryManager\
-        \ type=\"OverheadMemoryManager\">OverheadMemoryManger</overheadMemoryManager><certificateManager\
-        \ type=\"CertificateManager\">certificateManager</certificateManager><ioFilterManager\
-        \ type=\"IoFilterManager\">IoFilterManager</ioFilterManager></returnval></RetrieveServiceContentResponse>\n\
-        </soapenv:Body>\n</soapenv:Envelope>'''
 
 
 # https://github.com/vmware/pyvmomi/blob/master/tests/fixtures/basic_connection.yaml
 class VCenter(BaseHTTPRequestHandler):
+
     def do_GET(self):
+
 
         # 'GET /sdk/vimServiceVersions.xml HTTP/1.1'
         requestline = self.requestline
@@ -197,7 +60,10 @@ class VCenter(BaseHTTPRequestHandler):
 
             #self.wfile.write(bytes(vimServiceVersions, 'utf-8'))
         else:
-            #import pdb; pdb.set_trace()
+            print("#######################################")
+            print(" UNKNOWN PATH: %s" % url)
+            print("#######################################")
+            import pdb; pdb.set_trace()
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
@@ -244,6 +110,16 @@ class VCenter(BaseHTTPRequestHandler):
             print('UNKNOWN METHOD: %s' % methodCalled)
             print('##################################################')
             import pdb; pdb.set_trace()
+
+
+        # pretty print the response
+        rxml = xml.dom.minidom.parseString(resp)
+        pxml = rxml.toprettyxml()
+        lines = [x for x in pxml.split('\n') if x.strip()]
+        for line in lines:
+            print(line)
+
+        print("# RESP TYPE: %s" % type(resp))
 
         self.send_response(rc)
         self.send_header("Content-type", "text/xml")
@@ -316,7 +192,108 @@ class VCenter(BaseHTTPRequestHandler):
         f.close()
         return fdata
 
+
+    def RetrieveProperties(self, postdata, query):
+        # pshphere get hosts ...
+
+        ## SOMETIMES A SELECTSET IS GIVEN
+        # 'specSet': {'objectSet': {'obj': 'group-d1',
+        # 'selectSet': {'name': 'resource_pool_vm_traversal_spec',
+        # 'path': 'vm',
+        # 'type': 'ResourcePool'}},
+        # 'propSet': {'type': 'HostSystem'}
+
+        ## SOMETIMES JUST A PROPSET
+        # specSet': {'objectSet': {'obj': 'host-28'}
+        # 'propSet': {'type': 'HostSystem'}
+
+        # sometimes the caller wants a list of hosts ...
+        requested = None
+        propset_path = None
+        propset_type = None
+        try:
+            requested = query.get('Body').get('RetrieveProperties').get('specSet').get('objectSet').get('obj')
+            propset_path = query.get('Body').get('RetrieveProperties').get('specSet').get('propSet').get('pathSet')
+            propset_type = query.get('Body').get('RetrieveProperties').get('specSet').get('propSet').get('type')
+        except:
+            pass
+
+        print('retrieveproperties requested: %s' % requested)
+        print('retrieveproperties path: %s' % propset_path)
+        print('retrieveproperties type: %s' % propset_type)
+
+        if propset_type == 'HostSystem' and propset_path == 'vm':
+            # make list of VMs for the host
+            host = requested
+            print("# MAKING HOST W/ VMLIST")
+
+            X = self._get_soap_element()
+            Body = SE(X, 'soapenv:Body')
+            RPResponse = SE(Body, 'RetrievePropertiesResponse')
+            RPResponse.set('xmlns', "urn:vim25")
+            ReturnVal = SE(RPResponse, "returnval")
+
+            OType = SE(ReturnVal, 'obj')
+            OType.set('type', "HostSystem")
+            OType.text = "host-28"
+
+            PropSet = SE(ReturnVal, 'propSet')
+
+            PName = SE(PropSet, 'name')
+            PName.text = 'vm'
+
+            PVal = SE(PropSet, 'val')
+            PVal.set('xsi:type', "ArrayOfManagedObjectReference")
+
+            # Iterate through the VMs and add them as children to the Val
+            for vm in INVENTORY['hosts'][host]['vms']:
+                MO = E('ManagedObjectReference')
+                MO.set('type', 'VirtualMachine')
+                MO.set('xsi:type', 'ManagedObjectReference')
+                MO.text = vm
+                PVal.append(MO)
+
+            # Make into string
+            fdata = TS(X).decode("utf-8")
+
+        elif propset_type == 'VirtualMachine' and propset_path == 'name':
+
+            # need to return the name of the object        
+            print("# MAKING NAME PROP FOR %s" % requested)
+            vm = requested
+            X = self._get_soap_element()
+            Body = SE(X, 'soapenv:Body')
+            RPResponse = SE(Body, 'RetrievePropertiesResponse')
+            RPResponse.set('xmlns', "urn:vim25")
+
+            ReturnVal = SE(RPResponse, "returnval")
+
+            OType = SE(ReturnVal, 'obj')
+            OType.set('type', "VirtualMachine")
+            OType.text = vm
+
+            PropSet = SE(ReturnVal, 'propSet')
+
+            PName = SE(PropSet, 'name')
+            PName.text = 'name'
+            PVal = SE(PropSet, 'val')
+            PVal.set('xsi:type', "xsd:string")
+            PVal.text = INVENTORY['vms'][vm]['name']
+
+            # Make into string 
+            fdata = TS(X).decode("utf-8")
+
+        else:
+            print("# USING DEFAULT PROPERTIES RESP")
+            f = open('fixtures/vc550_RetrievePropertiesResponse.xml', 'r')
+            fdata = f.read()
+            f.close()
+
+        return fdata
+
     def RetrievePropertiesEx(self, postdata, query):
+
+        # sometimes the caller wants a list of hosts ...
 
         # sometimes the caller wants a list of vms ...
         '''
@@ -476,8 +453,17 @@ class VCenter(BaseHTTPRequestHandler):
             print('#############################')
 
             import pdb; pdb.set_trace()
-    
-       
+
+    def _get_soap_element(self):    
+        X = E('soapenv:Envelope')
+        X.set('xmlns:soapenc', "http://schemas.xmlsoap.org/soap/encoding/")
+        X.set('xmlns:soapenv', "http://schemas.xmlsoap.org/soap/envelope/")
+        X.set('xmlns:xsd', "http://www.w3.org/2001/XMLSchema")
+        X.set('xmlns:xsi', "http://www.w3.org/2001/XMLSchema-instance")
+        #Body = SE(X, 'soapenv:Body')
+        return X
+
+          
 
 
 def xml2dict(data):
