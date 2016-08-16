@@ -16,6 +16,7 @@ from xml.etree.ElementTree import tostring as TS
 import xml.dom.minidom
 from collections import OrderedDict
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from pprint import pprint
 
 USERNAME = 'test'
 PASSWORD = 'test'
@@ -206,15 +207,23 @@ class VCenter(BaseHTTPRequestHandler):
             self.wfile.write(bytes("</body></html>", "utf-8"))
 
     def do_POST(self):
+
+        print("")
+        print("")
+
         requestline = self.requestline
         rparts = requestline.split()
         url = rparts[1]
-        print("URL %s" % url)
+        #print("URL %s" % url)
 
         postdata = self.rfile.read(int(self.headers['Content-Length']))
         postdata = postdata.decode("utf-8")
-        print(postdata)
+        #print(postdata)
         query = xml2dict(postdata)
+
+        print("# QUERY START")
+        pprint(query)
+        print("# QUERY END")
 
         rc = 200 #http returncode
 
@@ -223,6 +232,7 @@ class VCenter(BaseHTTPRequestHandler):
 
         if hasattr(self, methodCalled):
             # call the method
+            print("# CALLING %s" % methodCalled)
             caller = getattr(self, methodCalled)
             resp = caller(postdata, query)
             if type(resp) == tuple:
@@ -366,7 +376,7 @@ class VCenter(BaseHTTPRequestHandler):
             # let's try to deserialize and reserialize this resp
             root = ET.fromstring(fdata)
 
-            for x in range(1,2):
+            for x in range(1,10):
                 vm = E('ManagedObjectReference')
                 vm.text = 'vm-%s' % x
                 vm.set('type', 'VirtualMachine')
