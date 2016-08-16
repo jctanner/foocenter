@@ -17,6 +17,8 @@ import xml.dom.minidom
 from collections import OrderedDict
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
+USERNAME = 'test'
+PASSWORD = 'test'
 PORT = 443
 
 ## Method calls from smartconnect ...
@@ -214,6 +216,8 @@ class VCenter(BaseHTTPRequestHandler):
         print(postdata)
         query = xml2dict(postdata)
 
+        rc = 200 #http returncode
+
         # What is the method being called?
         methodCalled = list(query['Body'].keys())[0]
 
@@ -221,6 +225,9 @@ class VCenter(BaseHTTPRequestHandler):
             # call the method
             caller = getattr(self, methodCalled)
             resp = caller(postdata, query)
+            if type(resp) == tuple:
+                rc = resp[1]
+                resp = resp[0]
 
         else:
             print('##################################################')
@@ -228,9 +235,12 @@ class VCenter(BaseHTTPRequestHandler):
             print('##################################################')
             import pdb; pdb.set_trace()
 
-        self.send_response(200)
+        self.send_response(rc)
         self.send_header("Content-type", "text/xml")
-        self.send_header("msg", "OK")
+        if rc == 200:
+            self.send_header("msg", "OK")
+        else:
+            self.send_header("msg", "Internal Server Error")
         self.end_headers()
         self.wfile.write(bytes(resp, 'utf-8'))
 
@@ -261,10 +271,34 @@ class VCenter(BaseHTTPRequestHandler):
         return fdata
 
     def Login(self, postdata, query):
-        f = open('fixtures/vc550_LoginResponse.xml', 'r')
-        fdata = f.read()
-        f.close()
-        return fdata
+        inusername = query.get('Body').get('Login').get('userName')
+        inpassword = query.get('Body').get('Login').get('password')
+
+        rc = 200
+        if inusername == USERNAME and inpassword == PASSWORD:
+            f = open('fixtures/vc550_LoginResponse.xml', 'r')
+            xml = f.read()
+            f.close()
+        else:
+            rc = 500
+            xml = '''<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<soapenv:Envelope 
+    xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\"
+    xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\"
+    xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"
+    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">
+<soapenv:Body>
+<soapenv:Fault>
+    <faultcode>ServerFaultCode</faultcode>
+    <faultstring>Cannot complete login due to an incorrect user name or password.</faultstring>
+    <detail>
+        <InvalidLoginFault xmlns=\"urn:vim25\" xsi:type=\"InvalidLogin\">
+        </InvalidLoginFault>
+    </detail>
+</soapenv:Fault>
+</soapenv:Body>
+</soapenv:Envelope>'''
+        return (xml, rc)
 
     def CreateContainerView(self, postdata, query):
         f = open('fixtures/vc550_CreateContainerViewResponse.xml', 'r')
@@ -332,7 +366,7 @@ class VCenter(BaseHTTPRequestHandler):
             # let's try to deserialize and reserialize this resp
             root = ET.fromstring(fdata)
 
-            for x in range(1,100):
+            for x in range(1,2):
                 vm = E('ManagedObjectReference')
                 vm.text = 'vm-%s' % x
                 vm.set('type', 'VirtualMachine')
