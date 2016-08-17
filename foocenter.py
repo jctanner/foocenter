@@ -94,6 +94,17 @@ INVENTORY = {
                 
             }
 
+# Properties for a VirtualMachine Object ...
+VM_EX_PROPS = ['alarmActionsEnabled', 'availableField', 'capability', 'config', 'configIssue', 'configStatus',
+               'customValue', 'datastore', 'effectiveRole', 'guest', 'guestHeartbeatStatus', 'layout',
+               'layoutEx', 'name', 'network', 'overallStatus', 'parent', 'parentVapp', 'permission',
+               'recentTask', 'resourceConfig', 'resourcePool', 'rootSnapshot', 'runtime', 'snapshot',
+               'storage', 'summary', 'tag', 'triggeredAlarmState']
+
+# Properties for a VirtualMachine.guest Object ...
+VM_EX_GUEST_PROPS = ['toolsStatus', 'toolsVersionStatus', 'toolsVersionStatus2', 'toolsRunningStatus',
+                     'toolsVersion', 'screen', 'guestState', 'appHeartbeatStatus', 'appState',
+                     'guestOperationsReady', 'interactiveGuestOperationsReady']
 
 #############################################
 #               REFERENCES                  #
@@ -251,6 +262,15 @@ class VCenter(BaseHTTPRequestHandler):
 </soapenv:Envelope>'''
         return (xml, rc)
 
+    def Logout(self, postdata, query):
+        X = self._get_soap_element()
+        Body = SE(X, 'soapenv:Body')
+        LResponse = SE(Body, 'LogoutResponse')
+        LResponse.set('xmlns', "urn:vim25")
+        fdata = TS(X).decode("utf-8")
+        return (fdata, 200)
+
+
     def CreateContainerView(self, postdata, query):
         f = open('fixtures/vc550_CreateContainerViewResponse.xml', 'r')
         fdata = f.read()
@@ -272,7 +292,6 @@ class VCenter(BaseHTTPRequestHandler):
         # specSet': {'objectSet': {'obj': 'host-28'}
         # 'propSet': {'type': 'HostSystem'}
 
-        # sometimes the caller wants a list of hosts ...
         requested = None
         select_path = None
         propset_path = None
@@ -592,6 +611,13 @@ class VCenter(BaseHTTPRequestHandler):
             fdata = TS(X).decode("utf-8")
             #import pdb; pdb.set_trace()
 
+        elif propset_type == 'VirtualMachine' and propset_path == 'alarmActionsEnabled':
+
+            import pdb; pdb.set_trace()
+            X = self.get_soap_properties_response('vm', propset_type, requested, 'alarmActionsEnabled', 'alarmActionsEnabled') 
+            fdata = TS(X).decode("utf-8")
+
+
 
         elif requested.startswith('host-'):
             # return the list of VMs for the host
@@ -666,11 +692,40 @@ class VCenter(BaseHTTPRequestHandler):
             </RetrievePropertiesEx>
         </soapenv:Body>
         '''
+
+        #try:
+        #    requested = query.get('Body').get('RetrievePropertiesEx').get('specSet').get('objectSet').get('obj')
+        #    pathset = query.get('Body').get('RetrievePropertiesEx').get('specSet').get('propSet').get('pathSet')
+        #except:
+        #    pass
+
+        requested = None
+        select_path = None
+        propset_path = None
+        propset_type = None
         try:
             requested = query.get('Body').get('RetrievePropertiesEx').get('specSet').get('objectSet').get('obj')
-            pathset = query.get('Body').get('RetrievePropertiesEx').get('specSet').get('propSet').get('pathSet')
         except:
             pass
+        try:
+            select_path = query.get('Body').get('RetrievePropertiesEx').get('specSet')\
+                               .get('objectSet').get('selectSet').get('path')
+        except:
+            pass
+        try:
+            propset_path = query.get('Body').get('RetrievePropertiesEx').get('specSet').get('propSet').get('pathSet')
+        except:
+            pass
+        try:
+            propset_type = query.get('Body').get('RetrievePropertiesEx').get('specSet').get('propSet').get('type')
+        except:
+            pass
+
+        print('retrievepropertiesex requested: %s' % requested)
+        print('retrievepropertiesex select_path: %s' % select_path)
+        print('retrievepropertiesex propset_path: %s' % propset_path)
+        print('retrievepropertiesex propset_type: %s' % propset_type)
+
 
         # session[0bc77834-77fc-7422-e2cd-81d4e5127926]52ef3fa7-892d-d0c0-d12d-7f16d61aa6e2 --> vmlist
         # vm-1 --> a VM
@@ -707,7 +762,18 @@ class VCenter(BaseHTTPRequestHandler):
             xmlstr = xmlstr.decode("utf-8")
             return xmlstr
 
-        elif pathset == 'name':
+        elif requested.startswith('vm-') and propset_path in VM_EX_PROPS:
+            X = self.get_soap_properties_response('vm', 
+                                                  propset_type, 
+                                                  requested, 
+                                                  propset_path, 
+                                                  propset_path, 
+                                                  responsetype='RetrievePropertiesExResponse')
+            fdata = TS(X).decode("utf-8")
+            return fdata
+
+
+        elif propset_path == 'name':
             print('#############################')
             print('REQUEST: %s name' % requested)
             print('#############################')
@@ -733,9 +799,9 @@ class VCenter(BaseHTTPRequestHandler):
 </soapenv:Body>
 </soapenv:Envelope>''' % (requested, 'FOO_' + requested.upper())
             return xml
-        elif pathset == 'guest':
+        elif propset_path == 'guest':
             print('#############################')
-            print('REQUEST: %s %s' % (requested, pathset))
+            print('REQUEST: %s %s' % (requested, propset_path))
             print('#############################')
 
             xml = '''<?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -784,9 +850,8 @@ class VCenter(BaseHTTPRequestHandler):
         else:
 
             print('#############################')
-            print('REQUEST: %s %s' % (requested, pathset))
+            print('REQUEST: %s %s' % (requested, propset_path))
             print('#############################')
-
             import pdb; pdb.set_trace()
 
     def _get_soap_element(self):    
@@ -799,7 +864,8 @@ class VCenter(BaseHTTPRequestHandler):
         return X
 
           
-    def get_soap_properties_response(self, okey, otype, oval, prop, propname, rawpost=None, xsitype=None):
+    def get_soap_properties_response(self, okey, otype, oval, prop, propname, 
+                                     responsetype='RetrievePropertiesResponse', rawpost=None, xsitype=None):
         # okey = datacenter/host/vm/network/etc
         # otype = HostSystem/VirtualMachine/Datastore/Network
         # oval = vm-x, datstore-x, network-x, etc-x
@@ -809,7 +875,7 @@ class VCenter(BaseHTTPRequestHandler):
 
         X = self._get_soap_element()
         Body = SE(X, 'soapenv:Body')
-        RPResponse = SE(Body, 'RetrievePropertiesResponse')
+        RPResponse = SE(Body, responsetype)
         RPResponse.set('xmlns', "urn:vim25")
 
         # Extract the desired data
@@ -821,7 +887,14 @@ class VCenter(BaseHTTPRequestHandler):
             pass
 
         this_rval = E("returnval")
-        this_obj = SE(this_rval, 'obj')
+
+        # For EX returns the "obj" node is a child of an "objects" node
+        if responsetype == 'RetrievePropertiesExResponse':
+            this_objects = SE(this_rval, 'objects')
+            this_obj = SE(this_objects, 'obj')
+        else:
+            this_obj = SE(this_rval, 'obj')
+
         this_obj.set('type', otype)
         this_obj.text = okey
         this_propset = SE(this_rval, 'propSet')
@@ -864,6 +937,103 @@ class VCenter(BaseHTTPRequestHandler):
             guest_state = SE(this_val, 'guestState')
             guest_state.text = 'notRunning'
 
+        elif propname == 'capability':
+            this_obj.text = oval #need the VM id here 
+            this_val.set('xsi:type', 'VirtualMachineCapability')
+            cdata = {}
+            ckeys= ['snapshotOperationsSupported', 'multipleSnapshotsSupported', 'poweredOffSnapshotsSupported',
+                    'memorySnapshotsSupported', 'revertToSnapshotSupported', 'quiescedSnapshotsSupported',
+                    'disableSnapshotsSupported', 'lockSnapshotsSupported', 'consolePreferencesSupported',
+                    'cpuFeatureMaskSupported', 's1AcpiManagementSupported', 'settingScreenResolutionSupported',
+                    'toolsAutoUpdateSupported', 'vmNpivWwnSupported', 'npivWwnOnNonRdmVmSupported',
+                    'vmNpivWwnDisableSupported', 'vmNpivWwnUpdateSupported', 'swapPlacementSupported',
+                    'toolsSyncTimeSupported', 'virtualMmuUsageSupported', 'diskSharesSupported',
+                    'bootOptionsSupported', 'bootRetryOptionsSupported', 'settingVideoRamSizeSupported',
+                    'settingDisplayTopologySupported', 'recordReplaySupported', 'changeTrackingSupported',
+                    'multipleCoresPerSocketSupported', 'hostBasedReplicationSupported', 'guestAutoLockSupported',
+                    'memoryReservationLockSupported', 'featureRequirementSupported', 'poweredOnMonitorTypeChangeSupported',
+                    'seSparseDiskSupported', 'nestedHVSupported', 'vPMCSupported']
+            for x in ckeys:
+                cdata[x] = 'true'
+            cdata['consolePreferencesSupported'] = 'false'
+            cdata['settingScreenResolutionSupported'] = 'false'
+            cdata['toolsAutoUpdateSupported'] = 'false'
+            cdata['settingDisplayTopologySupported'] = 'false'
+            for k,v in cdata.items():
+                x = E(k)
+                x.text = v
+                this_val.append(x)
+
+        elif propname == 'config':
+            this_obj.text = oval #need the VM id here 
+            this_val.set('xsi:type', 'VirtualMachineConfigInfo')
+            vm = INVENTORY['vm'][oval]
+            ckeys = ['changeVersion', 'modified', 'name', 'guestFullName', 'version',
+                     'uuid', 'instanceUuid', 'npivTemporaryDisabled', 'locationId', 'template',
+                     'guestId', 'alternateGuestName', 'annotation', 'files', 'tools',
+                     'flags', 'defaultPowerOps', 'hardware', 'cpuAllocation', 'memoryAllocation',
+                     'latencySensititivy', 'memoryHotAddEnabled', 'cpuHotAddEnabled', 'extraConfig',
+                     'swapPlacement', 'bootOptions', 'vAssertsEnabled', 'changeTrackingEnabled',
+                     'firmware', 'maxMksConnections', 'guestAutoLockEnabled', 'memoryReservationLockedToMax',
+                     'initialOverhead', 'nestedHVEnabled', 'vPMCEnabled', 'scheduledHardwareUpgradeInfo',
+                     'vFlashCacheReservation']
+            for ckey in ckeys:
+                x = E(ckey)
+                this_val.append(x)
+
+        elif propname == 'configIssue':
+            this_obj.text = oval #need the VM id here 
+            this_val.set('xsi:type', 'ArrayOfEvent')
+
+        elif propname == 'configStatus':
+            this_obj.text = oval #need the VM id here 
+            this_val.set('xsi:type', 'ManagedEntityStatus')
+            this_val.text = 'green'
+
+        elif propname == 'customValue':
+            this_obj.text = oval #need the VM id here 
+            this_val.set('xsi:type', 'ArrayOfCustomFieldValue')
+
+        elif propname == 'datastore':
+            vm = INVENTORY['vm'][oval]
+            this_obj.text = oval #need the VM id here 
+            this_val.set('xsi:type', 'ArrayOfManagedObjectReference')
+            for x in vm['datastore']:
+                d = E('ManagedObjectReference')
+                d.set('type', 'Datastore')
+                d.set('xsi:type', 'ManagedObjectReference')
+                d.text = x
+                this_val.append(d)
+            #import pdb; pdb.set_trace()
+
+        elif propname == 'effectiveRole':
+            this_obj.text = oval #need the VM id here 
+            this_val.set('xsi:type', 'ArrayOfInt')
+            x = E('int')
+            x.set('xsi:type', 'xsd:int')
+            x.text = '-1'
+            this_val.append(x)
+
+        elif propname == 'alarmActionsEnabled':
+            this_obj.text = oval #need the VM id here 
+            this_val.set('xsi:type', 'xsd:boolean')
+            this_val.text = 'true'
+
+        elif propname == 'availableField':
+            this_obj.text = oval
+            this_val.set('xsi:type', 'ArrayOfCustomFieldDef')
+
+        elif propname == 'guest':
+            this_obj.text = oval
+            this_val.set('xsi:type', 'GuestInfo')
+            for x in VM_EX_GUEST_PROPS:
+                y = E(x)
+                this_val.append(y)
+
+        elif responsetype == 'RetrievePropertiesExResponse':
+            print("# EXRESPONSE FOR %s NOT YET IMPLEMENTED !!!" % propname)
+            import pdb; pdb.set_trace()
+
         elif type(rdata) in [str,bytes]:
 
             print('# PROCESSING STRING OR MO ...')
@@ -874,18 +1044,11 @@ class VCenter(BaseHTTPRequestHandler):
                 this_val.set('type', oneup(prop))
                 this_val.set('xsi:type', 'ManagedObjectReference')
                 this_val.text = rdata
-                #import pdb; pdb.set_trace()
-
             else:
                 # this is a string ???
                 this_val.set('xsi:type', 'xsd:string')
                 this_val.text = rdata
-
                 this_obj.text = oval
-
-                #if otype.lower() == 'resourcepool':
-                #    import pdb; pdb.set_trace()
-
 
         elif type(rdata) == list:
             this_val.set('xsi:type', 'ArrayOfManagedObjectReference')
