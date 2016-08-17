@@ -48,7 +48,7 @@ INVENTORY = {
                                   }
 
                      }, 
-             'resourcepools': {
+             'resourcepool': {
                     'resgroup-0': {
                         'name': 'Resources'
                      }
@@ -296,8 +296,9 @@ class VCenter(BaseHTTPRequestHandler):
             pass
 
         print('retrieveproperties requested: %s' % requested)
-        print('retrieveproperties path: %s' % propset_path)
-        print('retrieveproperties type: %s' % propset_type)
+        print('retrieveproperties select_path: %s' % select_path)
+        print('retrieveproperties propset_path: %s' % propset_path)
+        print('retrieveproperties propset_type: %s' % propset_type)
 
 
         if 'TraversalSpec' in postdata:
@@ -463,7 +464,6 @@ class VCenter(BaseHTTPRequestHandler):
                 import pdb; pdb.set_trace()
 
 
-
         elif propset_type == 'ServiceInstance' and propset_path == 'content':
 
             print("# (1) USING DEFAULT PROPERTIES RESP")
@@ -560,6 +560,11 @@ class VCenter(BaseHTTPRequestHandler):
             # Make into string 
             fdata = TS(X).decode("utf-8")
 
+        elif propset_type == 'ResourcePool' and propset_path == 'name':
+
+            X = self.get_soap_properties_response('resourcepool', propset_type, requested, 'name', 'Resources') 
+            fdata = TS(X).decode("utf-8")
+
         elif propset_type == 'VirtualMachine' and propset_path == 'summary':
 
             X = self.get_soap_properties_response('vm', propset_type, requested, 'summary', 'VirtualMachineSummary') 
@@ -582,8 +587,10 @@ class VCenter(BaseHTTPRequestHandler):
 
         elif propset_type == 'VirtualMachine' and propset_path == 'resourcePool':
 
-            X = self.get_soap_properties_response('vm', propset_type, requested, 'resourcePool', 'ResourcePool') 
+            X = self.get_soap_properties_response('vm', propset_type, requested, 
+                                                  'resourcePool', 'ResourcePool', xsitype='Resources') 
             fdata = TS(X).decode("utf-8")
+            #import pdb; pdb.set_trace()
 
 
         elif requested.startswith('host-'):
@@ -792,7 +799,7 @@ class VCenter(BaseHTTPRequestHandler):
         return X
 
           
-    def get_soap_properties_response(self, okey, otype, oval, prop, propname):
+    def get_soap_properties_response(self, okey, otype, oval, prop, propname, rawpost=None, xsitype=None):
         # okey = datacenter/host/vm/network/etc
         # otype = HostSystem/VirtualMachine/Datastore/Network
         # oval = vm-x, datstore-x, network-x, etc-x
@@ -806,6 +813,7 @@ class VCenter(BaseHTTPRequestHandler):
         RPResponse.set('xmlns', "urn:vim25")
 
         # Extract the desired data
+        rdata = None
         try:
             print("INVENTORY['%s']['%s']['%s']" % (okey, oval, prop))
             rdata = INVENTORY['%s' % okey][oval]['%s' % prop]
@@ -856,7 +864,30 @@ class VCenter(BaseHTTPRequestHandler):
             guest_state = SE(this_val, 'guestState')
             guest_state.text = 'notRunning'
 
-        else:
+        elif type(rdata) in [str,bytes]:
+
+            print('# PROCESSING STRING OR MO ...')
+
+            # How do we know to return a MO or a string?
+            if prop.lower() in INVENTORY:
+                # this is a managed object reference
+                this_val.set('type', oneup(prop))
+                this_val.set('xsi:type', 'ManagedObjectReference')
+                this_val.text = rdata
+                #import pdb; pdb.set_trace()
+
+            else:
+                # this is a string ???
+                this_val.set('xsi:type', 'xsd:string')
+                this_val.text = rdata
+
+                this_obj.text = oval
+
+                #if otype.lower() == 'resourcepool':
+                #    import pdb; pdb.set_trace()
+
+
+        elif type(rdata) == list:
             this_val.set('xsi:type', 'ArrayOfManagedObjectReference')
             for x in rdata:
                 MO = E('ManagedObjectReference')
@@ -865,9 +896,23 @@ class VCenter(BaseHTTPRequestHandler):
                 MO.text = x
                 this_val.append(MO)
 
+
+        #if propname.lower() == 'resourcepool':
+        #    import pdb; pdb.set_trace()
+
+
         RPResponse.append(this_rval)
         return X
 
+def oneup(text):
+    '''Capitalize the first letter of a string'''
+    newstr = []
+    for idx,x in enumerate(text):
+        if idx == 0:
+            newstr.append(x.upper())
+        else:    
+            newstr.append(x)
+    return ''.join(newstr)
 
 
 def xml2dict(data):
