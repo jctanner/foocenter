@@ -36,14 +36,14 @@ INVENTORY = {
                             }, 
              'clusters': {}, 
              'hosts':{
-                        'host-28': {
+                        'host-0': {
                                    'name': '10.10.10.1',
-                                   'vms': ['vm-1', 'vm-2'],
+                                   'vms': [],
                                    'datastores': ['datastore-0']
                                   },
-                        'host-29': {
+                        'host-1': {
                                    'name': '10.10.10.2',
-                                   'vms': ['vm-3', 'vm-4'],
+                                   'vms': [],
                                    'datastores': ['datastore-1']
                                   }
 
@@ -62,7 +62,8 @@ INVENTORY = {
                         'name': 'VM Network'
                     }
              },
-             'vm': {'vm-1': {
+             'vm': {
+                     'vm-1': {
                         'name': "testvm1",
                         'guest': {},
                         'network': ['network-0'],
@@ -90,9 +91,38 @@ INVENTORY = {
                         'resourcePool': 'resgroup-0',
                         'datastore': ["datastore-1"]
                      }
-                    }
-                
-            }
+                 }
+        }
+
+##########################
+# Build up the inventory
+##########################
+TOTAL_HOSTS = 100
+for x in range(0, TOTAL_HOSTS + 1):
+    hkey = 'host-%s' % x
+    INVENTORY['hosts'][hkey] = {}
+    INVENTORY['hosts'][hkey]['name'] = '10.0.0.%s' % x
+    INVENTORY['hosts'][hkey]['vms'] = []
+    INVENTORY['hosts'][hkey]['datastores'] = ['datastore-1']
+
+TOTAL_VMS = 2000
+xhost = 0
+for x in range(0, TOTAL_VMS + 1):
+    vkey = 'vm-%s' % x
+    INVENTORY['vm'][vkey] = {}
+    INVENTORY['vm'][vkey]['name'] = 'testvm%s' % x
+    INVENTORY['vm'][vkey]['guest'] = {}
+    INVENTORY['vm'][vkey]['network'] = ['network-0']
+    INVENTORY['vm'][vkey]['resourcePool'] = 'resgroup-0'
+    INVENTORY['vm'][vkey]['datastore'] = ['datastore-1']
+
+    # spread evenly across the hosts ...
+    INVENTORY['hosts']['host-%s' % xhost]['vms'].append(vkey)
+    xhost += 1
+    if xhost > TOTAL_HOSTS:
+        xhost = 0
+
+#import pdb; pdb.set_trace()
 
 # Properties for a VirtualMachine Object ...
 VM_EX_PROPS = ['alarmActionsEnabled', 'availableField', 'capability', 'config', 'configIssue', 'configStatus',
@@ -158,8 +188,8 @@ class VCenter(BaseHTTPRequestHandler):
 
     def do_POST(self):
 
-        print("")
-        print("")
+        #print("")
+        #print("")
 
         requestline = self.requestline
         rparts = requestline.split()
@@ -171,9 +201,9 @@ class VCenter(BaseHTTPRequestHandler):
         #print(postdata)
         query = xml2dict(postdata)
 
-        print("# QUERY START")
-        pprint(query)
-        print("# QUERY END")
+        #print("# QUERY START")
+        #pprint(query)
+        #print("# QUERY END")
 
         rc = 200 #http returncode
 
@@ -182,7 +212,7 @@ class VCenter(BaseHTTPRequestHandler):
 
         if hasattr(self, methodCalled):
             # call the method
-            print("# CALLING %s" % methodCalled)
+            #print("# CALLING %s" % methodCalled)
             caller = getattr(self, methodCalled)
             resp = caller(postdata, query)
             if type(resp) == tuple:
@@ -197,14 +227,8 @@ class VCenter(BaseHTTPRequestHandler):
 
 
         # pretty print the response
-        splitxml(resp)
-        #rxml = xml.dom.minidom.parseString(resp)
-        #pxml = rxml.toprettyxml()
-        #lines = [x for x in pxml.split('\n') if x.strip()]
-        #for line in lines:
-        #    print(line)
-
-        print("# RESP TYPE: %s" % type(resp))
+        #splitxml(resp)
+        #print("# RESP TYPE: %s" % type(resp))
 
         self.send_response(rc)
         self.send_header("Content-type", "text/xml")
@@ -214,12 +238,6 @@ class VCenter(BaseHTTPRequestHandler):
             self.send_header("msg", "Internal Server Error")
         self.end_headers()
         self.wfile.write(bytes(resp, 'utf-8'))
-
-        '''
-        f = open('/tmp/resp.xml', 'w')
-        f.write(resp)
-        f.close()
-        '''
 
 
     def __combine_soap_resp(self, rtype, urn, rval):
@@ -323,14 +341,16 @@ class VCenter(BaseHTTPRequestHandler):
         except:
             pass
 
+        '''
         print('retrieveproperties requested: %s' % requested)
         print('retrieveproperties select_path: %s' % select_path)
         print('retrieveproperties propset_path: %s' % propset_path)
         print('retrieveproperties propset_type: %s' % propset_type)
+        '''
 
 
         if 'TraversalSpec' in postdata:
-            print("# TRAVERSALSPEC ...")
+            #print("# TRAVERSALSPEC ...")
             # https://www.vmware.com/support/developer/vc-sdk/visdk2xpubs/ReferenceGuide/vmodl.query.PropertyCollector.TraversalSpec.html
             #root = ET.fromstring(postdata)
             #body = root[1]
@@ -494,7 +514,7 @@ class VCenter(BaseHTTPRequestHandler):
 
         elif propset_type == 'ServiceInstance' and propset_path == 'content':
 
-            print("# (1) USING DEFAULT PROPERTIES RESP")
+            #print("# (1) USING DEFAULT PROPERTIES RESP")
             #f = open('fixtures/vc550_RetrievePropertiesResponse.xml', 'r')
             #f = open('fixtures/vc550_RetrieveServiceContentResponse.xml.bak', 'r')
             f = open('fixtures/vc550_RetrievePropertiesResponse_ServiceInstance_ServiceContent.xml', 'r')
@@ -504,7 +524,7 @@ class VCenter(BaseHTTPRequestHandler):
         elif propset_type == 'HostSystem' and propset_path == 'vm':
             # make list of VMs for the host
             host = requested
-            print("# MAKING HOST W/ VMLIST")
+            #print("# MAKING HOST W/ VMLIST")
 
             X = self._get_soap_element()
             Body = SE(X, 'soapenv:Body')
@@ -536,7 +556,7 @@ class VCenter(BaseHTTPRequestHandler):
             fdata = TS(X).decode("utf-8")
 
         elif propset_type == 'HostSystem' and propset_path == 'name':
-            print("# MAKING NAME PROP FOR HOST:%s" % requested)
+            #print("# MAKING NAME PROP FOR HOST:%s" % requested)
             host = requested
             X = self._get_soap_element()
             Body = SE(X, 'soapenv:Body')
@@ -564,7 +584,7 @@ class VCenter(BaseHTTPRequestHandler):
         elif propset_type == 'VirtualMachine' and propset_path == 'name':
 
             # need to return the name of the object        
-            print("# MAKING NAME PROP FOR VM:%s" % requested)
+            #print("# MAKING NAME PROP FOR VM:%s" % requested)
             vm = requested
             X = self._get_soap_element()
             Body = SE(X, 'soapenv:Body')
@@ -654,7 +674,7 @@ class VCenter(BaseHTTPRequestHandler):
             fdata = TS(X).decode("utf-8")
 
         else:
-            print("# USING DEFAULT PROPERTIES RESP")
+            #print("# USING DEFAULT PROPERTIES RESP")
             f = open('fixtures/vc550_RetrievePropertiesResponse.xml', 'r')
             fdata = f.read()
             f.close()
@@ -730,20 +750,23 @@ class VCenter(BaseHTTPRequestHandler):
         except:
             pass
 
+        '''
         print('retrievepropertiesex requested: %s' % requested)
         print('retrievepropertiesex select_path: %s' % select_path)
         print('retrievepropertiesex propset_path: %s' % propset_path)
         print('retrievepropertiesex propset_type: %s' % propset_type)
-
+        '''
 
         # session[0bc77834-77fc-7422-e2cd-81d4e5127926]52ef3fa7-892d-d0c0-d12d-7f16d61aa6e2 --> vmlist
         # vm-1 --> a VM
 
         if not requested.startswith('vm-'):
 
+            '''
             print('#############################')
             print('REQUEST: %s name (ALLVMS)' % requested)
             print('#############################')
+            '''
 
             f = open('fixtures/vc550_RetrievePropertiesExResponse.xml', 'r')
             fdata = f.read()
@@ -890,7 +913,7 @@ class VCenter(BaseHTTPRequestHandler):
         # Extract the desired data
         rdata = None
         try:
-            print("INVENTORY['%s']['%s']['%s']" % (okey, oval, prop))
+            #print("INVENTORY['%s']['%s']['%s']" % (okey, oval, prop))
             rdata = INVENTORY['%s' % okey][oval]['%s' % prop]
         except Exception as e:
             pass
@@ -1034,9 +1057,9 @@ class VCenter(BaseHTTPRequestHandler):
 
         elif propname == 'guest':
 
-            print("###########################")
-            print("#         GUEST           #")
-            print("###########################")
+            #print("###########################")
+            #print("#         GUEST           #")
+            #print("###########################")
 
             X = None
             Body = None
@@ -1048,47 +1071,47 @@ class VCenter(BaseHTTPRequestHandler):
             this_name = None
             this_val = None
 
-            print("## 1")
+            #print("## 1")
             X = self._get_soap_element()
-            splitxml(X)
+            #splitxml(X)
             Body = SE(X, 'soapenv:Body')
-            splitxml(X)
+            #splitxml(X)
 
-            print("## 2")
+            #print("## 2")
             RPResponse = SE(Body, responsetype)
             RPResponse.set('xmlns', "urn:vim25")
-            splitxml(X)
+            #splitxml(X)
 
-            print("## 3")
+            #print("## 3")
             this_rval = SE(RPResponse, 'returnval')
-            splitxml(X)
+            #splitxml(X)
 
-            print("## 4")
+            #print("## 4")
             this_objects = SE(this_rval, 'objects')
-            splitxml(X)
+            #splitxml(X)
 
-            print("## 5")
+            #print("## 5")
             this_obj = SE(this_objects, 'obj')
-            splitxml(X)
+            #splitxml(X)
 
-            print("## 6")
+            #print("## 6")
             this_obj.set('type', 'VirtualMachine')
             this_obj.text = oval
-            splitxml(X)
+            #splitxml(X)
 
-            print("## 7")
+            #print("## 7")
             this_propset = SE(this_objects, 'propSet')
-            splitxml(X)
+            #splitxml(X)
 
-            print("## 8")
+            #print("## 8")
             this_name = SE(this_propset, 'name')
             this_name.text = 'guest'
-            splitxml(X)
+            #splitxml(X)
 
-            print("## 9")
+            #print("## 9")
             this_val = SE(this_propset, 'val')
             this_val.set('xsi:type', 'GuestInfo')
-            splitxml(X)
+            #splitxml(X)
 
             for x in VM_EX_GUEST_PROPS:
                 y = E(x[0])
@@ -1096,18 +1119,20 @@ class VCenter(BaseHTTPRequestHandler):
                     y.text = x[1]
                 this_val.append(y)
 
-            print("## 10")
-            splitxml(X)
+            #print("## 10")
+            #splitxml(X)
             return X
-            #import pdb; pdb.set_trace()
 
         elif responsetype == 'RetrievePropertiesExResponse':
-            print("# EXRESPONSE FOR %s NOT YET IMPLEMENTED !!!" % propname)
+
+            ## FIXME FIXME FIXME
+            #print("# EXRESPONSE FOR %s NOT YET IMPLEMENTED !!!" % propname)
             #import pdb; pdb.set_trace()
+            pass
 
         elif type(rdata) in [str,bytes]:
 
-            print('# PROCESSING STRING OR MO ...')
+            #print('# PROCESSING STRING OR MO ...')
 
             # How do we know to return a MO or a string?
             if prop.lower() in INVENTORY:
