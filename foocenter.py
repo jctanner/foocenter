@@ -48,6 +48,11 @@ INVENTORY = {
                                   }
 
                      }, 
+             'resourcepools': {
+                    'resgroup-0': {
+                        'name': 'Resources'
+                     }
+             },
              'datastores': {
                     'datastore-0': {'name': "data store 0"},
                     'datastore-1': {'name': "data store 1"},
@@ -56,22 +61,34 @@ INVENTORY = {
                     'network-0': {
                         'name': 'VM Network'
                     }
-             }
-             'vms': {'vm-1': {
+             },
+             'vm': {'vm-1': {
                         'name': "testvm1",
-                        'datastores': ["datastore-0"]
+                        'guest': {},
+                        'network': ['network-0'],
+                        'resourcePool': 'resgroup-0',
+                        'datastore': ["datastore-0"]
                      },
                      'vm-2': {
                         'name': "testvm2",
-                        'datastores': ["datastore-0"]
+                        'guest': {},
+                        'network': ['network-0'],
+                        'resourcePool': 'resgroup-0',
+                        'datastore': ["datastore-0"]
                      },
                      'vm-3': {
                         'name': "testvm3",
-                        'datastores': ["datastore-1"]
+                        'guest': {},
+                        'network': ['network-0'],
+                        'resourcePool': 'resgroup-0',
+                        'datastore': ["datastore-1"]
                      },
                      'vm-4': {
                         'name': "testvm4",
-                        'datastores': ["datastore-1"]
+                        'guest': {},
+                        'network': ['network-0'],
+                        'resourcePool': 'resgroup-0',
+                        'datastore': ["datastore-1"]
                      }
                     }
                 
@@ -538,37 +555,34 @@ class VCenter(BaseHTTPRequestHandler):
             PName.text = 'name'
             PVal = SE(PropSet, 'val')
             PVal.set('xsi:type', "xsd:string")
-            PVal.text = INVENTORY['vms'][vm]['name']
+            PVal.text = INVENTORY['vm'][vm]['name']
 
             # Make into string 
             fdata = TS(X).decode("utf-8")
 
+        elif propset_type == 'VirtualMachine' and propset_path == 'summary':
+
+            X = self.get_soap_properties_response('vm', propset_type, requested, 'summary', 'VirtualMachineSummary') 
+            fdata = TS(X).decode("utf-8")
+
+        elif propset_type == 'VirtualMachine' and propset_path == 'guest':
+
+            X = self.get_soap_properties_response('vm', propset_type, requested, 'guest', 'GuestInfo') 
+            fdata = TS(X).decode("utf-8")
+
         elif propset_type == 'VirtualMachine' and propset_path == 'datastore':
 
-            # need to return the name of the object        
-            print("# MAKING DATASTORE PROP FOR VM:%s" % requested)
-            vm = requested
-            X = self._get_soap_element()
-            Body = SE(X, 'soapenv:Body')
-            RPResponse = SE(Body, 'RetrievePropertiesResponse')
-            RPResponse.set('xmlns', "urn:vim25")
-            ReturnVal = SE(RPResponse, "returnval")
-            OType = SE(ReturnVal, 'obj')
-            OType.set('type', "VirtualMachine")
-            OType.text = vm
-            PropSet = SE(ReturnVal, 'propSet')
-            PName = SE(PropSet, 'name')
-            PName.text = 'datastore'
-            PVal = SE(PropSet, 'val')
-            PVal.set('xsi:type', "ArrayOfManagedObjectReference")
+            X = self.get_soap_properties_response('vm', propset_type, requested, 'datastore', 'Datastore') 
+            fdata = TS(X).decode("utf-8")
 
-            for ds in INVENTORY['vms'][vm]['datastores']:
-                MO = E('ManagedObjectReference')
-                MO.set('type', 'Datastore')
-                MO.set('xsi:type', 'ManagedObjectReference')
-                MO.text = ds
-                PVal.append(MO)
+        elif propset_type == 'VirtualMachine' and propset_path == 'network':
 
+            X = self.get_soap_properties_response('vm', propset_type, requested, 'network', 'Network') 
+            fdata = TS(X).decode("utf-8")
+
+        elif propset_type == 'VirtualMachine' and propset_path == 'resourcePool':
+
+            X = self.get_soap_properties_response('vm', propset_type, requested, 'resourcePool', 'ResourcePool') 
             fdata = TS(X).decode("utf-8")
 
 
@@ -778,6 +792,82 @@ class VCenter(BaseHTTPRequestHandler):
         return X
 
           
+    def get_soap_properties_response(self, okey, otype, oval, prop, propname):
+        # okey = datacenter/host/vm/network/etc
+        # otype = HostSystem/VirtualMachine/Datastore/Network
+        # oval = vm-x, datstore-x, network-x, etc-x
+        # prop = name/datastore/network/vms/etc
+        # propname = HostSystem/VirtualMachine/Datastore/Network
+
+
+        X = self._get_soap_element()
+        Body = SE(X, 'soapenv:Body')
+        RPResponse = SE(Body, 'RetrievePropertiesResponse')
+        RPResponse.set('xmlns', "urn:vim25")
+
+        # Extract the desired data
+        try:
+            print("INVENTORY['%s']['%s']['%s']" % (okey, oval, prop))
+            rdata = INVENTORY['%s' % okey][oval]['%s' % prop]
+        except Exception as e:
+            pass
+
+        this_rval = E("returnval")
+        this_obj = SE(this_rval, 'obj')
+        this_obj.set('type', otype)
+        this_obj.text = okey
+        this_propset = SE(this_rval, 'propSet')
+        this_name = SE(this_propset, 'name')
+        this_name.text = prop
+
+        this_val = SE(this_propset, 'val')
+
+        if propname == 'VirtualMachineSummary':
+            this_val.set('xsi:type', 'VirtualMachineSummary')
+            this_vm = SE(this_val, 'vm')
+            this_vm.set('type', 'VirtualMachine')
+            this_vm.text = oval
+            this_runtime = SE(this_val, 'runtime')
+            this_guest = SE(this_val, 'guest')
+            tools_status = SE(this_guest, 'toolsStatus')
+            tools_status.text = 'toolsNotInstalled'
+            tools_version_status = SE(this_guest, 'toolsVersionStatus')
+            tools_version_status.text = 'guestToolsNotInstalled'
+            tools_running_status = SE(this_guest, 'toolsRunningStatus')
+            tools_running_status.text = 'guestToolsNotRunning'
+
+            this_config = SE(this_val, 'config')
+            this_storage = SE(this_val, 'storage')
+            this_stats = SE(this_val, 'quickStats')
+            this_status = SE(this_val, 'overallStatus')
+            this_status.text = 'green'
+
+
+        elif propname == 'GuestInfo':
+            this_val.set('xsi:type', 'GuestInfo')
+            tools_status = SE(this_val, 'toolsStatus')
+            tools_status.text = 'toolsNotInstalled'
+            tools_version_status = SE(this_val, 'toolsVersionStatus')
+            tools_version_status.text = 'guestToolsNotInstalled'
+            tools_running_status = SE(this_val, 'toolsRunningStatus')
+            tools_running_status.text = 'guestToolsNotRunning'
+            tools_version = SE(this_val, 'toolsVersion')
+            tools_version.text = '0'
+            guest_state = SE(this_val, 'guestState')
+            guest_state.text = 'notRunning'
+
+        else:
+            this_val.set('xsi:type', 'ArrayOfManagedObjectReference')
+            for x in rdata:
+                MO = E('ManagedObjectReference')
+                MO.set('type', propname)
+                MO.set('xsi:type', 'ManagedObjectReference')
+                MO.text = x
+                this_val.append(MO)
+
+        RPResponse.append(this_rval)
+        return X
+
 
 
 def xml2dict(data):
