@@ -38,18 +38,43 @@ INVENTORY = {
              'hosts':{
                         'host-28': {
                                    'name': '10.10.10.1',
-                                   'vms': ['vm-1', 'vm-2']
+                                   'vms': ['vm-1', 'vm-2'],
+                                   'datastores': ['datastore-0']
                                   },
                         'host-29': {
                                    'name': '10.10.10.2',
-                                   'vms': ['vm-3', 'vm-4']
+                                   'vms': ['vm-3', 'vm-4'],
+                                   'datastores': ['datastore-1']
                                   }
 
                      }, 
-             'vms': {'vm-1': {'name': "testvm1"},
-                     'vm-2': {'name': "testvm2"},
-                     'vm-3': {'name': "testvm3"},
-                     'vm-4': {'name': "testvm4"}}
+             'datastores': {
+                    'datastore-0': {'name': "data store 0"},
+                    'datastore-1': {'name': "data store 1"},
+             },
+             'networks': {
+                    'network-0': {
+                        'name': 'VM Network'
+                    }
+             }
+             'vms': {'vm-1': {
+                        'name': "testvm1",
+                        'datastores': ["datastore-0"]
+                     },
+                     'vm-2': {
+                        'name': "testvm2",
+                        'datastores': ["datastore-0"]
+                     },
+                     'vm-3': {
+                        'name': "testvm3",
+                        'datastores': ["datastore-1"]
+                     },
+                     'vm-4': {
+                        'name': "testvm4",
+                        'datastores': ["datastore-1"]
+                     }
+                    }
+                
             }
 
 
@@ -232,11 +257,23 @@ class VCenter(BaseHTTPRequestHandler):
 
         # sometimes the caller wants a list of hosts ...
         requested = None
+        select_path = None
         propset_path = None
         propset_type = None
         try:
             requested = query.get('Body').get('RetrieveProperties').get('specSet').get('objectSet').get('obj')
+        except:
+            pass
+        try:
+            select_path = query.get('Body').get('RetrieveProperties').get('specSet')\
+                               .get('objectSet').get('selectSet').get('path')
+        except:
+            pass
+        try:
             propset_path = query.get('Body').get('RetrieveProperties').get('specSet').get('propSet').get('pathSet')
+        except:
+            pass
+        try:
             propset_type = query.get('Body').get('RetrieveProperties').get('specSet').get('propSet').get('type')
         except:
             pass
@@ -246,37 +283,119 @@ class VCenter(BaseHTTPRequestHandler):
         print('retrieveproperties type: %s' % propset_type)
 
 
-        if requested == 'group-d1':
+        if 'TraversalSpec' in postdata:
+            print("# TRAVERSALSPEC ...")
+            # https://www.vmware.com/support/developer/vc-sdk/visdk2xpubs/ReferenceGuide/vmodl.query.PropertyCollector.TraversalSpec.html
+            #root = ET.fromstring(postdata)
+            #body = root[1]
+            #rprops = body.getchildren()
+            #import pdb; pdb.set_trace()
+
+            # Just return a list of HostSystems with VM properties?
+            X = self._get_soap_element()
+            Body = SE(X, 'soapenv:Body')
+            RPResponse = SE(Body, 'RetrievePropertiesResponse')
+            RPResponse.set('xmlns', "urn:vim25")
+
+            for k,v in INVENTORY['hosts'].items():
+
+                this_rval = E("returnval")
+                this_obj = SE(this_rval, 'obj')
+                this_obj.set('type', 'HostSystem')
+                this_obj.text = k
+                this_propset = SE(this_rval, 'propSet')
+                this_name = SE(this_propset, 'name')
+                this_name.text = 'name'
+                this_val = SE(this_propset, 'val')
+                this_val.set('xsi:type', 'ArrayOfManagedObjectReference')
+
+                for vm in v['vms']:
+                    MO = E('ManagedObjectReference')
+                    MO.set('type', 'VirtualMachine')
+                    MO.set('xsi:type', 'ManagedObjectReference')
+                    MO.text = vm
+                    this_val.append(MO)
+
+                RPResponse.append(this_rval)
+
+            fdata = TS(X).decode("utf-8")
+                   
+
+
+        elif requested == 'group-d1':
             # This is a request for the known datacenters
             print("# DATACENTERS ...")
             if propset_type == 'HostSystem' and propset_path == 'name':
+
+                # FIXME - is this asking for a list of VMs or hostsystems?
+                # What host's VMs does it want?
+
+                print("# DATACENTERS :: HOSTSYSTEM :: NAME ...")
+
+                X = self._get_soap_element()
+                Body = SE(X, 'soapenv:Body')
+                RPResponse = SE(Body, 'RetrievePropertiesResponse')
+                RPResponse.set('xmlns', "urn:vim25")
+                ReturnVal = SE(RPResponse, "returnval")
+
+
+                if select_path == 'vm':
+                    # This req wants a list of VMs for a the given host (whch host?)
+                    import pdb; pdb.set_trace()
+
+                else:
+
+                    OType = SE(ReturnVal, 'obj')
+                    OType.set('type', "HostSystem")
+                    OType.text = 'group-d1'
+                    PropSet = SE(ReturnVal, 'propSet')
+                    PName = SE(PropSet, 'name')
+                    PName.text = 'name'
+                    PVal = SE(PropSet, 'val')
+                    PVal.set('xsi:type', "xsd:ArrayOfManagedObjectReference")
+
+                    for k,v in INVENTORY['datacenters'].items():
+                        MO = E('ManagedObjectReference')
+                        MO.set('type', 'Datacenter')
+                        MO.set('xsi:type', 'ManagedObjectReference')
+                        MO.text = k
+                        PVal.append(MO)
+
+                # Make into string 
+                fdata = TS(X).decode("utf-8")
+
+
+            elif propset_type == 'HostSystem' and propset_path == 'vm':
+
+                print("# DATACENTERS :: HOSTSYSTEM :: VM ...")
+
                 X = self._get_soap_element()
                 Body = SE(X, 'soapenv:Body')
                 RPResponse = SE(Body, 'RetrievePropertiesResponse')
                 RPResponse.set('xmlns', "urn:vim25")
 
-                ReturnVal = SE(RPResponse, "returnval")
+                for k,v in INVENTORY['hosts'].items():
 
-                OType = SE(ReturnVal, 'obj')
-                OType.set('type', "HostSystem")
-                OType.text = 'group-d1'
-                PropSet = SE(ReturnVal, 'propSet')
-                PName = SE(PropSet, 'name')
-                PName.text = 'name'
-                PVal = SE(PropSet, 'val')
-                PVal.set('xsi:type', "xsd:ArrayOfManagedObjectReference")
-
-                for k,v in INVENTORY['datacenters'].items():
-                    MO = E('ManagedObjectReference')
-                    MO.set('type', 'Datacenter')
-                    MO.set('xsi:type', 'ManagedObjectReference')
-                    MO.text = k
-                    PVal.append(MO)
+                    ReturnVal = E("returnval")
+                    OType = SE(ReturnVal, 'obj')
+                    OType.set('type', "HostSystem")
+                    OType.text = k
+                    PropSet = SE(ReturnVal, 'propSet')
+                    PName = SE(PropSet, 'name')
+                    PName.text = 'name'
+                    PVal = SE(PropSet, 'val')
+                    PVal.set('xsi:type', "xsd:string")
+                    PVal.text = v['name']
+                    RPResponse.append(ReturnVal)
 
                 # Make into string 
                 fdata = TS(X).decode("utf-8")
 
+
             elif propset_type == 'Folder' and propset_path == 'name':
+
+                print("# DATACENTERS :: FOLDER :: NAME ...")
+
                 print("# ROOT Folder ...")
                 X = self._get_soap_element()
                 Body = SE(X, 'soapenv:Body')
@@ -325,6 +444,8 @@ class VCenter(BaseHTTPRequestHandler):
 
             else:
                 import pdb; pdb.set_trace()
+
+
 
         elif propset_type == 'ServiceInstance' and propset_path == 'content':
 
@@ -420,6 +541,60 @@ class VCenter(BaseHTTPRequestHandler):
             PVal.text = INVENTORY['vms'][vm]['name']
 
             # Make into string 
+            fdata = TS(X).decode("utf-8")
+
+        elif propset_type == 'VirtualMachine' and propset_path == 'datastore':
+
+            # need to return the name of the object        
+            print("# MAKING DATASTORE PROP FOR VM:%s" % requested)
+            vm = requested
+            X = self._get_soap_element()
+            Body = SE(X, 'soapenv:Body')
+            RPResponse = SE(Body, 'RetrievePropertiesResponse')
+            RPResponse.set('xmlns', "urn:vim25")
+            ReturnVal = SE(RPResponse, "returnval")
+            OType = SE(ReturnVal, 'obj')
+            OType.set('type', "VirtualMachine")
+            OType.text = vm
+            PropSet = SE(ReturnVal, 'propSet')
+            PName = SE(PropSet, 'name')
+            PName.text = 'datastore'
+            PVal = SE(PropSet, 'val')
+            PVal.set('xsi:type', "ArrayOfManagedObjectReference")
+
+            for ds in INVENTORY['vms'][vm]['datastores']:
+                MO = E('ManagedObjectReference')
+                MO.set('type', 'Datastore')
+                MO.set('xsi:type', 'ManagedObjectReference')
+                MO.text = ds
+                PVal.append(MO)
+
+            fdata = TS(X).decode("utf-8")
+
+
+        elif requested.startswith('host-'):
+            # return the list of VMs for the host
+            print("# HOST: %s" % requested)
+            X = self._get_soap_element()
+            Body = SE(X, 'soapenv:Body')
+            RPResponse = SE(Body, 'RetrievePropertiesResponse')
+            RPResponse.set('xmlns', "urn:vim25")
+
+            for vm in INVENTORY['hosts'][requested]['vms']:
+
+                this_rval = E("returnval")
+                this_obj = SE(this_rval, 'obj')
+                this_obj.set('type', 'VirtualMachine')
+                this_obj.text = vm
+                this_propset = SE(this_rval, 'propSet')
+                this_name = SE(this_propset, 'name')
+                this_name.text = 'name'
+                this_val = SE(this_propset, 'val')
+                this_val.set('xsi:type', 'xsd:string')
+                this_val.text = INVENTORY['vms'][vm]['name']
+
+                RPResponse.append(this_rval)
+
             fdata = TS(X).decode("utf-8")
 
         else:
