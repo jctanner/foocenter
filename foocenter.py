@@ -24,21 +24,44 @@ PASSWORD = 'test'
 PORT = 443
 
 INVENTORY = {
-             'datacenters': {'datacenter1': {}}, 
+             'datacenters': {
+                              'datacenter-1': {
+                                'name': "DC1",
+                                'hosts': ['host-28']
+                              },
+                              'datacenter-2': {
+                                'name': "DC2",
+                                'hosts': ['host-29']
+                              }
+                            }, 
              'clusters': {}, 
              'hosts':{
                         'host-28': {
                                    'name': '10.10.10.1',
                                    'vms': ['vm-1', 'vm-2']
+                                  },
+                        'host-29': {
+                                   'name': '10.10.10.2',
+                                   'vms': ['vm-3', 'vm-4']
                                   }
+
                      }, 
              'vms': {'vm-1': {'name': "testvm1"},
-                     'vm-2': {'name': "testvm2"}}
+                     'vm-2': {'name': "testvm2"},
+                     'vm-3': {'name': "testvm3"},
+                     'vm-4': {'name': "testvm4"}}
             }
 
 
+#############################################
+#               REFERENCES                  #
+#############################################
 
+# http://velemental.com/2012/03/09/a-deep-dive-doing-it-the-manual-way-with-vmware-vim-and-powershell/
 # https://github.com/vmware/pyvmomi/blob/master/tests/fixtures/basic_connection.yaml
+
+
+
 class VCenter(BaseHTTPRequestHandler):
 
     def do_GET(self):
@@ -222,7 +245,97 @@ class VCenter(BaseHTTPRequestHandler):
         print('retrieveproperties path: %s' % propset_path)
         print('retrieveproperties type: %s' % propset_type)
 
-        if propset_type == 'HostSystem' and propset_path == 'vm':
+
+        if requested == 'group-d1':
+            # This is a request for the known datacenters
+            print("# DATACENTERS ...")
+            if propset_type == 'HostSystem' and propset_path == 'name':
+                X = self._get_soap_element()
+                Body = SE(X, 'soapenv:Body')
+                RPResponse = SE(Body, 'RetrievePropertiesResponse')
+                RPResponse.set('xmlns', "urn:vim25")
+
+                ReturnVal = SE(RPResponse, "returnval")
+
+                OType = SE(ReturnVal, 'obj')
+                OType.set('type', "HostSystem")
+                OType.text = 'group-d1'
+                PropSet = SE(ReturnVal, 'propSet')
+                PName = SE(PropSet, 'name')
+                PName.text = 'name'
+                PVal = SE(PropSet, 'val')
+                PVal.set('xsi:type', "xsd:ArrayOfManagedObjectReference")
+
+                for k,v in INVENTORY['datacenters'].items():
+                    MO = E('ManagedObjectReference')
+                    MO.set('type', 'Datacenter')
+                    MO.set('xsi:type', 'ManagedObjectReference')
+                    MO.text = k
+                    PVal.append(MO)
+
+                # Make into string 
+                fdata = TS(X).decode("utf-8")
+
+            elif propset_type == 'Folder' and propset_path == 'name':
+                print("# ROOT Folder ...")
+                X = self._get_soap_element()
+                Body = SE(X, 'soapenv:Body')
+                RPResponse = SE(Body, 'RetrievePropertiesResponse')
+                RPResponse.set('xmlns', "urn:vim25")
+                ReturnVal = SE(RPResponse, "returnval")
+                OType = SE(ReturnVal, 'obj')
+                OType.set('type', "Folder")
+                OType.text = 'group-d1'
+                PropSet = SE(ReturnVal, 'propSet')
+                PName = SE(PropSet, 'name')
+                PName.text = 'name'
+                PVal = SE(PropSet, 'val')
+                PVal.set('xsi:type', "xsd:string")
+                PVal.text = 'Datacenters'
+
+                # Make into string 
+                fdata = TS(X).decode("utf-8")
+
+            elif propset_type == 'Datacenter' and propset_path == 'name':
+
+                print("# ROOT Folder ...")
+                X = self._get_soap_element()
+                Body = SE(X, 'soapenv:Body')
+                RPResponse = SE(Body, 'RetrievePropertiesResponse')
+                RPResponse.set('xmlns', "urn:vim25")
+
+                for k,v in INVENTORY['datacenters'].items():
+
+                    ReturnVal = E("returnval")
+                    OType = SE(ReturnVal, 'obj')
+                    OType.set('type', "Datacenter")
+                    OType.text = k
+                    PropSet = SE(ReturnVal, 'propSet')
+                    PName = SE(PropSet, 'name')
+                    PName.text = 'name'
+                    PVal = SE(PropSet, 'val')
+                    PVal.set('xsi:type', "xsd:string")
+                    PVal.text = v['name']
+
+                    RPResponse.append(ReturnVal)
+
+                # Make into string 
+                fdata = TS(X).decode("utf-8")
+
+
+            else:
+                import pdb; pdb.set_trace()
+
+        elif propset_type == 'ServiceInstance' and propset_path == 'content':
+
+            print("# (1) USING DEFAULT PROPERTIES RESP")
+            #f = open('fixtures/vc550_RetrievePropertiesResponse.xml', 'r')
+            #f = open('fixtures/vc550_RetrieveServiceContentResponse.xml.bak', 'r')
+            f = open('fixtures/vc550_RetrievePropertiesResponse_ServiceInstance_ServiceContent.xml', 'r')
+            fdata = f.read()
+            f.close()
+
+        elif propset_type == 'HostSystem' and propset_path == 'vm':
             # make list of VMs for the host
             host = requested
             print("# MAKING HOST W/ VMLIST")
@@ -256,10 +369,36 @@ class VCenter(BaseHTTPRequestHandler):
             # Make into string
             fdata = TS(X).decode("utf-8")
 
+        elif propset_type == 'HostSystem' and propset_path == 'name':
+            print("# MAKING NAME PROP FOR HOST:%s" % requested)
+            host = requested
+            X = self._get_soap_element()
+            Body = SE(X, 'soapenv:Body')
+            RPResponse = SE(Body, 'RetrievePropertiesResponse')
+            RPResponse.set('xmlns', "urn:vim25")
+
+            ReturnVal = SE(RPResponse, "returnval")
+
+            OType = SE(ReturnVal, 'obj')
+            OType.set('type', "HostSystem")
+            OType.text = host
+
+            PropSet = SE(ReturnVal, 'propSet')
+
+            PName = SE(PropSet, 'name')
+            PName.text = 'name'
+            PVal = SE(PropSet, 'val')
+            PVal.set('xsi:type', "xsd:string")
+            PVal.text = INVENTORY['hosts'][host]['name']
+
+            # Make into string 
+            fdata = TS(X).decode("utf-8")
+
+
         elif propset_type == 'VirtualMachine' and propset_path == 'name':
 
             # need to return the name of the object        
-            print("# MAKING NAME PROP FOR %s" % requested)
+            print("# MAKING NAME PROP FOR VM:%s" % requested)
             vm = requested
             X = self._get_soap_element()
             Body = SE(X, 'soapenv:Body')
