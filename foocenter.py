@@ -96,15 +96,23 @@ INVENTORY = {
 
 # Properties for a VirtualMachine Object ...
 VM_EX_PROPS = ['alarmActionsEnabled', 'availableField', 'capability', 'config', 'configIssue', 'configStatus',
-               'customValue', 'datastore', 'effectiveRole', 'guest', 'guestHeartbeatStatus', 'layout',
-               'layoutEx', 'name', 'network', 'overallStatus', 'parent', 'parentVapp', 'permission',
+               'customValue', 'datastore', 'effectiveRole', 'environmentBrowser', 'guest', 'guestHeartbeatStatus', 
+               'layout', 'layoutEx', 'name', 'network', 'overallStatus', 'parent', 'parentVApp', 'permission',
                'recentTask', 'resourceConfig', 'resourcePool', 'rootSnapshot', 'runtime', 'snapshot',
-               'storage', 'summary', 'tag', 'triggeredAlarmState']
+               'storage', 'summary', 'tag', 'triggeredAlarmState', 'value']
 
 # Properties for a VirtualMachine.guest Object ...
-VM_EX_GUEST_PROPS = ['toolsStatus', 'toolsVersionStatus', 'toolsVersionStatus2', 'toolsRunningStatus',
-                     'toolsVersion', 'screen', 'guestState', 'appHeartbeatStatus', 'appState',
-                     'guestOperationsReady', 'interactiveGuestOperationsReady']
+VM_EX_GUEST_PROPS = [('toolsStatus', 'toolsNotInstalled'), 
+                     ('toolsVersionStatus', 'guestToolsNotInstalled'), 
+                     ('toolsVersionStatus2', 'guestToolsNotInstalled'), 
+                     ('toolsRunningStatus', 'guestToolsNotRunning'),
+                     ('toolsVersion', '0'), 
+                     ('screen', None), 
+                     ('guestState', 'notRunning'),
+                     ('appHeartbeatStatus', 'appStatusGray'), 
+                     ('appState', 'none'),
+                     ('guestOperationsReady', 'false'),
+                     ('interactiveGuestOperationsReady', 'false')]
 
 #############################################
 #               REFERENCES                  #
@@ -189,11 +197,12 @@ class VCenter(BaseHTTPRequestHandler):
 
 
         # pretty print the response
-        rxml = xml.dom.minidom.parseString(resp)
-        pxml = rxml.toprettyxml()
-        lines = [x for x in pxml.split('\n') if x.strip()]
-        for line in lines:
-            print(line)
+        splitxml(resp)
+        #rxml = xml.dom.minidom.parseString(resp)
+        #pxml = rxml.toprettyxml()
+        #lines = [x for x in pxml.split('\n') if x.strip()]
+        #for line in lines:
+        #    print(line)
 
         print("# RESP TYPE: %s" % type(resp))
 
@@ -1024,15 +1033,77 @@ class VCenter(BaseHTTPRequestHandler):
             this_val.set('xsi:type', 'ArrayOfCustomFieldDef')
 
         elif propname == 'guest':
+
+            print("###########################")
+            print("#         GUEST           #")
+            print("###########################")
+
+            X = None
+            Body = None
+            RPResponse = None
+            this_rval = None
+            this_objects = None
+            this_obj = None
+            this_propset = None
+            this_name = None
+            this_val = None
+
+            print("## 1")
+            X = self._get_soap_element()
+            splitxml(X)
+            Body = SE(X, 'soapenv:Body')
+            splitxml(X)
+
+            print("## 2")
+            RPResponse = SE(Body, responsetype)
+            RPResponse.set('xmlns', "urn:vim25")
+            splitxml(X)
+
+            print("## 3")
+            this_rval = SE(RPResponse, 'returnval')
+            splitxml(X)
+
+            print("## 4")
+            this_objects = SE(this_rval, 'objects')
+            splitxml(X)
+
+            print("## 5")
+            this_obj = SE(this_objects, 'obj')
+            splitxml(X)
+
+            print("## 6")
+            this_obj.set('type', 'VirtualMachine')
             this_obj.text = oval
+            splitxml(X)
+
+            print("## 7")
+            this_propset = SE(this_objects, 'propSet')
+            splitxml(X)
+
+            print("## 8")
+            this_name = SE(this_propset, 'name')
+            this_name.text = 'guest'
+            splitxml(X)
+
+            print("## 9")
+            this_val = SE(this_propset, 'val')
             this_val.set('xsi:type', 'GuestInfo')
+            splitxml(X)
+
             for x in VM_EX_GUEST_PROPS:
-                y = E(x)
+                y = E(x[0])
+                if x[1] != None:
+                    y.text = x[1]
                 this_val.append(y)
+
+            print("## 10")
+            splitxml(X)
+            return X
+            #import pdb; pdb.set_trace()
 
         elif responsetype == 'RetrievePropertiesExResponse':
             print("# EXRESPONSE FOR %s NOT YET IMPLEMENTED !!!" % propname)
-            import pdb; pdb.set_trace()
+            #import pdb; pdb.set_trace()
 
         elif type(rdata) in [str,bytes]:
 
@@ -1063,9 +1134,19 @@ class VCenter(BaseHTTPRequestHandler):
         #if propname.lower() == 'resourcepool':
         #    import pdb; pdb.set_trace()
 
-
         RPResponse.append(this_rval)
         return X
+
+def splitxml(xmlobj):
+    if type(xmlobj) in [str, bytes]:
+        rxml = xml.dom.minidom.parseString(xmlobj)
+    else:
+        rxml = xml.dom.minidom.parseString(TS(xmlobj).decode("utf-8"))
+    pxml = rxml.toprettyxml()
+    lines = [x for x in pxml.split('\n') if x.strip()]
+    for line in lines:
+        print(line)
+
 
 def oneup(text):
     '''Capitalize the first letter of a string'''
