@@ -31,8 +31,8 @@ from collections import OrderedDict
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pprint import pprint
 
-USERNAME = 'test'
-PASSWORD = 'test'
+USERNAME = 'root'
+PASSWORD = 'vmware'
 PORT = 443
 
 INVENTORY = {
@@ -239,7 +239,7 @@ class VCenter(BaseHTTPRequestHandler):
 
 
         # pretty print the response
-        #splitxml(resp)
+        splitxml(resp)
         #print("# RESP TYPE: %s" % type(resp))
 
         self.send_response(rc)
@@ -349,7 +349,7 @@ class VCenter(BaseHTTPRequestHandler):
         f.close()
         '''
 
-        splitxml(fdata)
+        #splitxml(fdata)
 
         return fdata
 
@@ -859,7 +859,7 @@ class VCenter(BaseHTTPRequestHandler):
                 propSet_val.append(MO)
 
             fdata = TS(X).decode("utf-8")
-            splitxml(fdata)
+            #splitxml(fdata)
             return fdata
 
 
@@ -867,7 +867,6 @@ class VCenter(BaseHTTPRequestHandler):
         elif not requested.startswith('vm-'):
 
             # FIXME ... we need to figure out what the requestor actually wants.
-
             '''
             print('#############################')
             print('REQUEST: %s name (ALLVMS)' % requested)
@@ -1231,10 +1230,34 @@ class VCenter(BaseHTTPRequestHandler):
 
         elif responsetype == 'RetrievePropertiesExResponse':
 
-            ## FIXME FIXME FIXME
-            #print("# EXRESPONSE FOR %s NOT YET IMPLEMENTED !!!" % propname)
-            #import pdb; pdb.set_trace()
-            pass
+            # This is probably asking for an attribute of a single object (such as a vm)
+            if okey != 'vm':
+                print("# EXRESPONSE FOR %s,%s,%s NOT YET IMPLEMENTED !!!" % (okey,oval,propname))
+                import pdb; pdb.set_trace()
+            else:
+                # name, type, etc ...
+                data = INVENTORY[okey][oval].get(propname, None)
+
+                X = self._get_soap_element()
+                Body = SE(X, 'soapenv:Body')
+                RPResponse = SE(Body, responsetype)
+                RPResponse.set('xmlns', "urn:vim25")
+                this_rval = SE(RPResponse, 'returnval')
+                this_objects = SE(this_rval, 'objects')
+                this_obj = SE(this_objects, 'obj')
+                this_obj.set('type', 'VirtualMachine')
+                this_obj.text = oval
+                this_propset = SE(this_objects, 'propSet')
+                this_name = SE(this_propset, 'name')
+                this_name.text = propname
+                this_val = SE(this_propset, 'val')
+
+                # make the string based result ...
+                this_val.set('xsi:type', 'xsd:string')
+                this_val.text = data
+
+                #import pdb; pdb.set_trace()
+                return X                
 
         elif type(rdata) in [str,bytes]:
 
