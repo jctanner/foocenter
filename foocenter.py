@@ -1,15 +1,27 @@
 #!/usr/bin/env python3.5
 
+#############################################
+#               REFERENCES                  #
+#############################################
+
+# http://velemental.com/2012/03/09/a-deep-dive-doing-it-the-manual-way-with-vmware-vim-and-powershell/
+# https://github.com/vmware/pyvmomi/blob/master/tests/fixtures/basic_connection.yaml
+
+
+#############################################
+#                 SSLCERT                   #
+#############################################
+
 # mkdir keys
 # cd keys
 # openssl genrsa -des3 -out server.key 1024
 # openssl req -new -key server.key -out server.csr
 # openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
-
 # openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout mycert.pem -out mycert.pem
 
 import ssl
 import subprocess
+import uuid
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element as E
 from xml.etree.ElementTree import SubElement as SE
@@ -122,7 +134,6 @@ for x in range(0, TOTAL_VMS + 1):
     if xhost > TOTAL_HOSTS:
         xhost = 0
 
-#import pdb; pdb.set_trace()
 
 # Properties for a VirtualMachine Object ...
 VM_EX_PROPS = ['alarmActionsEnabled', 'availableField', 'capability', 'config', 'configIssue', 'configStatus',
@@ -144,12 +155,13 @@ VM_EX_GUEST_PROPS = [('toolsStatus', 'toolsNotInstalled'),
                      ('guestOperationsReady', 'false'),
                      ('interactiveGuestOperationsReady', 'false')]
 
+
 #############################################
-#               REFERENCES                  #
+#            CLIENT SESSIONS                #
 #############################################
 
-# http://velemental.com/2012/03/09/a-deep-dive-doing-it-the-manual-way-with-vmware-vim-and-powershell/
-# https://github.com/vmware/pyvmomi/blob/master/tests/fixtures/basic_connection.yaml
+VIEWMANAGERS = {}
+CONTAINERVIEWS = {}
 
 
 
@@ -201,9 +213,9 @@ class VCenter(BaseHTTPRequestHandler):
         #print(postdata)
         query = xml2dict(postdata)
 
-        #print("# QUERY START")
-        #pprint(query)
-        #print("# QUERY END")
+        print("# QUERY START")
+        pprint(query)
+        print("# QUERY END")
 
         rc = 200 #http returncode
 
@@ -299,9 +311,46 @@ class VCenter(BaseHTTPRequestHandler):
 
 
     def CreateContainerView(self, postdata, query):
+
+        # A container view is a request for some type of object
+        # The response should be a session number which the
+        # client will later request the results for.
+
+        global CONTAINERVIEWS
+
+        # What is the sessionid going to be?
+        #   session[0bc77834-77fc-7422-e2cd-81d4e5127926]52ef3fa7-892d-d0c0-d12d-7f16d61aa6e2
+        sessionid = uuid.uuid4()
+        sessionid2 = uuid.uuid4()
+        sessionid = 'session[' + str(sessionid) + ']' + str(sessionid2)
+
+        # What does the requester want?
+        qobject = query.get('Body').get('CreateContainerView').get('container')
+        qtype = query.get('Body').get('CreateContainerView').get('type')
+
+        # Store this for future reference ...
+        CONTAINERVIEWS[sessionid] = {'container': qobject, 'type': qtype}
+        #import pdb; pdb.set_trace()
+
+        # Build the SOAP response ...
+        X = self._get_soap_element()
+        Body = SE(X, 'soapenv:Body')
+        CreateContainerViewResponse = SE(Body, 'CreateContainerViewResponse')
+        CreateContainerViewResponse.set('xmlns', 'urn:vim25')
+        returnval = SE(CreateContainerViewResponse, 'returnval')
+        returnval.set('type', 'ContainerView')
+        returnval.text = sessionid
+
+        fdata = TS(X).decode("utf-8")
+
+        '''
         f = open('fixtures/vc550_CreateContainerViewResponse.xml', 'r')
         fdata = f.read()
         f.close()
+        '''
+
+        splitxml(fdata)
+
         return fdata
 
 
@@ -760,7 +809,64 @@ class VCenter(BaseHTTPRequestHandler):
         # session[0bc77834-77fc-7422-e2cd-81d4e5127926]52ef3fa7-892d-d0c0-d12d-7f16d61aa6e2 --> vmlist
         # vm-1 --> a VM
 
-        if not requested.startswith('vm-'):
+        if requested.startswith('session['):
+
+            type_map = {'HostSystem': 'hosts',
+                        'VirtualMachine': 'vm'}
+
+
+            # Get the container's properties ...
+            cview = CONTAINERVIEWS[requested]
+
+            # What level of the inventory should this start at?
+            root = None
+            if cview['container'] == 'group-d1':
+                root = INVENTORY
+            else:
+                print("# What is %s ?" % cview['container'])                
+                import pdb; pdb.set_trace()
+
+            # What element of the root does the request want?
+            key = None
+            if cview['type'] in type_map:
+                key = type_map[cview['type']]
+            else:
+                print("# What is %s ?" % cview['type'])                
+                import pdb; pdb.set_trace()
+
+            # Build the SOAP
+            X = self._get_soap_element()
+            Body = SE(X, 'soapenv:Body')
+            RPResponse = SE(Body, 'RetrievePropertiesExResponse')
+            RPResponse.set('xmlns', "urn:vim25")
+            returnval = SE(RPResponse, 'returnval')
+            objects = SE(returnval, 'objects')
+            obj = SE(objects, 'obj')
+            obj.set('type', 'ContainerView')
+            obj.text = requested
+            propSet = SE(objects, 'propSet')
+            propSet_name = SE(propSet, 'name')
+            propSet_name.text = 'view'
+            propSet_val = SE(propSet, 'val')
+            propSet_val.set('xsi:type', 'ArrayOfManagedObjectReference')
+
+            # Add all the results ...
+            for k,v in root[key].items():
+                MO = E('ManagedObjectReference')
+                MO.set('type', cview['type'])
+                MO.set('xsi:type', 'ManagedObjectReference')
+                MO.text = k
+                propSet_val.append(MO)
+
+            fdata = TS(X).decode("utf-8")
+            splitxml(fdata)
+            return fdata
+
+
+
+        elif not requested.startswith('vm-'):
+
+            # FIXME ... we need to figure out what the requestor actually wants.
 
             '''
             print('#############################')
