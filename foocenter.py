@@ -76,7 +76,7 @@ INVENTORY = {
              },
              'vm': {
                      'vm-1': {
-                        '_meta': {'guestState': 'running', 'ipAddress': '10.0.0.101'},
+                        '_meta': {'guestState': 'running', 'ipAddress': '10.0.0.101', 'uuid': '421061cd-ae1b-a90a-9c2b-05a2df878851'},
                         'name': "testvm1",
                         'guest': {},
                         'network': ['network-0'],
@@ -84,7 +84,7 @@ INVENTORY = {
                         'datastore': ["datastore-0"]
                      },
                      'vm-2': {
-                        '_meta': {'guestState': 'running', 'ipAddress': '10.0.0.102'},
+                        '_meta': {'guestState': 'running', 'ipAddress': '10.0.0.102', 'uuid': '421061cd-ae1b-a90a-9c2b-05a2df878852'},
                         'name': "testvm2",
                         'guest': {},
                         'network': ['network-0'],
@@ -92,7 +92,7 @@ INVENTORY = {
                         'datastore': ["datastore-0"]
                      },
                      'vm-3': {
-                        '_meta': {'guestState': 'running', 'ipAddress': '10.0.0.103'},
+                        '_meta': {'guestState': 'running', 'ipAddress': '10.0.0.103', 'uuid': '421061cd-ae1b-a90a-9c2b-05a2df878853'},
                         'name': "testvm3",
                         'guest': {},
                         'network': ['network-0'],
@@ -100,7 +100,7 @@ INVENTORY = {
                         'datastore': ["datastore-1"]
                      },
                      'vm-4': {
-                        '_meta': {'guestState': 'running', 'ipAddress': '10.0.0.104'},
+                        '_meta': {'guestState': 'running', 'ipAddress': '10.0.0.104', 'uuid': '421061cd-ae1b-a90a-9c2b-05a2df878854'},
                         'name': "testvm4",
                         'guest': {},
                         'network': ['network-0'],
@@ -130,6 +130,7 @@ for x in range(0, TOTAL_VMS + 1):
     thisip = '10.0.0.%s' % _ip
     INVENTORY['vm'][vkey] = {}
     INVENTORY['vm'][vkey]['_meta'] = {'guestState': 'running', 'ipAddress': thisip}
+    INVENTORY['vm'][vkey]['_meta']['uuid'] = str(uuid.uuid4())
     INVENTORY['vm'][vkey]['name'] = 'testvm%s' % x
     INVENTORY['vm'][vkey]['guest'] = {}
     INVENTORY['vm'][vkey]['network'] = ['network-0']
