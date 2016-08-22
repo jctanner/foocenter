@@ -109,7 +109,7 @@ INVENTORY = {
 ##########################
 # Build up the inventory
 ##########################
-TOTAL_HOSTS = 100
+TOTAL_HOSTS = 2
 for x in range(0, TOTAL_HOSTS + 1):
     hkey = 'host-%s' % x
     INVENTORY['hosts'][hkey] = {}
@@ -117,7 +117,7 @@ for x in range(0, TOTAL_HOSTS + 1):
     INVENTORY['hosts'][hkey]['vms'] = []
     INVENTORY['hosts'][hkey]['datastores'] = ['datastore-1']
 
-TOTAL_VMS = 2000
+TOTAL_VMS = 10
 xhost = 0
 for x in range(0, TOTAL_VMS + 1):
     vkey = 'vm-%s' % x
@@ -906,7 +906,11 @@ class VCenter(BaseHTTPRequestHandler):
                                                   propset_path, 
                                                   propset_path, 
                                                   responsetype='RetrievePropertiesExResponse')
-            fdata = TS(X).decode("utf-8")
+            try:
+                fdata = TS(X).decode("utf-8")
+            except Exception as e:
+                print(e)
+                import pdb; pdb.set_trace()
             return fdata
 
 
@@ -1009,6 +1013,8 @@ class VCenter(BaseHTTPRequestHandler):
         # prop = name/datastore/network/vms/etc
         # propname = HostSystem/VirtualMachine/Datastore/Network
 
+        #if prop.lower() == 'network' or propname.lower() == 'network':
+        #    import pdb; pdb.set_trace()
 
         X = self._get_soap_element()
         Body = SE(X, 'soapenv:Body')
@@ -1252,9 +1258,20 @@ class VCenter(BaseHTTPRequestHandler):
                 this_name.text = propname
                 this_val = SE(this_propset, 'val')
 
-                # make the string based result ...
-                this_val.set('xsi:type', 'xsd:string')
-                this_val.text = data
+                if type(rdata) != list:
+                    # make the string based result ...
+                    this_val.set('xsi:type', 'xsd:string')
+                    this_val.text = data
+                else:
+                    # make the list result type
+                    this_val.set('xsi:type', 'ArrayOfManagedObjectReference')
+                    for rd in rdata:
+                        MO = E('ManagedObjectReference')
+                        MO.set('type', oneup(propname))
+                        MO.set('xsi:type', 'ManagedObjectReference')
+                        MO.text = rd
+                        this_val.append(MO)
+                        #import pdb; pdb.set_trace()
 
                 #import pdb; pdb.set_trace()
                 return X                
