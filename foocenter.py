@@ -143,6 +143,10 @@ for x in range(0, TOTAL_VMS + 1):
         xhost = 0
 
 
+#############################################
+#                 GLOBALS                   #
+#############################################
+
 # Properties for a VirtualMachine Object ...
 VM_EX_PROPS = ['alarmActionsEnabled', 'availableField', 'capability', 'config', 'configIssue', 'configStatus',
                'customValue', 'datastore', 'effectiveRole', 'environmentBrowser', 'guest', 'guestHeartbeatStatus', 
@@ -157,9 +161,15 @@ VM_EX_GUEST_PROPS = [('toolsStatus', 'toolsNotInstalled'),
                      ('toolsRunningStatus', 'guestToolsNotRunning'),
                      ('toolsVersion', '0'), 
                      ('screen', None), 
+                     ('guestId', 'centos64Guest'),
+                     ('guestFamily', 'linuxGuest'),
+                     ('guestFullName', 'CentOS 4/5/6/7 (64-bit)'),
                      ('guestState', 'notRunning'),
+                     ('ipAddress', None),
+                     ('hostName', 'localhost.localdomain'),
                      ('appHeartbeatStatus', 'appStatusGray'), 
                      ('appState', 'none'),
+                     ('disk', []),
                      ('guestOperationsReady', 'false'),
                      ('interactiveGuestOperationsReady', 'false')]
 
@@ -1117,22 +1127,98 @@ class VCenter(BaseHTTPRequestHandler):
                 this_val.append(x)
 
         elif propname == 'config':
-            #import pdb; pdb.set_trace()
-            this_obj.text = oval #need the VM id here 
+            X = self._get_soap_element()
+            Body = SE(X, 'soapenv:Body')
+            RPResponse = SE(Body, responsetype)
+            RPResponse.set('xmlns', "urn:vim25")
+            this_rval = SE(RPResponse, 'returnval')
+            this_objects = SE(this_rval, 'objects')
+            this_obj = SE(this_objects, 'obj')
+            this_obj.set('type', 'VirtualMachine')
+            this_obj.text = oval
+            this_propset = SE(this_objects, 'propSet')
+            this_name = SE(this_propset, 'name')
+            this_name.text = 'config'
+
+            this_val = SE(this_propset, 'val')
             this_val.set('xsi:type', 'VirtualMachineConfigInfo')
+
             vm = INVENTORY['vm'][oval]
             ckeys = ['changeVersion', 'modified', 'name', 'guestFullName', 'version',
                      'uuid', 'instanceUuid', 'npivTemporaryDisabled', 'locationId', 'template',
                      'guestId', 'alternateGuestName', 'annotation', 'files', 'tools',
                      'flags', 'defaultPowerOps', 'hardware', 'cpuAllocation', 'memoryAllocation',
-                     'latencySensititivy', 'memoryHotAddEnabled', 'cpuHotAddEnabled', 'extraConfig',
+                     'latencySensitivity', 'memoryHotAddEnabled', 'cpuHotAddEnabled', 'extraConfig',
                      'swapPlacement', 'bootOptions', 'vAssertsEnabled', 'changeTrackingEnabled',
                      'firmware', 'maxMksConnections', 'guestAutoLockEnabled', 'memoryReservationLockedToMax',
                      'initialOverhead', 'nestedHVEnabled', 'vPMCEnabled', 'scheduledHardwareUpgradeInfo',
                      'vFlashCacheReservation']
             for ckey in ckeys:
                 x = E(ckey)
+                if ckey in vm:
+                    x.text = vm[ckey]
+                elif ckey in vm['_meta']:
+                    x.text = vm['_meta'][ckey]
+                elif ckey == 'modified':
+                    x.text = '1970-01-01T00:00:00Z'
+                elif ckey == 'version':
+                    x.text = 'vmx-10'
+                elif ckey == 'npivTemporaryDisabled':
+                    x.text = 'true'
+                elif ckey == 'template':
+                    x.text = 'false'
+                elif ckey == 'latencySensitivity':
+                    latency = SE(x, 'level')
+                    latency.text = 'normal'
+                elif ckey == 'cpuHotAddEnabled' or ckey == 'cpuHotRemoveEnabled':
+                    x.text = 'false'
+                elif ckey == 'memoryHotAddEnabled':
+                    x.text = 'false'
+                elif ckey == 'memoryAllocation':
+                    reservation = SE(x, 'reservation')
+                    reservation.text = '0'
+                    expandableres = SE(x, 'expandableReservation')
+                    expandableres.text = 'false'
+                    limit = SE(x, 'limit')
+                    limit.text = '-1'
+                    shares = SE(x, 'shares')
+                    shares2 = SE(shares, 'shares')
+                    shares2.text = '2560'
+                    level2 = SE(shares, 'level')
+                    level2.text = 'normal'
+                elif ckey == 'bootOptions':
+                    bootdelay = SE(x, 'bootDelay')
+                    bootdelay.text = '0'
+                    entersetup = SE(x, 'enterBIOSSetup')
+                    entersetup.text = 'false'
+                    retryenabled = SE(x, 'bootRetryEnabled')
+                    retryenabled.text = 'false'
+                    retrydelay = SE(x, 'bootRetryDelay')
+                    retrydelay.text = '10000'
+                elif ckey == 'firmware':
+                    x.text = 'bios'
+                elif ckey == 'maxMksConnections':
+                    x.text = '40'
+                elif ckey == 'memoryReservationLockedToMax':
+                    x.text = 'false'
+                elif ckey == 'vFlashCacheReservation':
+                    x.text = '0'
+                elif ckey == 'files':
+                    pathname = SE(x, 'vmPathName')
+                    pathname.text = '[datastore1] testvm1/testvm1.vmx'
+                    snapshotdir = SE(x, 'snapshotDirectory')
+                    snapshotdir.text = '[datastore1] testvm1/'
+                    suspenddir = SE(x, 'suspendDirectory')
+                    suspenddir.text = '[datastore1] testvm1/'
+                    logdir = SE(x, 'logDirectory')
+                    logdir.text = '[datastore1] testvm1/'
+                elif 'enabled' in ckey.lower():
+                    x.text = 'false'
+                else:
+                    x.text = 'null'
                 this_val.append(x)
+            #import pdb; pdb.set_trace()
+            return X
 
         elif propname == 'configIssue':
             this_obj.text = oval #need the VM id here 
@@ -1196,37 +1282,16 @@ class VCenter(BaseHTTPRequestHandler):
             this_name = None
             this_val = None
 
-            #print("## 1")
             X = self._get_soap_element()
-            #splitxml(X)
             Body = SE(X, 'soapenv:Body')
-            #splitxml(X)
-
-            #print("## 2")
             RPResponse = SE(Body, responsetype)
             RPResponse.set('xmlns', "urn:vim25")
-            #splitxml(X)
-
-            #print("## 3")
             this_rval = SE(RPResponse, 'returnval')
-            #splitxml(X)
-
-            #print("## 4")
             this_objects = SE(this_rval, 'objects')
-            #splitxml(X)
-
-            #print("## 5")
             this_obj = SE(this_objects, 'obj')
-            #splitxml(X)
-
-            #print("## 6")
             this_obj.set('type', 'VirtualMachine')
             this_obj.text = oval
-            #splitxml(X)
-
-            #print("## 7")
             this_propset = SE(this_objects, 'propSet')
-            #splitxml(X)
 
             #print("## 8")
             this_name = SE(this_propset, 'name')
