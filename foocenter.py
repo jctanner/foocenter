@@ -39,12 +39,8 @@ INVENTORY = {
              'datacenters': {
                               'datacenter-1': {
                                 'name': "DC1",
-                                'hosts': ['host-28']
+                                'hosts': ['host-0', 'host-1']
                               },
-                              'datacenter-2': {
-                                'name': "DC2",
-                                'hosts': ['host-29']
-                              }
                             }, 
              'clusters': {}, 
              'hosts':{
@@ -66,8 +62,8 @@ INVENTORY = {
                      }
              },
              'datastores': {
-                    'datastore-0': {'name': "data store 0"},
-                    'datastore-1': {'name': "data store 1"},
+                    'datastore-0': {'name': "data_store_0"},
+                    'datastore-1': {'name': "data_store_1"},
              },
              'networks': {
                     'network-0': {
@@ -327,6 +323,23 @@ class VCenter(BaseHTTPRequestHandler):
         LResponse.set('xmlns', "urn:vim25")
         fdata = TS(X).decode("utf-8")
         return (fdata, 200)
+
+    def DestroyView(self, postdata, query):
+        global CONTAINERVIEWS
+        print("DESTROYVIEW")
+        print(postdata)
+        print(query)
+        key = query.get('Body', {}).get('DestroyView', {}).get('_this', None)
+        if key:
+            CONTAINERVIEWS.pop(key, None)    
+
+        X = self._get_soap_element()
+        Body = SE(X, 'soapenv:Body')
+        destroyResponse = SE(Body, 'DestroyViewResponse')
+        destroyResponse.set('xmlns', 'urn:vim25')
+        #import pdb; pdb.set_trace()
+        fdata = TS(X).decode("utf-8")
+        return fdata
 
 
     def CreateContainerView(self, postdata, query):
@@ -830,7 +843,8 @@ class VCenter(BaseHTTPRequestHandler):
 
         if requested.startswith('session['):
 
-            type_map = {'HostSystem': 'hosts',
+            type_map = {'Datacenter': 'datacenters',
+                        'HostSystem': 'hosts',
                         'VirtualMachine': 'vm'}
 
 
