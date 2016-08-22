@@ -76,6 +76,7 @@ INVENTORY = {
              },
              'vm': {
                      'vm-1': {
+                        '_meta': {'guestState': 'running', 'ipAddress': '10.0.0.101'},
                         'name': "testvm1",
                         'guest': {},
                         'network': ['network-0'],
@@ -83,6 +84,7 @@ INVENTORY = {
                         'datastore': ["datastore-0"]
                      },
                      'vm-2': {
+                        '_meta': {'guestState': 'running', 'ipAddress': '10.0.0.102'},
                         'name': "testvm2",
                         'guest': {},
                         'network': ['network-0'],
@@ -90,6 +92,7 @@ INVENTORY = {
                         'datastore': ["datastore-0"]
                      },
                      'vm-3': {
+                        '_meta': {'guestState': 'running', 'ipAddress': '10.0.0.103'},
                         'name': "testvm3",
                         'guest': {},
                         'network': ['network-0'],
@@ -97,6 +100,7 @@ INVENTORY = {
                         'datastore': ["datastore-1"]
                      },
                      'vm-4': {
+                        '_meta': {'guestState': 'running', 'ipAddress': '10.0.0.104'},
                         'name': "testvm4",
                         'guest': {},
                         'network': ['network-0'],
@@ -119,9 +123,13 @@ for x in range(0, TOTAL_HOSTS + 1):
 
 TOTAL_VMS = 10
 xhost = 0
+_ip = 104
 for x in range(0, TOTAL_VMS + 1):
     vkey = 'vm-%s' % x
+    _ip += 1
+    thisip = '10.0.0.%s' % _ip
     INVENTORY['vm'][vkey] = {}
+    INVENTORY['vm'][vkey]['_meta'] = {'guestState': 'running', 'ipAddress': thisip}
     INVENTORY['vm'][vkey]['name'] = 'testvm%s' % x
     INVENTORY['vm'][vkey]['guest'] = {}
     INVENTORY['vm'][vkey]['network'] = ['network-0']
@@ -1015,6 +1023,8 @@ class VCenter(BaseHTTPRequestHandler):
 
         #if (prop.lower() == 'guest' or propname.lower() == 'guest') and responsetype == 'RetrievePropertiesExResponse':
         #    import pdb; pdb.set_trace()
+        #if (prop.lower() == 'config' or propname.lower() == 'config') and responsetype == 'RetrievePropertiesExResponse':
+        #    import pdb; pdb.set_trace()
 
         X = self._get_soap_element()
         Body = SE(X, 'soapenv:Body')
@@ -1107,6 +1117,7 @@ class VCenter(BaseHTTPRequestHandler):
                 this_val.append(x)
 
         elif propname == 'config':
+            #import pdb; pdb.set_trace()
             this_obj.text = oval #need the VM id here 
             this_val.set('xsi:type', 'VirtualMachineConfigInfo')
             vm = INVENTORY['vm'][oval]
@@ -1172,6 +1183,9 @@ class VCenter(BaseHTTPRequestHandler):
             #print("###########################")
             #import pdb; pdb.set_trace()
 
+            vm = INVENTORY['vm'][oval]
+            meta = vm.get('_meta', {})
+
             X = None
             Body = None
             RPResponse = None
@@ -1225,12 +1239,16 @@ class VCenter(BaseHTTPRequestHandler):
             #splitxml(X)
 
             for x in VM_EX_GUEST_PROPS:
+                #if x[0] == 'guestState':
+                #    import pdb; pdb.set_trace()
                 y = E(x[0])
-                if x[1] != None:
+                if x[0] in meta:
+                    y.text = meta[x[0]]
+                elif x[1] != None:
                     y.text = x[1]
                 this_val.append(y)
-
             #import pdb; pdb.set_trace()
+
             netdict = {
                        'network': 'VM Network',
                        'ipAddress': ['192.168.1.42', 'fe80::250:56ff:fe90:97b'],
