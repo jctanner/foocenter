@@ -1013,7 +1013,7 @@ class VCenter(BaseHTTPRequestHandler):
         # prop = name/datastore/network/vms/etc
         # propname = HostSystem/VirtualMachine/Datastore/Network
 
-        #if prop.lower() == 'network' or propname.lower() == 'network':
+        #if (prop.lower() == 'guest' or propname.lower() == 'guest') and responsetype == 'RetrievePropertiesExResponse':
         #    import pdb; pdb.set_trace()
 
         X = self._get_soap_element()
@@ -1065,7 +1065,6 @@ class VCenter(BaseHTTPRequestHandler):
             this_stats = SE(this_val, 'quickStats')
             this_status = SE(this_val, 'overallStatus')
             this_status.text = 'green'
-
 
         elif propname == 'GuestInfo':
             this_val.set('xsi:type', 'GuestInfo')
@@ -1171,6 +1170,7 @@ class VCenter(BaseHTTPRequestHandler):
             #print("###########################")
             #print("#         GUEST           #")
             #print("###########################")
+            #import pdb; pdb.set_trace()
 
             X = None
             Body = None
@@ -1230,8 +1230,40 @@ class VCenter(BaseHTTPRequestHandler):
                     y.text = x[1]
                 this_val.append(y)
 
+            #import pdb; pdb.set_trace()
+            netdict = {
+                       'network': 'VM Network',
+                       'ipAddress': ['192.168.1.42', 'fe80::250:56ff:fe90:97b'],
+                       'macAddress': '00:50:56:90:09:7b',
+                       'connected': 'true',
+                       'deviceConfigId': '4000',
+                       'ipConfig': [{'ipAddress': '192.168.1.42', 'prefixLength': '24', 'state': 'preferred'},
+                                    {'ipAddress': 'fe80::250:56ff:fe90:97b', 'prefixLength': '64', 'state': 'unknown'}]
+                      }
+
+            #import pdb; pdb.set_trace()
+            this_net = SE(this_val, 'net')
+            for k,v in netdict.items():
+
+                if k == 'ipAddress':
+                    for ip in v:
+                        ni = SE(this_net, k)
+                        ni.text = ip
+                elif k == 'ipConfig':
+                    ipconfig = SE(this_net, 'ipConfig')
+                    for v2 in v:
+                        ip = SE(ipconfig, 'ipAddress')
+                        for k2,v2 in v2.items():
+                            ip_se = SE(ip, k2)
+                            ip_se.text = v2
+                        
+                else:
+                    ni = SE(this_net, k)
+                    ni.text = str(v)
+
             #print("## 10")
             #splitxml(X)
+            #import pdb; pdb.set_trace()
             return X
 
         elif responsetype == 'RetrievePropertiesExResponse':
