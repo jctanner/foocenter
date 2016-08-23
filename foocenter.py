@@ -382,8 +382,8 @@ class VCenter(BaseHTTPRequestHandler):
 
     def RetrieveProperties(self, postdata, query):
 
-        if 'datacenter' in postdata.lower():
-            import pdb; pdb.set_trace()
+        #if 'datacenter' in postdata.lower():
+        #    import pdb; pdb.set_trace()
 
         ## SOMETIMES A SELECTSET IS GIVEN
         # 'specSet': {'objectSet': {'obj': 'group-d1',
@@ -759,6 +759,10 @@ class VCenter(BaseHTTPRequestHandler):
 
         return fdata
 
+    def FindByInventoryPath(self, postdata, query):
+        splitxml(postdata)
+        import pdb; pdb.set_trace()
+
     def RetrievePropertiesEx(self, postdata, query):
 
         # sometimes the caller wants a list of hosts ...
@@ -837,6 +841,8 @@ class VCenter(BaseHTTPRequestHandler):
 
         #if 'ServiceInstance' in postdata and 'propertyCollector' in postdata:
         #    import pdb; pdb.set_trace()
+        #if 'datacenter-1' in postdata and 'name' in postdata:
+        #    import pdb; pdb.set_trace()
 
         # session[0bc77834-77fc-7422-e2cd-81d4e5127926]52ef3fa7-892d-d0c0-d12d-7f16d61aa6e2 --> vmlist
         # vm-1 --> a VM
@@ -903,39 +909,49 @@ class VCenter(BaseHTTPRequestHandler):
             return fdata
 
         elif not requested.startswith('vm-'):
-
             # FIXME ... we need to figure out what the requestor actually wants.
-            '''
-            print('#############################')
-            print('REQUEST: %s name (ALLVMS)' % requested)
-            print('#############################')
-            '''
 
-            f = open('fixtures/vc550_RetrievePropertiesExResponse.xml', 'r')
-            fdata = f.read()
-            f.close()
+            if propset_type == 'Datacenter':
+                X = self.get_soap_properties_response('datacenter', 
+                                                      propset_type, 
+                                                      requested, 
+                                                      propset_path, 
+                                                      propset_path, 
+                                                      responsetype='RetrievePropertiesExResponse')
+                try:
+                    fdata = TS(X).decode("utf-8")
+                except Exception as e:
+                    print(e)
+                    import pdb; pdb.set_trace()
+                #import pdb; pdb.set_trace()
+                return fdata
 
-            # let's try to deserialize and reserialize this resp
-            root = ET.fromstring(fdata)
+            else:
+                f = open('fixtures/vc550_RetrievePropertiesExResponse.xml', 'r')
+                fdata = f.read()
+                f.close()
 
-            for x in range(1,10):
-                vm = E('ManagedObjectReference')
-                vm.text = 'vm-%s' % x
-                vm.set('type', 'VirtualMachine')
-                vm.set('xsi:type', 'ManagedObjectReference')
+                # let's try to deserialize and reserialize this resp
+                root = ET.fromstring(fdata)
 
-                root[0][0][0] #returnval
-                root[0][0][0][0] #objects
-                root[0][0][0][0][0] #obj:containerview
-                root[0][0][0][0][1] #propset
-                root[0][0][0][0][1][0] #name
-                root[0][0][0][0][1][1] #val
+                for x in range(1,10):
+                    vm = E('ManagedObjectReference')
+                    vm.text = 'vm-%s' % x
+                    vm.set('type', 'VirtualMachine')
+                    vm.set('xsi:type', 'ManagedObjectReference')
 
-                root[0][0][0][0][1][1].append(vm)
+                    root[0][0][0] #returnval
+                    root[0][0][0][0] #objects
+                    root[0][0][0][0][0] #obj:containerview
+                    root[0][0][0][0][1] #propset
+                    root[0][0][0][0][1][0] #name
+                    root[0][0][0][0][1][1] #val
 
-            xmlstr = ET.tostring(root, encoding='utf8', method='xml')
-            xmlstr = xmlstr.decode("utf-8")
-            return xmlstr
+                    root[0][0][0][0][1][1].append(vm)
+
+                xmlstr = ET.tostring(root, encoding='utf8', method='xml')
+                xmlstr = xmlstr.decode("utf-8")
+                return xmlstr
 
         elif requested.startswith('vm-') and propset_path in VM_EX_PROPS:
             X = self.get_soap_properties_response('vm', 
@@ -1372,7 +1388,26 @@ class VCenter(BaseHTTPRequestHandler):
         elif responsetype == 'RetrievePropertiesExResponse':
 
             # This is probably asking for an attribute of a single object (such as a vm)
-            if okey != 'vm':
+            if okey == 'datacenter':
+                X = self._get_soap_element()
+                Body = SE(X, 'soapenv:Body')
+                RPResponse = SE(Body, responsetype)
+                RPResponse.set('xmlns', "urn:vim25")
+                this_rval = SE(RPResponse, 'returnval')
+                this_objects = SE(this_rval, 'objects')
+                this_obj = SE(this_objects, 'obj')
+                this_obj.set('type', oneup(okey))
+                this_obj.text = oval
+                this_propset = SE(this_objects, 'propSet')
+                this_name = SE(this_propset, 'name')
+                this_name.text = propname
+                this_val = SE(this_propset, 'val')
+                this_val.set('xsi:type', 'xsd:string')
+                this_val.text = INVENTORY['datacenters'][oval][propname]
+                #import pdb; pdb.set_trace()
+                return X
+
+            elif okey != 'vm':
                 print("# EXRESPONSE FOR %s,%s,%s NOT YET IMPLEMENTED !!!" % (okey,oval,propname))
                 import pdb; pdb.set_trace()
             else:
