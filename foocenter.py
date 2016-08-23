@@ -225,8 +225,12 @@ class VCenter(BaseHTTPRequestHandler):
 
         postdata = self.rfile.read(int(self.headers['Content-Length']))
         postdata = postdata.decode("utf-8")
-        #print(postdata)
+        print(splitxml(postdata))
         query = xml2dict(postdata)
+        print(query)
+
+        #if 'ServiceInstance' in postdata and 'propertyCollector' in postdata:
+        #    import pdb; pdb.set_trace()
 
         print("# QUERY START")
         pprint(query)
@@ -362,7 +366,6 @@ class VCenter(BaseHTTPRequestHandler):
 
         # Store this for future reference ...
         CONTAINERVIEWS[sessionid] = {'container': qobject, 'type': qtype}
-        #import pdb; pdb.set_trace()
 
         # Build the SOAP response ...
         X = self._get_soap_element()
@@ -374,20 +377,13 @@ class VCenter(BaseHTTPRequestHandler):
         returnval.text = sessionid
 
         fdata = TS(X).decode("utf-8")
-
-        '''
-        f = open('fixtures/vc550_CreateContainerViewResponse.xml', 'r')
-        fdata = f.read()
-        f.close()
-        '''
-
-        #splitxml(fdata)
-
         return fdata
 
 
     def RetrieveProperties(self, postdata, query):
-        # pshphere get hosts ...
+
+        if 'datacenter' in postdata.lower():
+            import pdb; pdb.set_trace()
 
         ## SOMETIMES A SELECTSET IS GIVEN
         # 'specSet': {'objectSet': {'obj': 'group-d1',
@@ -428,7 +424,8 @@ class VCenter(BaseHTTPRequestHandler):
         print('retrieveproperties propset_path: %s' % propset_path)
         print('retrieveproperties propset_type: %s' % propset_type)
         '''
-
+        #if 'Datacenter' in postdata:
+        #    import pdb; pdb.set_trace()
 
         if 'TraversalSpec' in postdata:
             #print("# TRAVERSALSPEC ...")
@@ -838,6 +835,9 @@ class VCenter(BaseHTTPRequestHandler):
         print('retrievepropertiesex propset_type: %s' % propset_type)
         '''
 
+        #if 'ServiceInstance' in postdata and 'propertyCollector' in postdata:
+        #    import pdb; pdb.set_trace()
+
         # session[0bc77834-77fc-7422-e2cd-81d4e5127926]52ef3fa7-892d-d0c0-d12d-7f16d61aa6e2 --> vmlist
         # vm-1 --> a VM
 
@@ -895,7 +895,12 @@ class VCenter(BaseHTTPRequestHandler):
             #splitxml(fdata)
             return fdata
 
-
+        elif requested == 'ServiceInstance':
+            f = open('fixtures/vc550_RetrievePropertiesExResponse_ServiceInstance.xml', 'r')
+            fdata = f.read()
+            f.close()
+            #import pdb; pdb.set_trace()
+            return fdata
 
         elif not requested.startswith('vm-'):
 
