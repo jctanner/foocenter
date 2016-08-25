@@ -226,6 +226,45 @@ CONTAINERVIEWS = {}
 
 class VCenter(BaseHTTPRequestHandler):
 
+    def do_REST(self, method, path, data=None):
+        # ['POST', '/xapi/inventory', 'HTTP/1.1']
+
+        # default empty response
+        resp = json.dumps({})
+
+        # what is the resource being called?
+        xparts = path.split('/')
+        xparts = [x for x in xparts if x]
+
+        if xparts[1] == 'inventory':
+
+            if method == 'POST':
+                # assume the caller wants to increase the inventory size
+                #import pdb; pdb.set_trace()
+                pdict = json.loads(data)
+                extend_inventory(**pdict)
+                #import pdb; pdb.set_trace()
+
+            elif method == 'GET':
+                if len(xparts) == 2:
+                    resp = json.dumps(INVENTORY)
+                else:
+                    import pdb; pdb.set_trace()
+            else:
+                pass
+
+        else:
+            print('%s not yet handled in REST api' % xparts)
+            import pdb; pdb.set_trace()
+
+        rc = 200
+        self.send_response(rc)
+        self.send_header("Content-type", "text/json")
+        self.send_header("msg", "OK")
+        self.end_headers()
+        self.wfile.write(bytes(resp, 'utf-8'))
+
+
     def do_GET(self):
 
 
@@ -259,12 +298,20 @@ class VCenter(BaseHTTPRequestHandler):
 
     def do_POST(self):
 
+
         requestline = self.requestline
         rparts = requestline.split()
         url = rparts[1]
 
         postdata = self.rfile.read(int(self.headers['Content-Length']))
         postdata = postdata.decode("utf-8")
+
+        # REST SHIM ...
+        if url.startswith('/xapi'):
+            logging.debug('REST POST %s' % url)
+            self.do_REST('POST', url, data=postdata)
+            return None
+
         query = xml2dict(postdata)
 
         #if 'ServiceInstance' in postdata and 'propertyCollector' in postdata:
@@ -2022,6 +2069,11 @@ def extend_inventory(hosts=2, vms=10):
 
     global INVENTORY
 
+    if type(hosts) != int:
+        hosts = int(hosts)
+    if type(vms) != int:
+        vms = int(vms)
+
     for x in range(0, hosts + 1):
         hkey = 'host-%s' % x
         INVENTORY['hosts'][hkey] = {}
@@ -2052,9 +2104,9 @@ def extend_inventory(hosts=2, vms=10):
         if xhost > hosts:
             xhost = 0
 
-    logging.debug('%s total DCs' % len(list(INVENTORY['datacenters'].keys())))
-    logging.debug('%s total HOSTs' % len(list(INVENTORY['hosts'].keys())))
-    logging.debug('%s total VMs' % len(list(INVENTORY['vm'].keys())))
+    logging.info('%s total DCs' % len(list(INVENTORY['datacenters'].keys())))
+    logging.info('%s total HOSTs' % len(list(INVENTORY['hosts'].keys())))
+    logging.info('%s total VMs' % len(list(INVENTORY['vm'].keys())))
 
 
 ########################################
@@ -2069,6 +2121,8 @@ if __name__ == "__main__":
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
 
     extend_inventory()
 
