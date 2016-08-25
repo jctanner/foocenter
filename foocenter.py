@@ -39,9 +39,30 @@ INVENTORY = {
              'datacenters': {
                               'datacenter-1': {
                                 'name': "DC1",
-                                'hosts': ['host-0', 'host-1']
-                              },
-                            }, 
+                                'hosts': ['host-0', 'host-1'],
+                                'folders': {
+                                    'group-v0': {
+                                        'name': 'vm',
+                                        'id': 'group-v0',
+                                        'group-v1': {
+                                            'name': 'folder1',
+                                            'id': 'group-v1',
+                                            'vms': ['vm-1'],
+                                        },
+                                        'group-v2': {
+                                            'name': 'folder2',
+                                            'id': 'group-v2',
+                                            'vms': ['vm-2'],
+                                        },
+                                        'group-v3': {
+                                            'name': 'testvms',
+                                            'id': 'group-v3',
+                                            'vms': ['vm-3']
+                                        }
+                                    }
+                                }
+                              }
+             },
              'clusters': {}, 
              'hosts':{
                         'host-0': {
@@ -71,7 +92,21 @@ INVENTORY = {
                     }
              },
              'vm': {
+                     'vm-0': {
+                        '_meta': {
+                            'guestState': 'running', 
+                            'ipAddress': '', 
+                            'uuid': '421061cd-ae1b-a90a-9c2b-05a2df878849', 
+                            'template': True
+                        },
+                        'name': "template_el7",
+                        'guest': {},
+                        'network': ['network-0'],
+                        'resourcePool': 'resgroup-0',
+                        'datastore': ["datastore-0"]
+                     },
                      'vm-1': {
+
                         '_meta': {'guestState': 'running', 'ipAddress': '10.0.0.101', 'uuid': '421061cd-ae1b-a90a-9c2b-05a2df878851'},
                         'name': "testvm1",
                         'guest': {},
@@ -122,6 +157,8 @@ xhost = 0
 _ip = 104
 for x in range(0, TOTAL_VMS + 1):
     vkey = 'vm-%s' % x
+    if vkey in INVENTORY['vm']:
+        continue
     _ip += 1
     thisip = '10.0.0.%s' % _ip
     INVENTORY['vm'][vkey] = {}
@@ -760,8 +797,68 @@ class VCenter(BaseHTTPRequestHandler):
         return fdata
 
     def FindByInventoryPath(self, postdata, query):
+
+        # inventoryPath': 'DC1/vm/testvms'}
+
+        '''
+        <?xml version="1.0" encoding="UTF-8"?>
+        <soapenv:Envelope ...">
+          <soapenv:Body>
+            <FindByInventoryPathResponse xmlns="urn:vim25">
+              <returnval type="Folder">group-v61</returnval>
+            </FindByInventoryPathResponse>
+          </soapenv:Body>
+        </soapenv:Envelope>
+        '''
+
         splitxml(postdata)
-        import pdb; pdb.set_trace()
+
+        searchpath = query.get('Body', {}).\
+                        get('FindByInventoryPath', {}).\
+                        get('inventoryPath', None)
+
+        parts = searchpath.split('/')
+        dcname = parts[0]
+        dcid = None
+        folder = None
+
+        # find the datacenter id based on name
+        for k,v in INVENTORY['datacenters'].items():
+            if v['name'] == dcname:
+                dcid = k
+                break
+        # find the folder id based on dc and path
+        if dcid:
+            folders = INVENTORY['datacenters'][dcid]['folders']
+            lastfolder = None
+            for idx,x in enumerate(parts):            
+                if not lastfolder:
+                    lastfolder = folders
+                    continue
+                found = False
+                for k,v in lastfolder.items():
+                    if k == 'name' or k == 'id':
+                        continue
+                    if v['name'] == x:
+                        found = True
+                        lastfolder = v
+                        continue
+
+        if not found:
+            raise "ERROR: folder path not found"
+
+        X = self._get_soap_element()
+        Body = SE(X, 'soapenv:Body')
+        FIPR = SE(Body, 'FindByInventoryPathResponse')
+        FIPR.set('xmlns', 'urn:vim25')
+        RVAL = SE(FIPR, 'returnval')
+        RVAL.set('type', 'Folder')
+        RVAL.text = lastfolder['id']
+        #import pdb; pdb.set_trace()
+        fdata = TS(X).decode("utf-8")
+        #splitxml(fdata)
+        return fdata
+
 
     def RetrievePropertiesEx(self, postdata, query):
 
@@ -850,9 +947,11 @@ class VCenter(BaseHTTPRequestHandler):
         if requested.startswith('session['):
 
             type_map = {'Datacenter': 'datacenters',
+                        'Datastore': 'datastores',
+                        'ResourcePool': 'resourcepool',
                         'HostSystem': 'hosts',
-                        'VirtualMachine': 'vm'}
-
+                        'VirtualMachine': 'vm',
+                        'Folder': 'folders'}
 
             # Get the container's properties ...
             cview = CONTAINERVIEWS[requested]
@@ -888,6 +987,13 @@ class VCenter(BaseHTTPRequestHandler):
             propSet_name.text = 'view'
             propSet_val = SE(propSet, 'val')
             propSet_val.set('xsi:type', 'ArrayOfManagedObjectReference')
+
+            if key not in root and cview['type'] == 'Folder':
+                # if group-d1 and Folder ... return list of datacenters?
+                #print('%s not in %s' % (key, root))
+                #import pdb; pdb.set_trace()
+                root = INVENTORY
+                key = 'datacenters'
 
             # Add all the results ...
             for k,v in root[key].items():
