@@ -145,6 +145,7 @@ INVENTORY = {
                  }
         }
 
+'''
 ##########################
 # Build up the inventory
 ##########################
@@ -179,7 +180,7 @@ for x in range(0, TOTAL_VMS + 1):
     xhost += 1
     if xhost > TOTAL_HOSTS:
         xhost = 0
-
+'''
 
 #############################################
 #                 GLOBALS                   #
@@ -2012,6 +2013,54 @@ def run_command(args):
     return (p.returncode, so, se)
 
 
+########################################
+#         INVENTORY EXPANDER           #
+########################################
+
+def extend_inventory(hosts=2, vms=10):
+    ''' Create more fake inventory '''
+
+    global INVENTORY
+
+    for x in range(0, hosts + 1):
+        hkey = 'host-%s' % x
+        INVENTORY['hosts'][hkey] = {}
+        INVENTORY['hosts'][hkey]['name'] = '10.0.0.%s' % x
+        INVENTORY['hosts'][hkey]['vms'] = []
+        INVENTORY['hosts'][hkey]['datastores'] = ['datastore-1']
+
+    xhost = 0
+    _ip = 104
+    for x in range(0, vms + 1):
+        vkey = 'vm-%s' % x
+        if vkey in INVENTORY['vm']:
+            continue
+        _ip += 1
+        thisip = '10.0.0.%s' % _ip
+        INVENTORY['vm'][vkey] = {}
+        INVENTORY['vm'][vkey]['_meta'] = {'guestState': 'running', 'ipAddress': thisip}
+        INVENTORY['vm'][vkey]['_meta']['uuid'] = str(uuid.uuid4())
+        INVENTORY['vm'][vkey]['name'] = 'testvm%s' % x
+        INVENTORY['vm'][vkey]['guest'] = {}
+        INVENTORY['vm'][vkey]['network'] = ['network-0']
+        INVENTORY['vm'][vkey]['resourcePool'] = 'resgroup-0'
+        INVENTORY['vm'][vkey]['datastore'] = ['datastore-1']
+
+        # spread evenly across the hosts ...
+        INVENTORY['hosts']['host-%s' % xhost]['vms'].append(vkey)
+        xhost += 1
+        if xhost > hosts:
+            xhost = 0
+
+    logging.debug('%s total DCs' % len(list(INVENTORY['datacenters'].keys())))
+    logging.debug('%s total HOSTs' % len(list(INVENTORY['hosts'].keys())))
+    logging.debug('%s total VMs' % len(list(INVENTORY['vm'].keys())))
+
+
+########################################
+#                MAIN                  #
+########################################
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -2020,6 +2069,8 @@ if __name__ == "__main__":
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
+
+    extend_inventory()
 
     logging.debug('creating server')
     service = HTTPServer(('localhost', PORT), VCenter)
