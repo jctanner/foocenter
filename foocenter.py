@@ -857,9 +857,7 @@ class VCenter(BaseHTTPRequestHandler):
         RVAL = SE(FIPR, 'returnval')
         RVAL.set('type', 'Folder')
         RVAL.text = lastfolder['id']
-        #import pdb; pdb.set_trace()
         fdata = TS(X).decode("utf-8")
-        #splitxml(fdata)
         return fdata
 
 
@@ -886,9 +884,6 @@ class VCenter(BaseHTTPRequestHandler):
             propset_type = query.get('Body').get('RetrievePropertiesEx').get('specSet').get('propSet').get('type')
         except:
             pass
-
-        #if '<pathSet>summary</pathSet>' in postdata:
-        #    import pdb; pdb.set_trace()
 
         if requested.startswith('session['):
 
@@ -936,8 +931,6 @@ class VCenter(BaseHTTPRequestHandler):
 
             if key not in root and cview['type'] == 'Folder':
                 # if group-d1 and Folder ... return list of datacenters?
-                #print('%s not in %s' % (key, root))
-                #import pdb; pdb.set_trace()
                 root = INVENTORY
                 foldermap = self._get_folder_map()
                 for k,v in foldermap.items():
@@ -946,7 +939,6 @@ class VCenter(BaseHTTPRequestHandler):
                     MO.set('xsi:type', 'ManagedObjectReference')
                     MO.text = k
                     propSet_val.append(MO)
-                #import pdb; pdb.set_trace()
 
             else:
                 # Add all the results ...
@@ -993,7 +985,6 @@ class VCenter(BaseHTTPRequestHandler):
                 vdesc.text = 'VirtualMachine.clone'
                 vent = SE(this_val, 'entity')
                 vent.set('type', 'VirtualMachine')
-                #import pdb; pdb.set_trace()
                 vent.text = task['dest']
                 ventname = SE(this_val, 'entityName')
                 ventname.text = INVENTORY['vm'][task['src']]['name']
@@ -1011,20 +1002,13 @@ class VCenter(BaseHTTPRequestHandler):
                 vusername = SE(vreason, 'userName')
                 vusername.text = 'root'
                 vquetime = SE(this_val, 'queueTime')
-                #import pdb; pdb.set_trace()
                 vquetime.text = '{:%Y-%m-%dT%H:%M:%S.%f}'.format(task['queueTime'])
                 vstarttime = SE(this_val, 'startTime')
                 vstarttime.text = '{:%Y-%m-%dT%H:%M:%S.%f}'.format(task['startTime'])
                 vevent = SE(this_val, 'eventChainId')
                 vevent.text = str(task['eventid'])
 
-                # Need to figure out how to make this task "finished"
-                # <state>success</state>
-                # <cancelled>false</cancelled>
-                # <cancelable>false</cancelable>
-                # <completeTime>2016-08-22T09:51:32.350171Z</completeTime>
-                # <result type="VirtualMachine" xsi:type="ManagedObjectReference">vm-68</result>
-                #import pdb; pdb.set_trace()
+                # "FINISH" the task when the time limit has been exceeeded ...
                 if datetime.datetime.now() >= task['completeTime']:
                     vcancel.text = 'false'
                     vcancelable.text = 'false'    
@@ -1049,7 +1033,6 @@ class VCenter(BaseHTTPRequestHandler):
             f = open('fixtures/vc550_RetrievePropertiesExResponse_ServiceInstance.xml', 'r')
             fdata = f.read()
             f.close()
-            #import pdb; pdb.set_trace()
             return fdata
 
         elif not requested.startswith('vm-'):
@@ -1067,7 +1050,7 @@ class VCenter(BaseHTTPRequestHandler):
                 except Exception as e:
                     print(e)
                     import pdb; pdb.set_trace()
-                #import pdb; pdb.set_trace()
+
                 return fdata
 
             elif propset_type == 'Folder':
@@ -1099,14 +1082,11 @@ class VCenter(BaseHTTPRequestHandler):
                         MO.set('xsi:type', 'ManagedObjectReference')
                         MO.text = child[0]
                         this_val.append(MO)
-                    #import pdb; pdb.set_trace()
                 else:
                     print('%s for folder %s requested' % (propset_path, requested))
                     this_val.set('xsi:type', 'xsd:string')
                     this_val.text = folder_map[requested]['name']
-                    #import pdb; pdb.set_trace()
 
-                #import pdb; pdb.set_trace()
                 fdata = TS(X).decode("utf-8")
                 return fdata
 
@@ -1351,6 +1331,7 @@ class VCenter(BaseHTTPRequestHandler):
     def _add_vmid_to_folder(self, dcid, folderid, vmid):
         global INVENTORY
         if folderid not in INVENTORY['datacenters'][dcid]['folders']:
+            print('NESTED FOLDERS NOT HANDLED YET!')
             import pdb; pdb.set_trace()
         else:
             INVENTORY['datacenters'][dcid]['folders'][folderid]['vms'].append(vmid)
@@ -1364,7 +1345,6 @@ class VCenter(BaseHTTPRequestHandler):
             if vmid in v['vms']:
                 thisfolder = v
                 break
-        #import pdb; pdb.set_trace()
         return thisfolder['datacenter']
         
 
@@ -1372,7 +1352,6 @@ class VCenter(BaseHTTPRequestHandler):
         ''' Make a hashmap of folders and their names '''
         folders = {}
         for dcname,datacenter in INVENTORY['datacenters'].items():
-            #import pdb; pdb.set_trace()
             if 'folders' in datacenter:
                 folders.update(
                                 self._get_recursive_folders(
@@ -1380,7 +1359,6 @@ class VCenter(BaseHTTPRequestHandler):
                                     datacenter=dcname
                                 )
                               )
-                #import pdb; pdb.set_trace()
         return folders
 
     def _get_recursive_folders(self, root, datacenter=None):
@@ -1422,7 +1400,6 @@ class VCenter(BaseHTTPRequestHandler):
             if k.startswith('group-'):
                 children.append((k, 'Folder'))
 
-        #import pdb; pdb.set_trace()
         return children
 
 
@@ -1444,11 +1421,6 @@ class VCenter(BaseHTTPRequestHandler):
         # prop = name/datastore/network/vms/etc
         # propname = HostSystem/VirtualMachine/Datastore/Network
 
-        #if (prop.lower() == 'guest' or propname.lower() == 'guest') and responsetype == 'RetrievePropertiesExResponse':
-        #    import pdb; pdb.set_trace()
-        #if (prop.lower() == 'config' or propname.lower() == 'config') and responsetype == 'RetrievePropertiesExResponse':
-        #    import pdb; pdb.set_trace()
-
         X = self._get_soap_element()
         Body = SE(X, 'soapenv:Body')
         RPResponse = SE(Body, responsetype)
@@ -1457,7 +1429,6 @@ class VCenter(BaseHTTPRequestHandler):
         # Extract the desired data
         rdata = None
         try:
-            #print("INVENTORY['%s']['%s']['%s']" % (okey, oval, prop))
             rdata = INVENTORY['%s' % okey][oval]['%s' % prop]
         except Exception as e:
             pass
@@ -1545,7 +1516,6 @@ class VCenter(BaseHTTPRequestHandler):
                 state = 'poweredOn'
             this_powerstate.text = state
             this_guest = SE(this_val, 'guest')
-            #import pdb; pdb.set_trace()
 
         elif propname == 'capability':
             this_obj.text = oval #need the VM id here 
@@ -1665,7 +1635,7 @@ class VCenter(BaseHTTPRequestHandler):
                 else:
                     x.text = 'null'
                 this_val.append(x)
-            #import pdb; pdb.set_trace()
+
             return X
 
         elif propname == 'configIssue':
@@ -1691,7 +1661,6 @@ class VCenter(BaseHTTPRequestHandler):
                 d.set('xsi:type', 'ManagedObjectReference')
                 d.text = x
                 this_val.append(d)
-            #import pdb; pdb.set_trace()
 
         elif propname == 'effectiveRole':
             this_obj.text = oval #need the VM id here 
@@ -1741,19 +1710,13 @@ class VCenter(BaseHTTPRequestHandler):
             this_val = SE(this_propset, 'val')
             this_val.set('xsi:type', 'GuestInfo')
 
-            # FIXMEHERE ... guestFullName
-            #import pdb; pdb.set_trace()
-
             for x in VM_EX_GUEST_PROPS:
-                #if x[0] == 'guestState':
-                #    import pdb; pdb.set_trace()
                 y = E(x[0])
                 if x[0] in meta:
                     y.text = meta[x[0]]
                 elif x[1] != None:
                     y.text = x[1]
                 this_val.append(y)
-            #import pdb; pdb.set_trace()
 
             netdict = {
                        'network': 'VM Network',
@@ -1765,7 +1728,6 @@ class VCenter(BaseHTTPRequestHandler):
                                     {'ipAddress': 'fe80::250:56ff:fe90:97b', 'prefixLength': '64', 'state': 'unknown'}]
                       }
 
-            #import pdb; pdb.set_trace()
             this_net = SE(this_val, 'net')
             for k,v in netdict.items():
 
@@ -1785,9 +1747,6 @@ class VCenter(BaseHTTPRequestHandler):
                     ni = SE(this_net, k)
                     ni.text = str(v)
 
-            #print("## 10")
-            #splitxml(X)
-            #import pdb; pdb.set_trace()
             return X
 
         elif responsetype == 'RetrievePropertiesExResponse':
