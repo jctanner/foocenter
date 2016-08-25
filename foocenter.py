@@ -19,6 +19,7 @@
 # openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
 # openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout mycert.pem -out mycert.pem
 
+import datetime
 import ssl
 import subprocess
 import uuid
@@ -47,7 +48,7 @@ INVENTORY = {
                                         'group-v1': {
                                             'name': 'folder1',
                                             'id': 'group-v1',
-                                            'vms': ['vm-1'],
+                                            'vms': ['vm-0', 'vm-1'],
                                         },
                                         'group-v2': {
                                             'name': 'folder2',
@@ -212,6 +213,8 @@ VM_EX_GUEST_PROPS = [('toolsStatus', 'toolsNotInstalled'),
 #            CLIENT SESSIONS                #
 #############################################
 
+EVENTCHAINS = {}
+TASKS = {}
 VIEWMANAGERS = {}
 CONTAINERVIEWS = {}
 
@@ -1238,30 +1241,216 @@ class VCenter(BaseHTTPRequestHandler):
             import pdb; pdb.set_trace()
 
 
+    def CloneVM_Task(self, postdata, query):
+        '''Clone a template!!!'''
+
+        # The postdata should send:
+        #   * template guestid
+        #   * new guest name
+        #   * Folder
+        #   * Spec
+        #       * location
+        #           * Datastore
+        #           * ResourcePool
+        #           * HostSystem
+        #       * template true/false
+        #       * poweron true/false
+        # For any missing spec item, use the templates existing spec
+
+        global EVENTCHAINS
+        global INVENTORY
+        global TASKS
+
+        templateid = query.get('Body', {}).get('CloneVM_Task', {}).get('_this', None)
+        folderid = query.get('Body', {}).get('CloneVM_Task', {}).get('folder', None)
+        vmname = query.get('Body', {}).get('CloneVM_Task', {}).get('name', None)
+        spec = query.get('Body', {}).get('CloneVM_Task', {}).get('spec', {})
+        powerstate = spec.get('powerOn', False)
+        if not powerstate:
+            powerstate = 'poweredoff'
+        else:
+            powerstate = 'poweredon'
+        template = INVENTORY['vm'][templateid]
+        folder = self._get_folder_by_id(folderid)
+        
+
+        events = EVENTCHAINS.keys()
+        events = list(events)
+        events = [int(x) for x in events]
+        events = sorted(set(events))
+        if len(events) > 0:
+            eventid = events[-1]
+            eventid += 1
+        else:
+            eventid = 0
+
+        tasks = TASKS.keys()
+        tasks = list(tasks)
+        tasks = [x.replace('task-', '') for x in tasks]
+        tasks = [int(x) for x in tasks]
+        tasks = sorted(set(tasks))
+        if len(tasks) > 0:
+            this_taskid = tasks[-1]
+            this_taskid += 1
+        else:
+            this_taskid = 0
+        taskkey = 'task-%s' % this_taskid
+
+        vms = INVENTORY['vm'].keys()
+        vms = list(vms)
+        vms = [x.replace('vm-', '') for x in vms] 
+        vms = [int(x) for x in vms]
+        vms = sorted(set(vms))
+        if len(vms) > 0:
+            this_vmid = vms[-1]
+            this_vmid += 1
+        else:
+            this_vmid = 0
+
+        # Create the VM
+        key = 'vm-%s' % this_vmid
+        vdict = {}
+        vdict['_meta'] = {}
+        vdict['_meta']['guestState'] = powerstate
+        vdict['_meta']['ipAddress'] = ''
+        vdict['_meta']['uuid'] = str(uuid.uuid4())
+        vdict['_meta']['ipAddress'] = False
+        vdict['_meta']['from_template'] = (templateid, template['name'])
+        vdict['name'] = vmname
+        for i in [('network', 'network'), ('resourcePool', 'pool'), ('datastore', 'datastore')]:
+            vdict[i[0]] = spec['location'].get(i[1], template.get(i[0], None))
+        INVENTORY['vm'][key] = vdict
+        vmid = key
+        
+        # Add to a datacenter + folder
+        dcid = spec['location'].get('datcenter', None)
+        if not dcid:
+            dcid = self._get_datacenterid_for_vmid(templateid)
+        #self._add_vmid_to_folder(dcid, folderid, key)
+        if folderid != 'group-v0':
+            INVENTORY['datacenters'][dcid]['folders']['group-v0'][folderid]['vms'].append(key)
+        else:
+            INVENTORY['datacenters'][dcid]['folders'][folderid]['vms'].append(key)
+
+        # Create the taskid response
+        X = self._get_soap_element()
+        Body = SE(X, 'soapenv:Body')
+        cvt = SE(Body, 'CloneVM_TaskResponse')
+        cvt.set('xmlns', "urn:vim25")
+        rval = SE(cvt, 'returnval')
+        rval.set('type', 'Task')
+        rval.text = taskkey
+
+        '''
+        RPResponse = SE(Body, 'RetrievePropertiesExResponse')
+        RPResponse.set('xmlns', 'urn:vim25')
+        this_rval = SE(RPResponse, 'returnval')
+        this_objects = SE(this_rval, 'objects')
+        this_obj = SE(this_objects, 'obj')
+        this_obj.set('type', 'Task')
+        this_obj.text = taskkey
+        this_propset = SE(this_objects, 'propSet')
+        this_name = SE(this_propset, 'name')
+        this_name.text = 'CloneVM_Task'
+        this_val = SE(this_propset, 'val')
+        this_val.set('xsi:type', "TaskInfo") 
+        vkey = SE(this_val, 'key')
+        vkey.text = taskkey
+        vtask = SE(this_val, 'task')
+        vtask.set('type', 'Task')
+        vtask.text = taskkey
+        vname = SE(this_val, 'name')
+        vname.text = 'CloneVM_Task'
+        vdesc = SE(this_val, 'descriptionId')
+        vdesc.text = 'VirtualMachine.clone'
+        vent = SE(this_val, 'entity')
+        vent.set('type', 'VirtualMachine')
+        vent.text = vmid
+        ventname = SE(this_val, 'entityName')
+        ventname.text = template['name']
+        vstate = SE(this_val, 'state')
+        vstate.text = powerstate
+        vcancel = SE(this_val, 'cancelled')
+        vcancel.text = 'false'
+        vcancelable = SE(this_val, 'cancelable')
+        vcancelable.text = 'true'
+        vreason = SE(this_val, 'reason')
+        vreason.set('xsi:type', 'TaskReasonUser')
+        vusername = SE(vreason, 'userName')
+        vusername.text = 'root'
+        vquetime = SE(this_val, 'queueTime')
+        #import pdb; pdb.set_trace()
+        vquetime.text = '{:%Y-%m-%dT%H:%M:%S.%f}'.format(datetime.datetime.now()) # 2016-08-22T09:51:18.964686Z
+        vstarttime = SE(this_val, 'startTime')
+        vstarttime.text = '{:%Y-%m-%dT%H:%M:%S.%f}'.format(datetime.datetime.now()) # 2016-08-22T09:51:18.964686Z
+        vevent = SE(this_val, 'eventChainId')
+        vevent.text = str(eventid)
+        '''
+
+        fdata = TS(X).decode("utf-8")
+        splitxml(X)
+        #import pdb; pdb.set_trace()
+        return fdata
+
+    def _add_vmid_to_folder(self, dcid, folderid, vmid):
+        global INVENTORY
+        if folderid not in INVENTORY['datacenters'][dcid]['folders']:
+            import pdb; pdb.set_trace()
+        else:
+            INVENTORY['datacenters'][dcid]['folders'][folderid]['vms'].append(vmid)
+
+    def _get_datacenterid_for_vmid(self, vmid):
+        foldermap = self._get_folder_map()
+        thisfolder = None
+        for k,v in foldermap.items():
+            if not 'vms' in v:
+                continue
+            if vmid in v['vms']:
+                thisfolder = v
+                break
+        #import pdb; pdb.set_trace()
+        return thisfolder['datacenter']
+        
+
     def _get_folder_map(self):
         ''' Make a hashmap of folders and their names '''
         folders = {}
         for dcname,datacenter in INVENTORY['datacenters'].items():
             #import pdb; pdb.set_trace()
             if 'folders' in datacenter:
-                folders.update(self._get_recursive_folders(datacenter['folders']))
+                folders.update(
+                                self._get_recursive_folders(
+                                    datacenter['folders'],
+                                    datacenter=dcname
+                                )
+                              )
                 #import pdb; pdb.set_trace()
         return folders
 
-    def _get_recursive_folders(self, root):
+    def _get_recursive_folders(self, root, datacenter=None):
         '''Recurse through folder objects and return a hash '''
         folders = {}
         for k,v in root.items():
             if k.startswith('group-'):
                 #folders[k] = v['name']        
-                folders[k] = v        
+                folders[k] = v
+                folders[k]['datacenter'] = datacenter
             if type(v) == dict:
                 vkeys = v.keys()
                 vkeys = list(vkeys)
                 vkeys = [x for x in vkeys if x.startswith('group-')]
                 if len(vkeys) > 0:
-                    folders.update(self._get_recursive_folders(v))
+                    folders.update(
+                                    self._get_recursive_folders(
+                                        v, 
+                                        datacenter=datacenter
+                                    )
+                                  )
         return folders
+
+    def _get_folder_by_id(self, folderid):
+        foldermap = self._get_folder_map()
+        return foldermap[folderid]
 
     def _get_folder_children(self, folderid):
         '''Get children of a folder'''
