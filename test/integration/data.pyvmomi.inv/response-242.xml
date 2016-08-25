@@ -1,0 +1,1605 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <RetrievePropertiesExResponse xmlns="urn:vim25">
+      <returnval>
+        <objects>
+          <obj type="HostSystem">host-28</obj>
+          <propSet>
+            <name>runtime</name>
+            <val xsi:type="HostRuntimeInfo">
+              <connectionState>connected</connectionState>
+              <powerState>poweredOn</powerState>
+              <standbyMode>none</standbyMode>
+              <inMaintenanceMode>false</inMaintenanceMode>
+              <bootTime>2016-08-22T01:03:55.736437Z</bootTime>
+              <healthSystemRuntime>
+                <systemHealthInfo>
+                  <numericSensorInfo>
+                    <name>VMware Rollup Health State</name>
+                    <healthState>
+                      <label>Unknown</label>
+                      <summary>Cannot report on the current health state of the element</summary>
+                      <key>unknown</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>system</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>CPU #000 Level-1 Cache is 16384 B</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Processors</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>CPU #000 Level-2 Cache is 0 B</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Processors</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>CPU #001 Level-1 Cache is 16384 B</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Processors</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>CPU #001 Level-2 Cache is 0 B</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Processors</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>Phoenix Technologies LTD System BIOS 6.00 2015-07-02 00:00:00.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware, Inc. VMware ESXi 5.5.0 build-3248547 2015-11-17 00:00:00.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware, Inc. VMware ESXi Alternate Boot Bank 5.5.0 build-3248547</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware misc-cnic-register 1.72.1.v50.1i-1vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-megaraid-mbox 2.20.5.1-6vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware net-nx-nic 5.0.621-1vmw.550.0.0.1331820 2013-09-19 06:06:40.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-fnic 1.5.0.4-1vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-lpfc820 8.2.3.1-129vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware uhci-usb-uhci 1.0-3vmw.550.0.0.1331820 2013-09-19 06:06:38.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware net-be2net 4.6.100.0v-1vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware ata-pata-sil680 0.4.8-3vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware ipmi-ipmi-msghandler 39.1-4vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware elxnet 10.2.309.6v-1vmw.550.3.68.3029944 2015-08-31 08:13:30.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-megaraid-sas 5.34-9vmw.550.3.68.3029944 2015-08-31 08:13:27.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware ata-pata-amd 0.3.10-3vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware ata-pata-serverworks 0.4.3-3vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware ima-qla4xxx 2.01.31-1vmw.550.0.0.1331820 2013-09-19 06:06:40.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware ipmi-ipmi-devintf 39.1-4vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware sata-sata-svw 2.3-3vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware sata-sata-sil24 1.1-1vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-aic79xx 3.1-5vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware net-vmxnet3 1.1.3.0-3vmw.550.2.39.2143827 2014-09-18 23:47:48.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-qla2xxx 902.k1.1-12vmw.550.3.68.3029944 2015-08-31 08:13:29.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-qla4xxx 5.01.03.2-6vmw.550.0.0.1331820 2013-09-19 06:06:40.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware ata-pata-atiixp 0.4.6-4vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware lsi-mr3 0.255.03.01-2vmw.550.3.68.3029944 2015-08-31 08:13:30.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware ata-pata-pdc2027x 1.0-3vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-mpt2sas 14.00.00.00-3vmw.550.3.68.3029944 2015-08-31 08:13:29.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware rste 2.0.2.0088-4vmw.550.1.15.1623387 2014-02-22 01:17:29.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-megaraid2 2.00.4-9vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware lsi-msgpt3 00.255.03.03-2vmw.550.3.78.3248547 2015-11-18 05:35:19.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware ehci-ehci-hcd 1.0-3vmw.550.3.78.3248547 2015-11-18 05:35:15.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware xhci-xhci 1.0-3vmw.550.3.78.3248547 2015-11-18 05:35:15.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-aacraid 1.1.5.1-9vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware lpfc 10.0.100.1-1vmw.550.0.0.1331820 2013-09-19 06:06:40.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware mtip32xx-native 3.3.4-1vmw.550.1.15.1623387 2014-02-22 01:17:29.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware esx-xserver 5.5.0-0.0.1331820 2013-09-19 06:06:59.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware block-cciss 3.6.14-10vmw.550.0.0.1331820 2013-09-19 06:06:40.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware sata-ahci 3.0-22vmw.550.3.68.3029944 2015-08-31 08:13:29.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware ata-pata-cmd64x 0.2.5-3vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware net-cnic 1.72.52.v55.1-1vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-mptsas 4.23.01.00-9vmw.550.3.68.3029944 2015-08-31 08:13:29.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-adp94xx 1.0.8.12-6vmw.550.0.0.1331820 2013-09-19 06:06:40.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware net-ixgbe 3.7.13.7.14iov-12vmw.550.2.62.2718055 2015-05-06 00:28:21.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware ohci-usb-ohci 1.0-3vmw.550.0.0.1331820 2013-09-19 06:06:38.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware net-e1000 8.0.3.1-3vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware net-bnx2 2.2.3d.v55.2-1vmw.550.0.0.1331820 2013-09-19 06:06:40.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware ata-pata-via 0.3.3-2vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware esx-base 5.5.0-3.78.3248547 2015-11-18 05:35:51.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware net-forcedeth 0.61-2vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware sata-sata-promise 2.12-3vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware sata-sata-nv 3.5-4vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-ips 7.12.05-4vmw.550.0.0.1331820 2013-09-19 06:06:40.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware net-tg3 3.123c.v55.5-1vmw.550.2.33.2068190 2014-08-23 01:58:29.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-mptspi 4.23.01.00-9vmw.550.3.68.3029944 2015-08-31 08:13:29.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware sata-ata-piix 2.12-10vmw.550.2.33.2068190 2014-08-23 01:58:29.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-bnx2i 2.72.11.v55.4-1vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware net-igb 5.0.5.1.1-1vmw.550.2.54.2403361 2015-01-01 08:00:52.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware net-e1000e 3.2.2.1-2vmw.550.3.78.3248547 2015-11-18 05:35:19.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware tools-light 5.5.0-3.78.3248547 2015-11-18 05:35:51.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware net-mlx4-core 1.9.7.0-1vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware net-mlx4-en 1.9.7.0-1vmw.550.0.0.1331820 2013-09-19 06:06:40.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware ata-pata-hpt3x2n 0.3.4-3vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware misc-drivers 5.5.0-3.78.3248547 2015-11-18 05:35:15.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware qlnativefc 1.0.12.0-1vmw.550.0.0.1331820 2013-09-19 06:06:40.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware net-bnx2x 1.72.56.v55.2-1vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware esx-xlibs 5.5.0-0.0.1331820 2013-09-19 06:06:59.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-hpsa 5.5.0-44vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware scsi-bnx2fc 1.72.53.v55.1-1vmw.550.0.0.1331820 2013-09-19 06:06:40.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware net-enic 1.4.2.15a-1vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware ipmi-ipmi-si-drv 39.1-4vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware esx-tboot 5.5.0-2.33.2068190 2014-08-23 01:58:55.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware esx-dvfilter-generic-fastpath 5.5.0-0.0.1331820 2013-09-19 06:06:59.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>VMware sata-sata-sil 2.3-4vmw.550.0.0.1331820 2013-09-19 06:06:39.000</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>e1000 driver 8.0.3.1-NAPI</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                  <numericSensorInfo>
+                    <name>e1000 device firmware N/A</name>
+                    <healthState>
+                      <label>Green</label>
+                      <summary>Sensor is operating under normal conditions</summary>
+                      <key>green</key>
+                    </healthState>
+                    <currentReading>0</currentReading>
+                    <unitModifier>0</unitModifier>
+                    <baseUnits/>
+                    <sensorType>Software Components</sensorType>
+                  </numericSensorInfo>
+                </systemHealthInfo>
+                <hardwareStatusInfo>
+                  <cpuStatusInfo>
+                    <name>CPU #000</name>
+                    <status>
+                      <label>Green</label>
+                      <summary>Physical element is functioning as expected</summary>
+                      <key>Green</key>
+                    </status>
+                  </cpuStatusInfo>
+                  <cpuStatusInfo>
+                    <name>CPU #001</name>
+                    <status>
+                      <label>Green</label>
+                      <summary>Physical element is functioning as expected</summary>
+                      <key>Green</key>
+                    </status>
+                  </cpuStatusInfo>
+                </hardwareStatusInfo>
+              </healthSystemRuntime>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>0</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>1</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>2</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>3</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>4</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>5</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>6</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>7</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>8</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>9</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>10</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>11</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>12</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>13</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>14</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>15</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>16</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>17</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>18</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>19</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>20</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>21</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>22</pcrNumber>
+              </tpmPcrValues>
+              <tpmPcrValues>
+                <digestMethod>SHA1</digestMethod>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <digestValue>0</digestValue>
+                <pcrNumber>23</pcrNumber>
+              </tpmPcrValues>
+              <vsanRuntimeInfo>
+                <accessGenNo>0</accessGenNo>
+              </vsanRuntimeInfo>
+              <networkRuntimeInfo>
+                <netStackInstanceRuntimeInfo>
+                  <netStackInstanceKey>defaultTcpipStack</netStackInstanceKey>
+                  <state>active</state>
+                  <vmknicKeys>vmk0</vmknicKeys>
+                  <maxNumberOfConnections>11000</maxNumberOfConnections>
+                  <currentIpV6Enabled>true</currentIpV6Enabled>
+                </netStackInstanceRuntimeInfo>
+              </networkRuntimeInfo>
+              <hostMaxVirtualDiskCapacity>68169720922112</hostMaxVirtualDiskCapacity>
+            </val>
+          </propSet>
+        </objects>
+      </returnval>
+    </RetrievePropertiesExResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

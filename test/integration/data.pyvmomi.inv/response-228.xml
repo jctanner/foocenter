@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <RetrievePropertiesExResponse xmlns="urn:vim25">
+      <returnval>
+        <objects>
+          <obj type="HostSystem">host-28</obj>
+          <propSet>
+            <name>configManager</name>
+            <val xsi:type="HostConfigManager">
+              <cpuScheduler type="HostCpuSchedulerSystem">cpuScheduler-28</cpuScheduler>
+              <datastoreSystem type="HostDatastoreSystem">datastoreSystem-28</datastoreSystem>
+              <memoryManager type="HostMemorySystem">memorySystem-28</memoryManager>
+              <storageSystem type="HostStorageSystem">storageSystem-28</storageSystem>
+              <networkSystem type="HostNetworkSystem">networkSystem-28</networkSystem>
+              <vmotionSystem type="HostVMotionSystem">vmotionSystem-28</vmotionSystem>
+              <virtualNicManager type="HostVirtualNicManager">virtualNicManager-28</virtualNicManager>
+              <serviceSystem type="HostServiceSystem">serviceSystem-28</serviceSystem>
+              <firewallSystem type="HostFirewallSystem">firewallSystem-28</firewallSystem>
+              <advancedOption type="OptionManager">EsxHostAdvSettings-28</advancedOption>
+              <diagnosticSystem type="HostDiagnosticSystem">diagnosticSystem-28</diagnosticSystem>
+              <autoStartManager type="HostAutoStartManager">autoStartManager-28</autoStartManager>
+              <dateTimeSystem type="HostDateTimeSystem">dateTimeSystem-28</dateTimeSystem>
+              <patchManager type="HostPatchManager">patchManager-28</patchManager>
+              <imageConfigManager type="HostImageConfigManager">imageConfigManager-28</imageConfigManager>
+              <firmwareSystem type="HostFirmwareSystem">firmwareSystem-28</firmwareSystem>
+              <healthStatusSystem type="HostHealthStatusSystem">healthStatusSystem-28</healthStatusSystem>
+              <pciPassthruSystem type="HostPciPassthruSystem">pciPassthruSystem-28</pciPassthruSystem>
+              <kernelModuleSystem type="HostKernelModuleSystem">kernelModuleSystem-28</kernelModuleSystem>
+              <authenticationManager type="HostAuthenticationManager">authenticationManager-28</authenticationManager>
+              <powerSystem type="HostPowerSystem">powerSystem-28</powerSystem>
+              <cacheConfigurationManager type="HostCacheConfigurationManager">cacheConfigManager-28</cacheConfigurationManager>
+              <esxAgentHostManager type="HostEsxAgentHostManager">esxAgentHostManager-28</esxAgentHostManager>
+              <iscsiManager type="IscsiManager">iscsiManager-28</iscsiManager>
+              <vFlashManager type="HostVFlashManager">vFlashManager-28</vFlashManager>
+              <vsanSystem type="HostVsanSystem">vsanSystem-28</vsanSystem>
+              <graphicsManager type="HostGraphicsManager">graphicsManager-28</graphicsManager>
+              <vsanInternalSystem type="HostVsanInternalSystem">ha-vsan-internal-system-28</vsanInternalSystem>
+            </val>
+          </propSet>
+        </objects>
+      </returnval>
+    </RetrievePropertiesExResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

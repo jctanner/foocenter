@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <RetrievePropertiesExResponse xmlns="urn:vim25">
+      <returnval>
+        <objects>
+          <obj type="HostSystem">host-28</obj>
+          <propSet>
+            <name>licensableResource</name>
+            <val xsi:type="HostLicensableResourceInfo">
+              <resource>
+                <key>numCpuPackages</key>
+                <value xsi:type="xsd:long">2</value>
+              </resource>
+              <resource>
+                <key>numCpuCores</key>
+                <value xsi:type="xsd:long">2</value>
+              </resource>
+              <resource>
+                <key>memorySize</key>
+                <value xsi:type="xsd:long">4193780</value>
+              </resource>
+              <resource>
+                <key>memoryForVms</key>
+                <value xsi:type="xsd:long">0</value>
+              </resource>
+              <resource>
+                <key>numVmsStarted</key>
+                <value xsi:type="xsd:long">0</value>
+              </resource>
+              <resource>
+                <key>numVmsStarting</key>
+                <value xsi:type="xsd:long">0</value>
+              </resource>
+            </val>
+          </propSet>
+        </objects>
+      </returnval>
+    </RetrievePropertiesExResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

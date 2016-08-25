@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:ns0="urn:vim25" xmlns:ns1="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+  <SOAP-ENV:Header/>
+  <ns1:Body>
+    <ns0:Login>
+      <ns0:_this type="SessionManager">SessionManager</ns0:_this>
+      <ns0:userName>root</ns0:userName>
+      <ns0:password>vmware</ns0:password>
+    </ns0:Login>
+  </ns1:Body>
+</SOAP-ENV:Envelope>

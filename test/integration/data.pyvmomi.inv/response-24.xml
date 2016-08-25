@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <RetrievePropertiesExResponse xmlns="urn:vim25">
+      <returnval>
+        <objects>
+          <obj type="Datastore">datastore-35</obj>
+          <propSet>
+            <name>info</name>
+            <val xsi:type="NasDatastoreInfo">
+              <name>wdcloud</name>
+              <url>ds:///vmfs/volumes/2f9551f9-768e2a76/</url>
+              <freeSpace>1221274472448</freeSpace>
+              <maxFileSize>17592186040320</maxFileSize>
+              <maxVirtualDiskCapacity>17418005980514</maxVirtualDiskCapacity>
+              <timestamp>2016-08-22T03:09:55.908703Z</timestamp>
+              <nas>
+                <type>NFS</type>
+                <name>wdcloud</name>
+                <capacity>2995348365312</capacity>
+                <remoteHost>192.168.1.2</remoteHost>
+                <remotePath>/mnt/HD/HD_a2/vmware</remotePath>
+              </nas>
+            </val>
+          </propSet>
+        </objects>
+      </returnval>
+    </RetrievePropertiesExResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

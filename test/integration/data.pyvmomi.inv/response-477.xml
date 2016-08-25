@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <RetrievePropertiesExResponse xmlns="urn:vim25">
+      <returnval>
+        <objects>
+          <obj type="ResourcePool">resgroup-39</obj>
+          <propSet>
+            <name>summary</name>
+            <val xsi:type="ResourcePoolSummary">
+              <name>Resources</name>
+              <config>
+                <entity type="ResourcePool">resgroup-39</entity>
+                <cpuAllocation>
+                  <reservation>3132</reservation>
+                  <expandableReservation>true</expandableReservation>
+                  <limit>3132</limit>
+                  <shares>
+                    <shares>4000</shares>
+                    <level>normal</level>
+                  </shares>
+                </cpuAllocation>
+                <memoryAllocation>
+                  <reservation>1256</reservation>
+                  <expandableReservation>true</expandableReservation>
+                  <limit>1256</limit>
+                  <shares>
+                    <shares>163840</shares>
+                    <level>normal</level>
+                  </shares>
+                </memoryAllocation>
+              </config>
+              <runtime>
+                <memory>
+                  <reservationUsed>24117248</reservationUsed>
+                  <reservationUsedForVm>24117248</reservationUsedForVm>
+                  <unreservedForPool>1292894208</unreservedForPool>
+                  <unreservedForVm>1292894208</unreservedForVm>
+                  <overallUsage>23068672</overallUsage>
+                  <maxUsage>1317011456</maxUsage>
+                </memory>
+                <cpu>
+                  <reservationUsed>0</reservationUsed>
+                  <reservationUsedForVm>0</reservationUsedForVm>
+                  <unreservedForPool>3132</unreservedForPool>
+                  <unreservedForVm>3132</unreservedForVm>
+                  <overallUsage>0</overallUsage>
+                  <maxUsage>3132</maxUsage>
+                </cpu>
+                <overallStatus>green</overallStatus>
+              </runtime>
+              <quickStats>
+                <overallCpuUsage>0</overallCpuUsage>
+                <overallCpuDemand>0</overallCpuDemand>
+                <guestMemoryUsage>40</guestMemoryUsage>
+                <hostMemoryUsage>269</hostMemoryUsage>
+                <distributedCpuEntitlement>0</distributedCpuEntitlement>
+                <distributedMemoryEntitlement>0</distributedMemoryEntitlement>
+                <staticCpuEntitlement>0</staticCpuEntitlement>
+                <staticMemoryEntitlement>0</staticMemoryEntitlement>
+                <privateMemory>241</privateMemory>
+                <sharedMemory>1</sharedMemory>
+                <swappedMemory>0</swappedMemory>
+                <balloonedMemory>0</balloonedMemory>
+                <overheadMemory>23</overheadMemory>
+                <consumedOverheadMemory>28</consumedOverheadMemory>
+                <compressedMemory>0</compressedMemory>
+              </quickStats>
+              <configuredMemoryMB>512</configuredMemoryMB>
+            </val>
+          </propSet>
+        </objects>
+      </returnval>
+    </RetrievePropertiesExResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

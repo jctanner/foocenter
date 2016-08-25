@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <RetrievePropertiesExResponse xmlns="urn:vim25">
+      <returnval>
+        <objects>
+          <obj type="VirtualMachine">vm-31</obj>
+          <propSet>
+            <name>layout</name>
+            <val xsi:type="VirtualMachineFileLayout">
+              <configFile>testvm1.vmxf</configFile>
+              <configFile>testvm1.nvram</configFile>
+              <configFile>testvm1.vmsd</configFile>
+              <logFile>vmware-1.log</logFile>
+              <logFile>vmware.log</logFile>
+              <disk>
+                <key>2000</key>
+                <diskFile>[datastore1] testvm1/testvm1.vmdk</diskFile>
+              </disk>
+              <swapFile>[datastore1] testvm1/testvm1-0078bfb0.vswp</swapFile>
+            </val>
+          </propSet>
+        </objects>
+      </returnval>
+    </RetrievePropertiesExResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

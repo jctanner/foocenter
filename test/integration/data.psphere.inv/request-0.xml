@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:ns0="urn:vim25" xmlns:ns1="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+  <SOAP-ENV:Header/>
+  <ns1:Body>
+    <ns0:RetrieveServiceContent>
+      <ns0:_this type="ServiceInstance">ServiceInstance</ns0:_this>
+    </ns0:RetrieveServiceContent>
+  </ns1:Body>
+</SOAP-ENV:Envelope>

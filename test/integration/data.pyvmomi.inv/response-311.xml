@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <RetrievePropertiesExResponse xmlns="urn:vim25">
+      <returnval>
+        <objects>
+          <obj type="Datastore">datastore-29</obj>
+          <propSet>
+            <name>summary</name>
+            <val xsi:type="DatastoreSummary">
+              <datastore type="Datastore">datastore-29</datastore>
+              <name>datastore1</name>
+              <url>ds:///vmfs/volumes/57b322a0-107477a1-fb2f-000c299ffafa/</url>
+              <capacity>34896609280</capacity>
+              <freeSpace>31862030336</freeSpace>
+              <uncommitted>20752909333</uncommitted>
+              <accessible>true</accessible>
+              <multipleHostAccess>false</multipleHostAccess>
+              <type>VMFS</type>
+              <maintenanceMode>normal</maintenanceMode>
+            </val>
+          </propSet>
+        </objects>
+      </returnval>
+    </RetrievePropertiesExResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

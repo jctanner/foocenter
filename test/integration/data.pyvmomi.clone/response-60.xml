@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <RetrievePropertiesExResponse xmlns="urn:vim25">
+      <returnval>
+        <objects>
+          <obj type="ContainerView">session[a5e79a54-e8d2-40f6-cd50-bae326c01cab]527625c9-361f-bb23-b8e2-c5fdc888c740</obj>
+          <propSet>
+            <name>view</name>
+            <val xsi:type="ArrayOfManagedObjectReference">
+              <ManagedObjectReference type="ResourcePool" xsi:type="ManagedObjectReference">resgroup-39</ManagedObjectReference>
+              <ManagedObjectReference type="ResourcePool" xsi:type="ManagedObjectReference">resgroup-37</ManagedObjectReference>
+            </val>
+          </propSet>
+        </objects>
+      </returnval>
+    </RetrievePropertiesExResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

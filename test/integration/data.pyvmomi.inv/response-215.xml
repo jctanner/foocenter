@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <RetrievePropertiesExResponse xmlns="urn:vim25">
+      <returnval>
+        <objects>
+          <obj type="ResourcePool">resgroup-39</obj>
+          <propSet>
+            <name>runtime</name>
+            <val xsi:type="ResourcePoolRuntimeInfo">
+              <memory>
+                <reservationUsed>24117248</reservationUsed>
+                <reservationUsedForVm>24117248</reservationUsedForVm>
+                <unreservedForPool>1292894208</unreservedForPool>
+                <unreservedForVm>1292894208</unreservedForVm>
+                <overallUsage>23068672</overallUsage>
+                <maxUsage>1317011456</maxUsage>
+              </memory>
+              <cpu>
+                <reservationUsed>0</reservationUsed>
+                <reservationUsedForVm>0</reservationUsedForVm>
+                <unreservedForPool>3132</unreservedForPool>
+                <unreservedForVm>3132</unreservedForVm>
+                <overallUsage>0</overallUsage>
+                <maxUsage>3132</maxUsage>
+              </cpu>
+              <overallStatus>green</overallStatus>
+            </val>
+          </propSet>
+        </objects>
+      </returnval>
+    </RetrievePropertiesExResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

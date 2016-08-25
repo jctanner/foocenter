@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <RetrievePropertiesExResponse xmlns="urn:vim25">
+      <returnval>
+        <objects>
+          <obj type="VirtualMachine">vm-31</obj>
+          <propSet>
+            <name>summary</name>
+            <val xsi:type="VirtualMachineSummary">
+              <vm type="VirtualMachine">vm-31</vm>
+              <runtime>
+                <device>
+                  <runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState">
+                    <vmDirectPathGen2Active>false</vmDirectPathGen2Active>
+                    <vmDirectPathGen2InactiveReasonVm>vmNptDisabledOrDisconnectedAdapter</vmDirectPathGen2InactiveReasonVm>
+                    <vmDirectPathGen2InactiveReasonOther>vmNptIncompatibleNetwork</vmDirectPathGen2InactiveReasonOther>
+                  </runtimeState>
+                  <key>4000</key>
+                </device>
+                <host type="HostSystem">host-28</host>
+                <connectionState>connected</connectionState>
+                <powerState>poweredOff</powerState>
+                <faultToleranceState>notConfigured</faultToleranceState>
+                <toolsInstallerMounted>false</toolsInstallerMounted>
+                <suspendInterval>0</suspendInterval>
+                <memoryOverhead>96878592</memoryOverhead>
+                <numMksConnections>0</numMksConnections>
+                <recordReplayState>inactive</recordReplayState>
+                <onlineStandby>false</onlineStandby>
+                <consolidationNeeded>false</consolidationNeeded>
+                <offlineFeatureRequirement>
+                  <key>cpuid.lm</key>
+                  <featureName>cpuid.lm</featureName>
+                  <value>Bool:Min:1</value>
+                </offlineFeatureRequirement>
+              </runtime>
+              <guest>
+                <toolsStatus>toolsNotInstalled</toolsStatus>
+                <toolsVersionStatus>guestToolsNotInstalled</toolsVersionStatus>
+                <toolsVersionStatus2>guestToolsNotInstalled</toolsVersionStatus2>
+                <toolsRunningStatus>guestToolsNotRunning</toolsRunningStatus>
+              </guest>
+              <config>
+                <name>testvm1</name>
+                <template>false</template>
+                <vmPathName>[datastore1] testvm1/testvm1.vmx</vmPathName>
+                <memorySizeMB>256</memorySizeMB>
+                <cpuReservation>0</cpuReservation>
+                <memoryReservation>0</memoryReservation>
+                <numCpu>1</numCpu>
+                <numEthernetCards>1</numEthernetCards>
+                <numVirtualDisks>1</numVirtualDisks>
+                <uuid>421061cd-ae1b-a90a-9c2b-05a2df878850</uuid>
+                <instanceUuid>5010d9fd-a297-cb55-c114-2c24e8dc12a4</instanceUuid>
+                <guestId>rhel7_64Guest</guestId>
+                <guestFullName>Red Hat Enterprise Linux 7 (64-bit)</guestFullName>
+                <annotation/>
+                <installBootRequired>false</installBootRequired>
+              </config>
+              <storage>
+                <committed>268655665</committed>
+                <uncommitted>10979910127</uncommitted>
+                <unshared>0</unshared>
+                <timestamp>2016-08-22T02:40:48.765705Z</timestamp>
+              </storage>
+              <quickStats>
+                <overallCpuUsage>0</overallCpuUsage>
+                <overallCpuDemand>0</overallCpuDemand>
+                <guestMemoryUsage>0</guestMemoryUsage>
+                <hostMemoryUsage>0</hostMemoryUsage>
+                <guestHeartbeatStatus>gray</guestHeartbeatStatus>
+                <distributedCpuEntitlement>0</distributedCpuEntitlement>
+                <distributedMemoryEntitlement>0</distributedMemoryEntitlement>
+                <staticCpuEntitlement>0</staticCpuEntitlement>
+                <staticMemoryEntitlement>0</staticMemoryEntitlement>
+                <privateMemory>0</privateMemory>
+                <sharedMemory>0</sharedMemory>
+                <swappedMemory>0</swappedMemory>
+                <balloonedMemory>0</balloonedMemory>
+                <consumedOverheadMemory>0</consumedOverheadMemory>
+                <ftLogBandwidth>-1</ftLogBandwidth>
+                <ftSecondaryLatency>-1</ftSecondaryLatency>
+                <ftLatencyStatus>gray</ftLatencyStatus>
+                <compressedMemory>0</compressedMemory>
+                <uptimeSeconds>0</uptimeSeconds>
+                <ssdSwappedMemory>0</ssdSwappedMemory>
+              </quickStats>
+              <overallStatus>green</overallStatus>
+            </val>
+          </propSet>
+        </objects>
+      </returnval>
+    </RetrievePropertiesExResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <RetrievePropertiesEx xmlns="urn:vim25">
+      <_this type="PropertyCollector">propertyCollector</_this>
+      <specSet>
+        <propSet>
+          <type>ContainerView</type>
+          <all>false</all>
+          <pathSet>view</pathSet>
+        </propSet>
+        <objectSet>
+          <obj type="ContainerView">session[a5e79a54-e8d2-40f6-cd50-bae326c01cab]520eb080-35c9-be80-8d10-ad0c95af90d0</obj>
+          <skip>false</skip>
+        </objectSet>
+      </specSet>
+      <options>
+        <maxObjects>1</maxObjects>
+      </options>
+    </RetrievePropertiesEx>
+  </soapenv:Body>
+</soapenv:Envelope>

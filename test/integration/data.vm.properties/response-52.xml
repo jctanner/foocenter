@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <RetrievePropertiesExResponse xmlns="urn:vim25">
+      <returnval>
+        <objects>
+          <obj type="VirtualMachine">vm-31</obj>
+          <propSet>
+            <name>layoutEx</name>
+            <val xsi:type="VirtualMachineFileLayoutEx">
+              <file>
+                <key>0</key>
+                <name>[datastore1] testvm1/testvm1.vmx</name>
+                <type>config</type>
+                <size>2643</size>
+                <uniqueSize>2643</uniqueSize>
+              </file>
+              <file>
+                <key>1</key>
+                <name>[datastore1] testvm1/testvm1.vmxf</name>
+                <type>extendedConfig</type>
+                <size>0</size>
+                <uniqueSize>0</uniqueSize>
+              </file>
+              <file>
+                <key>5</key>
+                <name>[datastore1] testvm1/testvm1.nvram</name>
+                <type>nvram</type>
+                <size>8684</size>
+                <uniqueSize>8684</uniqueSize>
+              </file>
+              <file>
+                <key>2</key>
+                <name>[datastore1] testvm1/testvm1.vmsd</name>
+                <type>snapshotList</type>
+                <size>0</size>
+                <uniqueSize>0</uniqueSize>
+              </file>
+              <file>
+                <key>3</key>
+                <name>[datastore1] testvm1/testvm1.vmdk</name>
+                <type>diskDescriptor</type>
+                <size>0</size>
+                <uniqueSize>0</uniqueSize>
+              </file>
+              <file>
+                <key>4</key>
+                <name>[datastore1] testvm1/testvm1-flat.vmdk</name>
+                <type>diskExtent</type>
+                <size>0</size>
+                <uniqueSize>0</uniqueSize>
+              </file>
+              <file>
+                <key>6</key>
+                <name>[datastore1] testvm1/vmware.log</name>
+                <type>log</type>
+                <size>113991</size>
+                <uniqueSize>113991</uniqueSize>
+              </file>
+              <disk>
+                <key>2000</key>
+                <chain>
+                  <fileKey>3</fileKey>
+                  <fileKey>4</fileKey>
+                </chain>
+              </disk>
+              <timestamp>2016-08-18T13:34:14.11548Z</timestamp>
+            </val>
+          </propSet>
+        </objects>
+      </returnval>
+    </RetrievePropertiesExResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

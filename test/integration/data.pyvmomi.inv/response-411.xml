@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <RetrievePropertiesExResponse xmlns="urn:vim25">
+      <returnval>
+        <objects>
+          <obj type="VirtualMachine">vm-31</obj>
+          <propSet>
+            <name>runtime</name>
+            <val xsi:type="VirtualMachineRuntimeInfo">
+              <device>
+                <runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState">
+                  <vmDirectPathGen2Active>false</vmDirectPathGen2Active>
+                  <vmDirectPathGen2InactiveReasonVm>vmNptDisabledOrDisconnectedAdapter</vmDirectPathGen2InactiveReasonVm>
+                  <vmDirectPathGen2InactiveReasonOther>vmNptIncompatibleNetwork</vmDirectPathGen2InactiveReasonOther>
+                </runtimeState>
+                <key>4000</key>
+              </device>
+              <host type="HostSystem">host-28</host>
+              <connectionState>connected</connectionState>
+              <powerState>poweredOff</powerState>
+              <faultToleranceState>notConfigured</faultToleranceState>
+              <toolsInstallerMounted>false</toolsInstallerMounted>
+              <suspendInterval>0</suspendInterval>
+              <memoryOverhead>96878592</memoryOverhead>
+              <numMksConnections>0</numMksConnections>
+              <recordReplayState>inactive</recordReplayState>
+              <onlineStandby>false</onlineStandby>
+              <consolidationNeeded>false</consolidationNeeded>
+              <offlineFeatureRequirement>
+                <key>cpuid.lm</key>
+                <featureName>cpuid.lm</featureName>
+                <value>Bool:Min:1</value>
+              </offlineFeatureRequirement>
+            </val>
+          </propSet>
+        </objects>
+      </returnval>
+    </RetrievePropertiesExResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

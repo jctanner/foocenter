@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <LoginResponse xmlns="urn:vim25">
+      <returnval>
+        <key>5277510e-6971-8afd-4a60-ad4f2e0df15e</key>
+        <userName>root</userName>
+        <fullName>root </fullName>
+        <loginTime>2016-08-22T09:48:59.163095Z</loginTime>
+        <lastActiveTime>2016-08-22T09:48:59.163095Z</lastActiveTime>
+        <locale>en</locale>
+        <messageLocale>en</messageLocale>
+        <extensionSession>false</extensionSession>
+        <ipAddress>192.168.1.51</ipAddress>
+        <userAgent/>
+        <callCount>0</callCount>
+      </returnval>
+    </LoginResponse>
+  </soapenv:Body>
+</soapenv:Envelope>

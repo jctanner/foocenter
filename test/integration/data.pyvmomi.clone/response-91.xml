@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <RetrievePropertiesExResponse xmlns="urn:vim25">
+      <returnval>
+        <objects>
+          <obj type="VirtualMachine">vm-68</obj>
+          <propSet>
+            <name>config</name>
+            <val xsi:type="VirtualMachineConfigInfo">
+              <changeVersion>2016-08-22T09:51:20.485379Z</changeVersion>
+              <modified>1970-01-01T00:00:00Z</modified>
+              <name>testvm_ansible_1</name>
+              <guestFullName>Red Hat Enterprise Linux 7 (64-bit)</guestFullName>
+              <version>vmx-10</version>
+              <uuid>4210694e-0ab4-8765-2aea-873c507b746d</uuid>
+              <instanceUuid>5010948f-0ce8-5b08-0bae-dd347d639732</instanceUuid>
+              <npivTemporaryDisabled>true</npivTemporaryDisabled>
+              <locationId/>
+              <template>false</template>
+              <guestId>rhel7_64Guest</guestId>
+              <alternateGuestName/>
+              <annotation/>
+              <files>
+                <vmPathName>[datastore1] testvm_ansible_1/testvm_ansible_1.vmx</vmPathName>
+                <snapshotDirectory>[datastore1] testvm_ansible_1/</snapshotDirectory>
+                <suspendDirectory>[datastore1] testvm_ansible_1/</suspendDirectory>
+                <logDirectory>[datastore1] testvm_ansible_1/</logDirectory>
+              </files>
+              <tools>
+                <toolsVersion>2147483647</toolsVersion>
+                <afterPowerOn>true</afterPowerOn>
+                <afterResume>true</afterResume>
+                <beforeGuestStandby>true</beforeGuestStandby>
+                <beforeGuestShutdown>true</beforeGuestShutdown>
+                <toolsUpgradePolicy>manual</toolsUpgradePolicy>
+                <syncTimeWithHost>false</syncTimeWithHost>
+                <lastInstallInfo>
+                  <counter>0</counter>
+                </lastInstallInfo>
+              </tools>
+              <flags>
+                <disableAcceleration>false</disableAcceleration>
+                <enableLogging>true</enableLogging>
+                <useToe>false</useToe>
+                <runWithDebugInfo>false</runWithDebugInfo>
+                <monitorType>release</monitorType>
+                <htSharing>any</htSharing>
+                <snapshotDisabled>false</snapshotDisabled>
+                <snapshotLocked>false</snapshotLocked>
+                <diskUuidEnabled>false</diskUuidEnabled>
+                <virtualMmuUsage>automatic</virtualMmuUsage>
+                <virtualExecUsage>hvAuto</virtualExecUsage>
+                <snapshotPowerOffBehavior>powerOff</snapshotPowerOffBehavior>
+                <recordReplayEnabled>false</recordReplayEnabled>
+              </flags>
+              <defaultPowerOps>
+                <powerOffType>soft</powerOffType>
+                <suspendType>hard</suspendType>
+                <resetType>soft</resetType>
+                <defaultPowerOffType>soft</defaultPowerOffType>
+                <defaultSuspendType>hard</defaultSuspendType>
+                <defaultResetType>soft</defaultResetType>
+                <standbyAction>checkpoint</standbyAction>
+              </defaultPowerOps>
+              <hardware>
+                <numCPU>1</numCPU>
+                <numCoresPerSocket>1</numCoresPerSocket>
+                <memoryMB>256</memoryMB>
+                <virtualICH7MPresent>false</virtualICH7MPresent>
+                <virtualSMCPresent>false</virtualSMCPresent>
+                <device xsi:type="VirtualIDEController">
+                  <key>200</key>
+                  <deviceInfo>
+                    <label>IDE 0</label>
+                    <summary>IDE 0</summary>
+                  </deviceInfo>
+                  <busNumber>0</busNumber>
+                </device>
+                <device xsi:type="VirtualIDEController">
+                  <key>201</key>
+                  <deviceInfo>
+                    <label>IDE 1</label>
+                    <summary>IDE 1</summary>
+                  </deviceInfo>
+                  <busNumber>1</busNumber>
+                </device>
+                <device xsi:type="VirtualPS2Controller">
+                  <key>300</key>
+                  <deviceInfo>
+                    <label>PS2 controller 0</label>
+                    <summary>PS2 controller 0</summary>
+                  </deviceInfo>
+                  <busNumber>0</busNumber>
+                  <device>600</device>
+                  <device>700</device>
+                </device>
+                <device xsi:type="VirtualPCIController">
+                  <key>100</key>
+                  <deviceInfo>
+                    <label>PCI controller 0</label>
+                    <summary>PCI controller 0</summary>
+                  </deviceInfo>
+                  <busNumber>0</busNumber>
+                  <device>500</device>
+                  <device>12000</device>
+                  <device>1000</device>
+                  <device>15000</device>
+                  <device>4000</device>
+                </device>
+                <device xsi:type="VirtualSIOController">
+                  <key>400</key>
+                  <deviceInfo>
+                    <label>SIO controller 0</label>
+                    <summary>SIO controller 0</summary>
+                  </deviceInfo>
+                  <busNumber>0</busNumber>
+                  <device>8000</device>
+                </device>
+                <device xsi:type="VirtualKeyboard">
+                  <key>600</key>
+                  <deviceInfo>
+                    <label>Keyboard </label>
+                    <summary>Keyboard</summary>
+                  </deviceInfo>
+                  <controllerKey>300</controllerKey>
+                  <unitNumber>0</unitNumber>
+                </device>
+                <device xsi:type="VirtualPointingDevice">
+                  <key>700</key>
+                  <deviceInfo>
+                    <label>Pointing device</label>
+                    <summary>Pointing device; Device</summary>
+                  </deviceInfo>
+                  <backing xsi:type="VirtualPointingDeviceDeviceBackingInfo">
+                    <deviceName/>
+                    <useAutoDetect>false</useAutoDetect>
+                    <hostPointingDevice>autodetect</hostPointingDevice>
+                  </backing>
+                  <controllerKey>300</controllerKey>
+                  <unitNumber>1</unitNumber>
+                </device>
+                <device xsi:type="VirtualMachineVideoCard">
+                  <key>500</key>
+                  <deviceInfo>
+                    <label>Video card </label>
+                    <summary>Video card</summary>
+                  </deviceInfo>
+                  <controllerKey>100</controllerKey>
+                  <unitNumber>0</unitNumber>
+                  <videoRamSizeInKB>8192</videoRamSizeInKB>
+                  <numDisplays>1</numDisplays>
+                  <useAutoDetect>false</useAutoDetect>
+                  <enable3DSupport>false</enable3DSupport>
+                  <use3dRenderer>automatic</use3dRenderer>
+                </device>
+                <device xsi:type="VirtualMachineVMCIDevice">
+                  <key>12000</key>
+                  <deviceInfo>
+                    <label>VMCI device</label>
+                    <summary>Device on the virtual machine PCI bus that provides support for the virtual machine communication interface</summary>
+                  </deviceInfo>
+                  <slotInfo xsi:type="VirtualDevicePciBusSlotInfo">
+                    <pciSlotNumber>32</pciSlotNumber>
+                  </slotInfo>
+                  <controllerKey>100</controllerKey>
+                  <unitNumber>17</unitNumber>
+                  <id>-1</id>
+                  <allowUnrestrictedCommunication>false</allowUnrestrictedCommunication>
+                </device>
+                <device xsi:type="ParaVirtualSCSIController">
+                  <key>1000</key>
+                  <deviceInfo>
+                    <label>SCSI controller 0</label>
+                    <summary>VMware paravirtual SCSI</summary>
+                  </deviceInfo>
+                  <slotInfo xsi:type="VirtualDevicePciBusSlotInfo">
+                    <pciSlotNumber>160</pciSlotNumber>
+                  </slotInfo>
+                  <controllerKey>100</controllerKey>
+                  <unitNumber>3</unitNumber>
+                  <busNumber>0</busNumber>
+                  <device>2000</device>
+                  <hotAddRemove>true</hotAddRemove>
+                  <sharedBus>noSharing</sharedBus>
+                  <scsiCtlrUnitNumber>7</scsiCtlrUnitNumber>
+                </device>
+                <device xsi:type="VirtualAHCIController">
+                  <key>15000</key>
+                  <deviceInfo>
+                    <label>SATA controller 0</label>
+                    <summary>AHCI</summary>
+                  </deviceInfo>
+                  <slotInfo xsi:type="VirtualDevicePciBusSlotInfo">
+                    <pciSlotNumber>33</pciSlotNumber>
+                  </slotInfo>
+                  <controllerKey>100</controllerKey>
+                  <unitNumber>24</unitNumber>
+                  <busNumber>0</busNumber>
+                  <device>16000</device>
+                </device>
+                <device xsi:type="VirtualCdrom">
+                  <key>16000</key>
+                  <deviceInfo>
+                    <label>CD/DVD drive 1</label>
+                    <summary>ISO [wdcloud] ISO/CentOS-7-x86_64-Minimal-1511.iso</summary>
+                  </deviceInfo>
+                  <backing xsi:type="VirtualCdromIsoBackingInfo">
+                    <fileName>[wdcloud] ISO/CentOS-7-x86_64-Minimal-1511.iso</fileName>
+                    <datastore type="Datastore">datastore-35</datastore>
+                  </backing>
+                  <connectable>
+                    <startConnected>true</startConnected>
+                    <allowGuestControl>true</allowGuestControl>
+                    <connected>false</connected>
+                    <status>untried</status>
+                  </connectable>
+                  <controllerKey>15000</controllerKey>
+                  <unitNumber>0</unitNumber>
+                </device>
+                <device xsi:type="VirtualDisk">
+                  <key>2000</key>
+                  <deviceInfo>
+                    <label>Hard disk 1</label>
+                    <summary>10,485,760 KB</summary>
+                  </deviceInfo>
+                  <backing xsi:type="VirtualDiskFlatVer2BackingInfo">
+                    <fileName>[datastore1] testvm_ansible_1/testvm_ansible_1.vmdk</fileName>
+                    <datastore type="Datastore">datastore-29</datastore>
+                    <backingObjectId>9-2000-0</backingObjectId>
+                    <diskMode>persistent</diskMode>
+                    <split>false</split>
+                    <writeThrough>false</writeThrough>
+                    <thinProvisioned>true</thinProvisioned>
+                    <uuid>6000C290-62d3-05cc-0fd2-4fca5fc13724</uuid>
+                    <contentId>636f14e553bea2b4df4bbf78b0c25bab</contentId>
+                    <digestEnabled>false</digestEnabled>
+                  </backing>
+                  <controllerKey>1000</controllerKey>
+                  <unitNumber>0</unitNumber>
+                  <capacityInKB>10485760</capacityInKB>
+                  <capacityInBytes>10737418240</capacityInBytes>
+                  <shares>
+                    <shares>1000</shares>
+                    <level>normal</level>
+                  </shares>
+                  <storageIOAllocation>
+                    <limit>-1</limit>
+                    <shares>
+                      <shares>1000</shares>
+                      <level>normal</level>
+                    </shares>
+                    <reservation>0</reservation>
+                  </storageIOAllocation>
+                  <diskObjectId>9-2000</diskObjectId>
+                </device>
+                <device xsi:type="VirtualFloppy">
+                  <key>8000</key>
+                  <deviceInfo>
+                    <label>Floppy drive 1</label>
+                    <summary>Remote</summary>
+                  </deviceInfo>
+                  <backing xsi:type="VirtualFloppyRemoteDeviceBackingInfo">
+                    <deviceName/>
+                    <useAutoDetect>false</useAutoDetect>
+                  </backing>
+                  <connectable>
+                    <startConnected>false</startConnected>
+                    <allowGuestControl>true</allowGuestControl>
+                    <connected>false</connected>
+                    <status>untried</status>
+                  </connectable>
+                  <controllerKey>400</controllerKey>
+                  <unitNumber>0</unitNumber>
+                </device>
+                <device xsi:type="VirtualVmxnet3">
+                  <key>4000</key>
+                  <deviceInfo>
+                    <label>Network adapter 1</label>
+                    <summary>VM Network</summary>
+                  </deviceInfo>
+                  <backing xsi:type="VirtualEthernetCardNetworkBackingInfo">
+                    <deviceName>VM Network</deviceName>
+                    <useAutoDetect>false</useAutoDetect>
+                    <network type="Network">network-30</network>
+                  </backing>
+                  <connectable>
+                    <startConnected>true</startConnected>
+                    <allowGuestControl>true</allowGuestControl>
+                    <connected>false</connected>
+                    <status>untried</status>
+                  </connectable>
+                  <slotInfo xsi:type="VirtualDevicePciBusSlotInfo">
+                    <pciSlotNumber>192</pciSlotNumber>
+                  </slotInfo>
+                  <controllerKey>100</controllerKey>
+                  <unitNumber>7</unitNumber>
+                  <addressType>assigned</addressType>
+                  <macAddress>00:50:56:90:3f:5e</macAddress>
+                  <wakeOnLanEnabled>true</wakeOnLanEnabled>
+                </device>
+              </hardware>
+              <cpuAllocation>
+                <reservation>0</reservation>
+                <expandableReservation>false</expandableReservation>
+                <limit>-1</limit>
+                <shares>
+                  <shares>1000</shares>
+                  <level>normal</level>
+                </shares>
+              </cpuAllocation>
+              <memoryAllocation>
+                <reservation>0</reservation>
+                <expandableReservation>false</expandableReservation>
+                <limit>-1</limit>
+                <shares>
+                  <shares>2560</shares>
+                  <level>normal</level>
+                </shares>
+              </memoryAllocation>
+              <latencySensitivity>
+                <level>normal</level>
+              </latencySensitivity>
+              <memoryHotAddEnabled>false</memoryHotAddEnabled>
+              <cpuHotAddEnabled>false</cpuHotAddEnabled>
+              <cpuHotRemoveEnabled>false</cpuHotRemoveEnabled>
+              <extraConfig>
+                <key>sched.cpu.latencySensitivity</key>
+                <value xsi:type="xsd:string">normal</value>
+              </extraConfig>
+              <extraConfig>
+                <key>tools.guest.desktop.autolock</key>
+                <value xsi:type="xsd:string">false</value>
+              </extraConfig>
+              <extraConfig>
+                <key>nvram</key>
+                <value xsi:type="xsd:string">testvm_ansible_1.nvram</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge0.present</key>
+                <value xsi:type="xsd:string">TRUE</value>
+              </extraConfig>
+              <extraConfig>
+                <key>svga.present</key>
+                <value xsi:type="xsd:string">TRUE</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge4.present</key>
+                <value xsi:type="xsd:string">TRUE</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge4.virtualDev</key>
+                <value xsi:type="xsd:string">pcieRootPort</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge4.functions</key>
+                <value xsi:type="xsd:string">8</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge5.present</key>
+                <value xsi:type="xsd:string">TRUE</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge5.virtualDev</key>
+                <value xsi:type="xsd:string">pcieRootPort</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge5.functions</key>
+                <value xsi:type="xsd:string">8</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge6.present</key>
+                <value xsi:type="xsd:string">TRUE</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge6.virtualDev</key>
+                <value xsi:type="xsd:string">pcieRootPort</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge6.functions</key>
+                <value xsi:type="xsd:string">8</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge7.present</key>
+                <value xsi:type="xsd:string">TRUE</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge7.virtualDev</key>
+                <value xsi:type="xsd:string">pcieRootPort</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge7.functions</key>
+                <value xsi:type="xsd:string">8</value>
+              </extraConfig>
+              <extraConfig>
+                <key>hpet0.present</key>
+                <value xsi:type="xsd:string">true</value>
+              </extraConfig>
+              <extraConfig>
+                <key>virtualHW.productCompatibility</key>
+                <value xsi:type="xsd:string">hosted</value>
+              </extraConfig>
+              <extraConfig>
+                <key>sched.scsi0:0.throughputCap</key>
+                <value xsi:type="xsd:string">off</value>
+              </extraConfig>
+              <extraConfig>
+                <key>vmci.filter.enable</key>
+                <value xsi:type="xsd:string">true</value>
+              </extraConfig>
+              <extraConfig>
+                <key>replay.supported</key>
+                <value xsi:type="xsd:string">false</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge0.pciSlotNumber</key>
+                <value xsi:type="xsd:string">17</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge4.pciSlotNumber</key>
+                <value xsi:type="xsd:string">21</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge5.pciSlotNumber</key>
+                <value xsi:type="xsd:string">22</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge6.pciSlotNumber</key>
+                <value xsi:type="xsd:string">23</value>
+              </extraConfig>
+              <extraConfig>
+                <key>pciBridge7.pciSlotNumber</key>
+                <value xsi:type="xsd:string">24</value>
+              </extraConfig>
+              <extraConfig>
+                <key>scsi0.pciSlotNumber</key>
+                <value xsi:type="xsd:string">160</value>
+              </extraConfig>
+              <extraConfig>
+                <key>ethernet0.pciSlotNumber</key>
+                <value xsi:type="xsd:string">192</value>
+              </extraConfig>
+              <extraConfig>
+                <key>vmci0.pciSlotNumber</key>
+                <value xsi:type="xsd:string">32</value>
+              </extraConfig>
+              <extraConfig>
+                <key>sata0.pciSlotNumber</key>
+                <value xsi:type="xsd:string">33</value>
+              </extraConfig>
+              <extraConfig>
+                <key>scsi0.sasWWID</key>
+                <value xsi:type="xsd:string">50 05 05 6a cb 33 6b 50</value>
+              </extraConfig>
+              <extraConfig>
+                <key>monitor.phys_bits_used</key>
+                <value xsi:type="xsd:string">40</value>
+              </extraConfig>
+              <extraConfig>
+                <key>vmotion.checkpointFBSize</key>
+                <value xsi:type="xsd:string">8388608</value>
+              </extraConfig>
+              <extraConfig>
+                <key>softPowerOff</key>
+                <value xsi:type="xsd:string">TRUE</value>
+              </extraConfig>
+              <extraConfig>
+                <key>tools.remindInstall</key>
+                <value xsi:type="xsd:string">FALSE</value>
+              </extraConfig>
+              <extraConfig>
+                <key>vmware.tools.internalversion</key>
+                <value xsi:type="xsd:string">2147483647</value>
+              </extraConfig>
+              <extraConfig>
+                <key>vmware.tools.requiredversion</key>
+                <value xsi:type="xsd:string">9360</value>
+              </extraConfig>
+              <extraConfig>
+                <key>migrate.hostLogState</key>
+                <value xsi:type="xsd:string">none</value>
+              </extraConfig>
+              <extraConfig>
+                <key>migrate.migrationId</key>
+                <value xsi:type="xsd:string">0</value>
+              </extraConfig>
+              <datastoreUrl>
+                <name>wdcloud</name>
+                <url>/vmfs/volumes/2f9551f9-768e2a76</url>
+              </datastoreUrl>
+              <datastoreUrl>
+                <name>datastore1</name>
+                <url>/vmfs/volumes/57b322a0-107477a1-fb2f-000c299ffafa</url>
+              </datastoreUrl>
+              <swapPlacement>inherit</swapPlacement>
+              <bootOptions>
+                <bootDelay>10000</bootDelay>
+                <enterBIOSSetup>false</enterBIOSSetup>
+                <bootRetryEnabled>false</bootRetryEnabled>
+                <bootRetryDelay>10000</bootRetryDelay>
+              </bootOptions>
+              <vAssertsEnabled>false</vAssertsEnabled>
+              <changeTrackingEnabled>false</changeTrackingEnabled>
+              <firmware>bios</firmware>
+              <maxMksConnections>40</maxMksConnections>
+              <guestAutoLockEnabled>false</guestAutoLockEnabled>
+              <memoryReservationLockedToMax>false</memoryReservationLockedToMax>
+              <initialOverhead>
+                <initialMemoryReservation>96878592</initialMemoryReservation>
+                <initialSwapReservation>242491392</initialSwapReservation>
+              </initialOverhead>
+              <nestedHVEnabled>false</nestedHVEnabled>
+              <vPMCEnabled>false</vPMCEnabled>
+              <scheduledHardwareUpgradeInfo>
+                <upgradePolicy>never</upgradePolicy>
+                <scheduledHardwareUpgradeStatus>none</scheduledHardwareUpgradeStatus>
+              </scheduledHardwareUpgradeInfo>
+              <vFlashCacheReservation>0</vFlashCacheReservation>
+            </val>
+          </propSet>
+        </objects>
+      </returnval>
+    </RetrievePropertiesExResponse>
+  </soapenv:Body>
+</soapenv:Envelope>
