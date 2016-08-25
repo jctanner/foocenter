@@ -865,51 +865,6 @@ class VCenter(BaseHTTPRequestHandler):
 
     def RetrievePropertiesEx(self, postdata, query):
 
-        # sometimes the caller wants a list of hosts ...
-
-        # sometimes the caller wants a list of vms ...
-        '''
-        <val xsi:type=\"ArrayOfManagedObjectReference\">
-            <ManagedObjectReference type=\"VirtualMachine\" xsi:type=\"ManagedObjectReference\">
-                vm-744
-            </ManagedObjectReference>
-            <ManagedObjectReference type=\"VirtualMachine\" xsi:type=\"ManagedObjectReference\">
-                vm-730
-            </ManagedObjectReference>
-            <ManagedObjectReference type=\"VirtualMachine\" xsi:type=\"ManagedObjectReference\">
-                vm-741
-            </ManagedObjectReference>
-        '''
-
-        # sometimes the caller wants a single vm ...
-        '''
-        <soapenv:Body>
-            <RetrievePropertiesEx xmlns="urn:vim25">
-            <_this type="PropertyCollector">propertyCollector</_this>
-            <specSet>
-                <propSet>
-                    <type>VirtualMachine</type>
-                    <all>false</all>
-                    <pathSet>name</pathSet>
-                </propSet>
-                <objectSet>
-                    <objtype="VirtualMachine">vm-744</obj>
-                    <skip>false</skip>
-                </objectSet>
-            </specSet>
-            <options>
-                <maxObjects>1</maxObjects>
-            </options>
-            </RetrievePropertiesEx>
-        </soapenv:Body>
-        '''
-
-        #try:
-        #    requested = query.get('Body').get('RetrievePropertiesEx').get('specSet').get('objectSet').get('obj')
-        #    pathset = query.get('Body').get('RetrievePropertiesEx').get('specSet').get('propSet').get('pathSet')
-        #except:
-        #    pass
-
         requested = None
         select_path = None
         propset_path = None
@@ -932,36 +887,10 @@ class VCenter(BaseHTTPRequestHandler):
         except:
             pass
 
-        '''
-        print('retrievepropertiesex requested: %s' % requested)
-        print('retrievepropertiesex select_path: %s' % select_path)
-        print('retrievepropertiesex propset_path: %s' % propset_path)
-        print('retrievepropertiesex propset_type: %s' % propset_type)
-        '''
-
-        #if 'ServiceInstance' in postdata and 'propertyCollector' in postdata:
+        #if '<pathSet>summary</pathSet>' in postdata:
         #    import pdb; pdb.set_trace()
-        #if 'datacenter-1' in postdata and 'name' in postdata:
-        #    import pdb; pdb.set_trace()
-        #if 'group-v2' in postdata:
-        #    import pdb; pdb.set_trace()
-
-        # session[0bc77834-...]52ef3fa7-... --> vmlist
-        # vm-1 --> a VM
 
         if requested.startswith('session['):
-
-            '''
-            if CONTAINERVIEWS:
-                pprint(CONTAINERVIEWS)
-                keys = CONTAINERVIEWS.keys()
-                keys = list(keys)
-                key = keys[0]
-                #import pdb; pdb.set_trace()
-                if CONTAINERVIEWS[key]['type'] == 'Folder'\
-                    and CONTAINERVIEWS[key]['container'] == 'group-d1':
-                    import pdb; pdb.set_trace()
-            '''
 
             type_map = {'Datacenter': 'datacenters',
                         'Datastore': 'datastores',
@@ -1306,7 +1235,6 @@ class VCenter(BaseHTTPRequestHandler):
 
 
     def CloneVM_Task(self, postdata, query):
-        '''Clone a template!!!'''
 
         # The postdata should send:
         #   * template guestid
@@ -1331,9 +1259,9 @@ class VCenter(BaseHTTPRequestHandler):
         spec = query.get('Body', {}).get('CloneVM_Task', {}).get('spec', {})
         powerstate = spec.get('powerOn', False)
         if not powerstate:
-            powerstate = 'poweredoff'
+            powerstate = 'poweredOff'
         else:
-            powerstate = 'poweredon'
+            powerstate = 'poweredOn'
         template = INVENTORY['vm'][templateid]
         folder = self._get_folder_by_id(folderid)
         
@@ -1412,61 +1340,12 @@ class VCenter(BaseHTTPRequestHandler):
         TASKS[taskkey]['src'] = templateid
         TASKS[taskkey]['folder'] = folderid
         TASKS[taskkey]['spec'] = spec
-        #TASKS[taskkey]['queueTime'] = '{:%Y-%m-%dT%H:%M:%S.%f}'.format(datetime.datetime.now())
         TASKS[taskkey]['queueTime'] = datetime.datetime.now()
-        #TASKS[taskkey]['startTime'] = '{:%Y-%m-%dT%H:%M:%S.%f}'.format(datetime.datetime.now())
         TASKS[taskkey]['startTime'] = datetime.datetime.now()
-        TASKS[taskkey]['completeTime'] = datetime.datetime.now() + datetime.timedelta(seconds=5)
-
-        '''
-        RPResponse = SE(Body, 'RetrievePropertiesExResponse')
-        RPResponse.set('xmlns', 'urn:vim25')
-        this_rval = SE(RPResponse, 'returnval')
-        this_objects = SE(this_rval, 'objects')
-        this_obj = SE(this_objects, 'obj')
-        this_obj.set('type', 'Task')
-        this_obj.text = taskkey
-        this_propset = SE(this_objects, 'propSet')
-        this_name = SE(this_propset, 'name')
-        this_name.text = 'CloneVM_Task'
-        this_val = SE(this_propset, 'val')
-        this_val.set('xsi:type', "TaskInfo") 
-        vkey = SE(this_val, 'key')
-        vkey.text = taskkey
-        vtask = SE(this_val, 'task')
-        vtask.set('type', 'Task')
-        vtask.text = taskkey
-        vname = SE(this_val, 'name')
-        vname.text = 'CloneVM_Task'
-        vdesc = SE(this_val, 'descriptionId')
-        vdesc.text = 'VirtualMachine.clone'
-        vent = SE(this_val, 'entity')
-        vent.set('type', 'VirtualMachine')
-        vent.text = vmid
-        ventname = SE(this_val, 'entityName')
-        ventname.text = template['name']
-        vstate = SE(this_val, 'state')
-        vstate.text = powerstate
-        vcancel = SE(this_val, 'cancelled')
-        vcancel.text = 'false'
-        vcancelable = SE(this_val, 'cancelable')
-        vcancelable.text = 'true'
-        vreason = SE(this_val, 'reason')
-        vreason.set('xsi:type', 'TaskReasonUser')
-        vusername = SE(vreason, 'userName')
-        vusername.text = 'root'
-        vquetime = SE(this_val, 'queueTime')
-        #import pdb; pdb.set_trace()
-        vquetime.text = '{:%Y-%m-%dT%H:%M:%S.%f}'.format(datetime.datetime.now()) # 2016-08-22T09:51:18.964686Z
-        vstarttime = SE(this_val, 'startTime')
-        vstarttime.text = '{:%Y-%m-%dT%H:%M:%S.%f}'.format(datetime.datetime.now()) # 2016-08-22T09:51:18.964686Z
-        vevent = SE(this_val, 'eventChainId')
-        vevent.text = str(eventid)
-        '''
+        TASKS[taskkey]['completeTime'] = datetime.datetime.now() + datetime.timedelta(seconds=1)
 
         fdata = TS(X).decode("utf-8")
         splitxml(X)
-        #import pdb; pdb.set_trace()
         return fdata
 
     def _add_vmid_to_folder(self, dcid, folderid, vmid):
@@ -1633,6 +1512,41 @@ class VCenter(BaseHTTPRequestHandler):
             guest_state = SE(this_val, 'guestState')
             guest_state.text = 'notRunning'
 
+        elif propname == 'summary':
+
+            rdata = INVENTORY['vm'][oval]
+
+            X = self._get_soap_element()
+            Body = SE(X, 'soapenv:Body')
+            RPResponse = SE(Body, responsetype)
+            RPResponse.set('xmlns', "urn:vim25")
+            this_rval = E("returnval")
+            this_objects = SE(this_rval, 'objects')
+            this_obj = SE(this_objects, 'obj')
+            this_obj.set('type', otype)
+            this_obj.text = okey
+            this_propset = SE(this_objects, 'propSet')
+            this_name = SE(this_propset, 'name')
+            this_name.text = prop
+            this_val = SE(this_propset, 'val')
+
+            this_val.set('xsi:type', 'VirtualMachineSummary')
+            this_vm = SE(this_val, 'vm')
+            this_vm.set('type', 'VirtualMachine')
+            this_vm.text = oval
+            this_runtime = SE(this_val, 'runtime')
+            this_device = SE(this_runtime, 'device')
+            this_host = SE(this_runtime, 'host')
+            this_host.set('type', 'HostSystem')
+
+            this_powerstate = SE(this_runtime, 'powerState')
+            state = rdata['_meta'].get('guestState', 'poweredOff')
+            if state != 'poweredOff':
+                state = 'poweredOn'
+            this_powerstate.text = state
+            this_guest = SE(this_val, 'guest')
+            #import pdb; pdb.set_trace()
+
         elif propname == 'capability':
             this_obj.text = oval #need the VM id here 
             this_val.set('xsi:type', 'VirtualMachineCapability')
@@ -1798,11 +1712,6 @@ class VCenter(BaseHTTPRequestHandler):
 
         elif propname == 'guest':
 
-            #print("###########################")
-            #print("#         GUEST           #")
-            #print("###########################")
-            #import pdb; pdb.set_trace()
-
             vm = INVENTORY['vm'][oval]
             meta = vm.get('_meta', {})
 
@@ -1827,15 +1736,13 @@ class VCenter(BaseHTTPRequestHandler):
             this_obj.text = oval
             this_propset = SE(this_objects, 'propSet')
 
-            #print("## 8")
             this_name = SE(this_propset, 'name')
             this_name.text = 'guest'
-            #splitxml(X)
-
-            #print("## 9")
             this_val = SE(this_propset, 'val')
             this_val.set('xsi:type', 'GuestInfo')
-            #splitxml(X)
+
+            # FIXMEHERE ... guestFullName
+            #import pdb; pdb.set_trace()
 
             for x in VM_EX_GUEST_PROPS:
                 #if x[0] == 'guestState':
