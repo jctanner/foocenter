@@ -276,26 +276,6 @@ class VCenter(BaseHTTPRequestHandler):
         pprint(query)
         print("# QUERY END")
 
-        '''
-        if 'Folder' in postdata \
-            and 'CreateContainerView' in postdata \
-            and '<type>Folder</type>' in postdata \
-            and 'group-d1' in postdata:
-            import pdb; pdb.set_trace()
-        '''
-
-        '''
-        if CONTAINERVIEWS:
-            pprint(CONTAINERVIEWS)
-            keys = CONTAINERVIEWS.keys()
-            keys = list(keys)
-            key = keys[0]
-            #import pdb; pdb.set_trace()
-            if CONTAINERVIEWS[key]['type'] == 'Folder'\
-                and CONTAINERVIEWS[key]['container'] == 'group-d1':
-                import pdb; pdb.set_trace()
-        '''
-
         rc = 200 #http returncode
 
         # What is the method being called?
@@ -1052,6 +1032,90 @@ class VCenter(BaseHTTPRequestHandler):
             #splitxml(fdata)
             return fdata
 
+        elif propset_type == 'Task':
+            splitxml(postdata)
+            X = self._get_soap_element()
+            Body = SE(X, 'soapenv:Body')
+
+            if propset_path == 'info':
+
+                task = TASKS[requested]
+
+                RPResponse = SE(Body, 'RetrievePropertiesExResponse')
+                RPResponse.set('xmlns', 'urn:vim25')
+                this_rval = SE(RPResponse, 'returnval')
+                this_objects = SE(this_rval, 'objects')
+                this_obj = SE(this_objects, 'obj')
+                this_obj.set('type', 'Task')
+                this_obj.text = requested
+                this_propset = SE(this_objects, 'propSet')
+                this_name = SE(this_propset, 'name')
+                this_name.text = propset_path
+                this_val = SE(this_propset, 'val')
+                this_val.set('xsi:type', "TaskInfo") 
+                vkey = SE(this_val, 'key')
+                vkey.text = requested
+                vtask = SE(this_val, 'task')
+                vtask.set('type', 'Task')
+                vtask.text = requested
+                vname = SE(this_val, 'name')
+                vname.text = task['type']
+                vdesc = SE(this_val, 'descriptionId')
+                vdesc.text = 'VirtualMachine.clone'
+                vent = SE(this_val, 'entity')
+                vent.set('type', 'VirtualMachine')
+                #import pdb; pdb.set_trace()
+                vent.text = task['dest']
+                ventname = SE(this_val, 'entityName')
+                ventname.text = INVENTORY['vm'][task['src']]['name']
+                vstate = SE(this_val, 'state')
+                if task['spec']['powerOn']:
+                    vstate.text = 'running'
+                else:
+                    vstate.text = 'notrunning'
+                vcancel = SE(this_val, 'cancelled')
+                vcancel.text = 'false'
+                vcancelable = SE(this_val, 'cancelable')
+                vcancelable.text = 'true'
+                vreason = SE(this_val, 'reason')
+                vreason.set('xsi:type', 'TaskReasonUser')
+                vusername = SE(vreason, 'userName')
+                vusername.text = 'root'
+                vquetime = SE(this_val, 'queueTime')
+                #import pdb; pdb.set_trace()
+                vquetime.text = '{:%Y-%m-%dT%H:%M:%S.%f}'.format(task['queueTime'])
+                vstarttime = SE(this_val, 'startTime')
+                vstarttime.text = '{:%Y-%m-%dT%H:%M:%S.%f}'.format(task['startTime'])
+                vevent = SE(this_val, 'eventChainId')
+                vevent.text = str(task['eventid'])
+
+                # Need to figure out how to make this task "finished"
+                # <state>success</state>
+                # <cancelled>false</cancelled>
+                # <cancelable>false</cancelable>
+                # <completeTime>2016-08-22T09:51:32.350171Z</completeTime>
+                # <result type="VirtualMachine" xsi:type="ManagedObjectReference">vm-68</result>
+                #import pdb; pdb.set_trace()
+                if datetime.datetime.now() >= task['completeTime']:
+                    vcancel.text = 'false'
+                    vcancelable.text = 'false'    
+                    vcomplete = SE(this_val, 'completeTime')
+                    vcomplete.text = '{:%Y-%m-%dT%H:%M:%S.%f}'.\
+                        format(task['completeTime'])
+                    vstate = SE(this_val, 'state')
+                    vstate.text = 'success'
+                    vres = SE(this_val, 'result')
+                    vres.set('type', 'VirtualMachine')
+                    vres.set('xsi:type', "ManagedObjectReference")
+                    vres.text = task['dest']
+
+            else:
+                print('UNHANDLED PROPERTY FOR TASK: %s' % propset_path)
+                import pdb; pdb.set_trace()
+
+            fdata = TS(X).decode("utf-8")
+            return fdata
+
         elif requested == 'ServiceInstance':
             f = open('fixtures/vc550_RetrievePropertiesExResponse_ServiceInstance.xml', 'r')
             fdata = f.read()
@@ -1340,6 +1404,19 @@ class VCenter(BaseHTTPRequestHandler):
         rval = SE(cvt, 'returnval')
         rval.set('type', 'Task')
         rval.text = taskkey
+
+        TASKS[taskkey] =  {}
+        TASKS[taskkey]['type'] = 'CloneVM_Task'
+        TASKS[taskkey]['eventid'] = eventid
+        TASKS[taskkey]['dest'] = vmid
+        TASKS[taskkey]['src'] = templateid
+        TASKS[taskkey]['folder'] = folderid
+        TASKS[taskkey]['spec'] = spec
+        #TASKS[taskkey]['queueTime'] = '{:%Y-%m-%dT%H:%M:%S.%f}'.format(datetime.datetime.now())
+        TASKS[taskkey]['queueTime'] = datetime.datetime.now()
+        #TASKS[taskkey]['startTime'] = '{:%Y-%m-%dT%H:%M:%S.%f}'.format(datetime.datetime.now())
+        TASKS[taskkey]['startTime'] = datetime.datetime.now()
+        TASKS[taskkey]['completeTime'] = datetime.datetime.now() + datetime.timedelta(seconds=5)
 
         '''
         RPResponse = SE(Body, 'RetrievePropertiesExResponse')
