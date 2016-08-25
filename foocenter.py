@@ -19,7 +19,10 @@
 # openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
 # openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout mycert.pem -out mycert.pem
 
+import argparse
 import datetime
+import json
+import logging
 import ssl
 import subprocess
 import uuid
@@ -255,31 +258,26 @@ class VCenter(BaseHTTPRequestHandler):
 
     def do_POST(self):
 
-        #print("")
-        #print("")
-
         requestline = self.requestline
         rparts = requestline.split()
         url = rparts[1]
-        #print("URL %s" % url)
 
         postdata = self.rfile.read(int(self.headers['Content-Length']))
         postdata = postdata.decode("utf-8")
-        print(splitxml(postdata))
         query = xml2dict(postdata)
-        print(query)
 
         #if 'ServiceInstance' in postdata and 'propertyCollector' in postdata:
         #    import pdb; pdb.set_trace()
 
-        print("# QUERY START")
-        pprint(query)
-        print("# QUERY END")
+        logging.debug("# QUERY START")
+        logging.debug(json.dumps(query, indent=2))
+        logging.debug("# QUERY END")
 
         rc = 200 #http returncode
 
         # What is the method being called?
         methodCalled = list(query['Body'].keys())[0]
+        logging.debug('methodCalled: %s' % methodCalled)
 
         if hasattr(self, methodCalled):
             # call the method
@@ -296,9 +294,9 @@ class VCenter(BaseHTTPRequestHandler):
             import pdb; pdb.set_trace()
 
 
-        # pretty print the response
+        logging.debug("# RESPONSE START")
         splitxml(resp)
-        #print("# RESP TYPE: %s" % type(resp))
+        logging.debug("# RESPONSE END")
 
         self.send_response(rc)
         self.send_header("Content-type", "text/xml")
@@ -1076,7 +1074,23 @@ class VCenter(BaseHTTPRequestHandler):
                 this_name.text = propset_path
                 this_val = SE(this_propset, 'val')
 
-                if propset_path == 'childEntity':
+                if propset_path == 'childEntity' and requested == 'group-d1':
+                    this_val.set('xsi:type', 'ArrayOfManagedObjectReference')
+
+                    for dcid,dc in INVENTORY['datacenters'].items():
+                        if not 'folders' in dc:
+                            continue
+                        for fid,folder in dc['folders'].items():
+                            MO = E('ManagedObjectReference')
+                            MO.set('type', 'Folder')
+                            MO.set('xsi:type', 'ManagedObjectReference')
+                            MO.text = fid
+                            this_val.append(MO)
+
+                    #import pdb; pdb.set_trace()
+
+
+                elif propset_path == 'childEntity' and requested != 'group-d1':
                     # return a list of items ... vms/folders/etc
                     this_val.set('xsi:type', 'ArrayOfManagedObjectReference')
                     folder_children = self._get_folder_children(requested)
@@ -1431,6 +1445,11 @@ class VCenter(BaseHTTPRequestHandler):
         foldermap = self._get_folder_map()
         children = []
 
+        # group-d1 is the "root folder"
+        if folderid not in foldermap:
+            print('%s not in foldermap!' % folderid)
+            import pdb; pdb.set_trace()
+
         if 'vms' in foldermap[folderid]:
             for vm in foldermap[folderid]['vms']:
                 children.append((vm, 'VirtualMachine'))
@@ -1613,9 +1632,9 @@ class VCenter(BaseHTTPRequestHandler):
             for ckey in ckeys:
                 x = E(ckey)
                 if ckey in vm:
-                    x.text = vm[ckey]
+                    x.text = str(vm[ckey])
                 elif ckey in vm['_meta']:
-                    x.text = vm['_meta'][ckey]
+                    x.text = str(vm['_meta'][ckey])
                 elif ckey == 'modified':
                     x.text = '1970-01-01T00:00:00Z'
                 elif ckey == 'version':
@@ -1881,7 +1900,7 @@ class VCenter(BaseHTTPRequestHandler):
         RPResponse.append(this_rval)
         return X
 
-def splitxml(xmlobj):
+def splitxml(xmlobj, stdout=False):
     if type(xmlobj) in [str, bytes]:
         rxml = xml.dom.minidom.parseString(xmlobj)
     else:
@@ -1889,7 +1908,10 @@ def splitxml(xmlobj):
     pxml = rxml.toprettyxml()
     lines = [x for x in pxml.split('\n') if x.strip()]
     for line in lines:
-        print(line)
+        if stdout:
+            print(line)
+        else:
+            logging.debug(line)
 
 
 def oneup(text):
@@ -1991,14 +2013,27 @@ def run_command(args):
 
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--debug", action='store_true', help='enable debug logging')
+    args = parser.parse_args()
+
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+
+    logging.debug('creating server')
     service = HTTPServer(('localhost', PORT), VCenter)
+    logging.debug('adding ssl wrapper')
     service.socket = ssl.wrap_socket(service.socket,
                                server_side=True,
                                certfile='mycert.pem',
                                ssl_version=ssl.PROTOCOL_TLSv1)
+
+    logging.debug('serving forever')
     try:
         service.serve_forever()
     except KeyboardInterrupt:
         pass
 
+    logging.debug('closing server')
     service.server_close()    
