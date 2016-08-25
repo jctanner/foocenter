@@ -841,6 +841,8 @@ class VCenter(BaseHTTPRequestHandler):
                 for k,v in lastfolder.items():
                     if k == 'name' or k == 'id':
                         continue
+                    if type(v) != dict:
+                        continue
                     if v['name'] == x:
                         found = True
                         lastfolder = v
