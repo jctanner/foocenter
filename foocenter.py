@@ -283,7 +283,6 @@ class VCenter(BaseHTTPRequestHandler):
 
         if hasattr(self, methodCalled):
             # call the method
-            #print("# CALLING %s" % methodCalled)
             caller = getattr(self, methodCalled)
             resp = caller(postdata, query)
             if type(resp) == tuple:
@@ -1325,8 +1324,34 @@ class VCenter(BaseHTTPRequestHandler):
         TASKS[taskkey]['completeTime'] = datetime.datetime.now() + datetime.timedelta(seconds=1)
 
         fdata = TS(X).decode("utf-8")
-        splitxml(X)
         return fdata
+
+    def FindByUuid(self, postdata, query):
+        ''' 
+        # REQUEST ...
+        <FindByUuid xmlns="urn:vim25">
+          <_this type="SearchIndex">SearchIndex</_this>
+          <uuid>4210694e-0ab4-8765-2aea-873c507b746d</uuid>
+          <vmSearch>true</vmSearch>
+        </FindByUuid>
+
+        # RESPONSE ...
+        <FindByUuidResponse xmlns="urn:vim25">
+          <returnval type="VirtualMachine">vm-68</returnval>
+        </FindByUuidResponse>
+        '''
+        vmid = query.get('Body', {}).get('FindByUuid', {}).get('uuid', None)
+        X = self._get_soap_element()
+        Body = SE(X, 'soapenv:Body')
+        FBUR = SE(Body, 'FindByUuidResponse')
+        FBUR.set('xmlns', "urn:vim25")
+        rval = SE(FBUR, 'returnval')
+        rval.set('type', 'VirtualMachine')
+        rval.text = vmid
+        
+        fdata = TS(X).decode("utf-8")
+        return fdata
+
 
     def _add_vmid_to_folder(self, dcid, folderid, vmid):
         global INVENTORY
