@@ -884,6 +884,9 @@ class VCenter(BaseHTTPRequestHandler):
         except:
             pass
 
+        #if '-' in requested and propset_type == 'VirtualMachine':
+        #    import pdb; pdb.set_trace()
+
         if requested.startswith('session['):
 
             type_map = {'Datacenter': 'datacenters',
@@ -1326,6 +1329,7 @@ class VCenter(BaseHTTPRequestHandler):
         fdata = TS(X).decode("utf-8")
         return fdata
 
+
     def FindByUuid(self, postdata, query):
         ''' 
         # REQUEST ...
@@ -1340,7 +1344,9 @@ class VCenter(BaseHTTPRequestHandler):
           <returnval type="VirtualMachine">vm-68</returnval>
         </FindByUuidResponse>
         '''
-        vmid = query.get('Body', {}).get('FindByUuid', {}).get('uuid', None)
+        vmuid = query.get('Body', {}).get('FindByUuid', {}).get('uuid', None)
+        vmid = self._find_vm_by_uuid(vmuid)
+
         X = self._get_soap_element()
         Body = SE(X, 'soapenv:Body')
         FBUR = SE(Body, 'FindByUuidResponse')
@@ -1348,10 +1354,16 @@ class VCenter(BaseHTTPRequestHandler):
         rval = SE(FBUR, 'returnval')
         rval.set('type', 'VirtualMachine')
         rval.text = vmid
-        
         fdata = TS(X).decode("utf-8")
         return fdata
 
+    def _find_vm_by_uuid(self, vmuid):
+        vmid = None
+        for k,v in INVENTORY['vm'].items():
+            if v['_meta']['uuid'] == vmuid:
+                vmid = k
+                break
+        return vmid
 
     def _add_vmid_to_folder(self, dcid, folderid, vmid):
         global INVENTORY
