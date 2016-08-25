@@ -273,6 +273,26 @@ class VCenter(BaseHTTPRequestHandler):
         pprint(query)
         print("# QUERY END")
 
+        '''
+        if 'Folder' in postdata \
+            and 'CreateContainerView' in postdata \
+            and '<type>Folder</type>' in postdata \
+            and 'group-d1' in postdata:
+            import pdb; pdb.set_trace()
+        '''
+
+        '''
+        if CONTAINERVIEWS:
+            pprint(CONTAINERVIEWS)
+            keys = CONTAINERVIEWS.keys()
+            keys = list(keys)
+            key = keys[0]
+            #import pdb; pdb.set_trace()
+            if CONTAINERVIEWS[key]['type'] == 'Folder'\
+                and CONTAINERVIEWS[key]['container'] == 'group-d1':
+                import pdb; pdb.set_trace()
+        '''
+
         rc = 200 #http returncode
 
         # What is the method being called?
@@ -940,11 +960,25 @@ class VCenter(BaseHTTPRequestHandler):
         #    import pdb; pdb.set_trace()
         #if 'datacenter-1' in postdata and 'name' in postdata:
         #    import pdb; pdb.set_trace()
+        #if 'group-v2' in postdata:
+        #    import pdb; pdb.set_trace()
 
-        # session[0bc77834-77fc-7422-e2cd-81d4e5127926]52ef3fa7-892d-d0c0-d12d-7f16d61aa6e2 --> vmlist
+        # session[0bc77834-...]52ef3fa7-... --> vmlist
         # vm-1 --> a VM
 
         if requested.startswith('session['):
+
+            '''
+            if CONTAINERVIEWS:
+                pprint(CONTAINERVIEWS)
+                keys = CONTAINERVIEWS.keys()
+                keys = list(keys)
+                key = keys[0]
+                #import pdb; pdb.set_trace()
+                if CONTAINERVIEWS[key]['type'] == 'Folder'\
+                    and CONTAINERVIEWS[key]['container'] == 'group-d1':
+                    import pdb; pdb.set_trace()
+            '''
 
             type_map = {'Datacenter': 'datacenters',
                         'Datastore': 'datastores',
@@ -993,15 +1027,23 @@ class VCenter(BaseHTTPRequestHandler):
                 #print('%s not in %s' % (key, root))
                 #import pdb; pdb.set_trace()
                 root = INVENTORY
-                key = 'datacenters'
+                foldermap = self._get_folder_map()
+                for k,v in foldermap.items():
+                    MO = E('ManagedObjectReference')
+                    MO.set('type', 'Folder')
+                    MO.set('xsi:type', 'ManagedObjectReference')
+                    MO.text = k
+                    propSet_val.append(MO)
+                #import pdb; pdb.set_trace()
 
-            # Add all the results ...
-            for k,v in root[key].items():
-                MO = E('ManagedObjectReference')
-                MO.set('type', cview['type'])
-                MO.set('xsi:type', 'ManagedObjectReference')
-                MO.text = k
-                propSet_val.append(MO)
+            else:
+                # Add all the results ...
+                for k,v in root[key].items():
+                    MO = E('ManagedObjectReference')
+                    MO.set('type', cview['type'])
+                    MO.set('xsi:type', 'ManagedObjectReference')
+                    MO.text = k
+                    propSet_val.append(MO)
 
             fdata = TS(X).decode("utf-8")
             #splitxml(fdata)
@@ -1030,6 +1072,46 @@ class VCenter(BaseHTTPRequestHandler):
                     print(e)
                     import pdb; pdb.set_trace()
                 #import pdb; pdb.set_trace()
+                return fdata
+
+            elif propset_type == 'Folder':
+
+                # Get the requested folder meta ...
+                folder_map = self._get_folder_map()
+
+                X = self._get_soap_element()
+                Body = SE(X, 'soapenv:Body')
+                RPResponse = SE(Body, 'RetrievePropertiesExResponse')
+                RPResponse.set('xmlns', 'urn:vim25')
+                this_rval = SE(RPResponse, 'returnval')
+                this_objects = SE(this_rval, 'objects')
+                this_obj = SE(this_objects, 'obj')
+                this_obj.set('type', propset_type)
+                this_obj.text = requested
+                this_propset = SE(this_objects, 'propSet')
+                this_name = SE(this_propset, 'name')
+                this_name.text = propset_path
+                this_val = SE(this_propset, 'val')
+
+                if propset_path == 'childEntity':
+                    # return a list of items ... vms/folders/etc
+                    this_val.set('xsi:type', 'ArrayOfManagedObjectReference')
+                    folder_children = self._get_folder_children(requested)
+                    for child in folder_children:
+                        MO = E('ManagedObjectReference')
+                        MO.set('type', child[1])
+                        MO.set('xsi:type', 'ManagedObjectReference')
+                        MO.text = child[0]
+                        this_val.append(MO)
+                    #import pdb; pdb.set_trace()
+                else:
+                    print('%s for folder %s requested' % (propset_path, requested))
+                    this_val.set('xsi:type', 'xsd:string')
+                    this_val.text = folder_map[requested]['name']
+                    #import pdb; pdb.set_trace()
+
+                #import pdb; pdb.set_trace()
+                fdata = TS(X).decode("utf-8")
                 return fdata
 
             else:
@@ -1154,6 +1236,50 @@ class VCenter(BaseHTTPRequestHandler):
             print('REQUEST: %s %s' % (requested, propset_path))
             print('#############################')
             import pdb; pdb.set_trace()
+
+
+    def _get_folder_map(self):
+        ''' Make a hashmap of folders and their names '''
+        folders = {}
+        for dcname,datacenter in INVENTORY['datacenters'].items():
+            #import pdb; pdb.set_trace()
+            if 'folders' in datacenter:
+                folders.update(self._get_recursive_folders(datacenter['folders']))
+                #import pdb; pdb.set_trace()
+        return folders
+
+    def _get_recursive_folders(self, root):
+        '''Recurse through folder objects and return a hash '''
+        folders = {}
+        for k,v in root.items():
+            if k.startswith('group-'):
+                #folders[k] = v['name']        
+                folders[k] = v        
+            if type(v) == dict:
+                vkeys = v.keys()
+                vkeys = list(vkeys)
+                vkeys = [x for x in vkeys if x.startswith('group-')]
+                if len(vkeys) > 0:
+                    folders.update(self._get_recursive_folders(v))
+        return folders
+
+    def _get_folder_children(self, folderid):
+        '''Get children of a folder'''
+
+        foldermap = self._get_folder_map()
+        children = []
+
+        if 'vms' in foldermap[folderid]:
+            for vm in foldermap[folderid]['vms']:
+                children.append((vm, 'VirtualMachine'))
+
+        for k,v in foldermap[folderid].items():
+            if k.startswith('group-'):
+                children.append((k, 'Folder'))
+
+        #import pdb; pdb.set_trace()
+        return children
+
 
     def _get_soap_element(self):    
         X = E('soapenv:Envelope')
