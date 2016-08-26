@@ -17,7 +17,7 @@ def main():
 
     results = []
 
-    for i in xrange(20, 1000, 5):
+    for i in xrange(20, 1000, 10):
 
         res = {'count': i}
 
@@ -36,15 +36,19 @@ def main():
             stop = datetime.datetime.now()
             duration = (stop - start)
 
+            instancecount = int(so.strip())
+
             print "rc: %s" % rc
             print "so: %s" % so.strip()
             print "se: %s" % se.strip()
             print "start: %s" % start
             print "stop: %s" % stop
             print "duration: %s" % duration
+            print "instances: %s" % instancecount
 
-            res[command[0]] = duration.seconds
-        
+            res[command[0]] = {}
+            res[command[0]]['duration'] = duration.seconds
+            res[command[0]]['instances'] = instancecount
         
         # save it
         results.append(res)
