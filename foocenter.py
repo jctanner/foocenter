@@ -2092,6 +2092,7 @@ def extend_inventory(hosts=2, vms=10):
         INVENTORY['vm'][vkey] = {}
         INVENTORY['vm'][vkey]['_meta'] = {'guestState': 'running', 'ipAddress': thisip}
         INVENTORY['vm'][vkey]['_meta']['uuid'] = str(uuid.uuid4())
+        INVENTORY['vm'][vkey]['_meta']['template'] = False
         INVENTORY['vm'][vkey]['name'] = 'testvm%s' % x
         INVENTORY['vm'][vkey]['guest'] = {}
         INVENTORY['vm'][vkey]['network'] = ['network-0']
@@ -2117,6 +2118,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", action='store_true', help='enable debug logging')
+    parser.add_argument("--vms", type=int, help="total VMs to create")
     args = parser.parse_args()
 
     if args.debug:
@@ -2124,7 +2126,10 @@ if __name__ == "__main__":
     else:
         logging.basicConfig(level=logging.INFO)
 
-    extend_inventory()
+    if args.vms:
+        extend_inventory(vms=args.vms)
+    else:
+        extend_inventory()
 
     logging.debug('creating server')
     service = HTTPServer(('localhost', PORT), VCenter)
