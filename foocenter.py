@@ -71,12 +71,12 @@ INVENTORY = {
              'hosts':{
                         'host-0': {
                                    'name': '10.10.10.1',
-                                   'vms': [],
+                                   'vms': ['vm-0', 'vm-2', 'vm-5'],
                                    'datastores': ['datastore-0']
                                   },
                         'host-1': {
                                    'name': '10.10.10.2',
-                                   'vms': [],
+                                   'vms': ['vm-1', 'vm-3'],
                                    'datastores': ['datastore-1']
                                   }
 
@@ -240,10 +240,8 @@ class VCenter(BaseHTTPRequestHandler):
 
             if method == 'POST':
                 # assume the caller wants to increase the inventory size
-                #import pdb; pdb.set_trace()
                 pdict = json.loads(data)
                 extend_inventory(**pdict)
-                #import pdb; pdb.set_trace()
 
             elif method == 'GET':
                 if len(xparts) == 2:
@@ -312,10 +310,8 @@ class VCenter(BaseHTTPRequestHandler):
             self.do_REST('POST', url, data=postdata)
             return None
 
+        # Convert POST XML to dict
         query = xml2dict(postdata)
-
-        #if 'ServiceInstance' in postdata and 'propertyCollector' in postdata:
-        #    import pdb; pdb.set_trace()
 
         logging.debug("# QUERY START")
         logging.debug(json.dumps(query, indent=2))
@@ -426,7 +422,6 @@ class VCenter(BaseHTTPRequestHandler):
         Body = SE(X, 'soapenv:Body')
         destroyResponse = SE(Body, 'DestroyViewResponse')
         destroyResponse.set('xmlns', 'urn:vim25')
-        #import pdb; pdb.set_trace()
         fdata = TS(X).decode("utf-8")
         return fdata
 
@@ -467,9 +462,6 @@ class VCenter(BaseHTTPRequestHandler):
 
     def RetrieveProperties(self, postdata, query):
 
-        #if 'datacenter' in postdata.lower():
-        #    import pdb; pdb.set_trace()
-
         ## SOMETIMES A SELECTSET IS GIVEN
         # 'specSet': {'objectSet': {'obj': 'group-d1',
         # 'selectSet': {'name': 'resource_pool_vm_traversal_spec',
@@ -503,14 +495,6 @@ class VCenter(BaseHTTPRequestHandler):
         except:
             pass
 
-        '''
-        print('retrieveproperties requested: %s' % requested)
-        print('retrieveproperties select_path: %s' % select_path)
-        print('retrieveproperties propset_path: %s' % propset_path)
-        print('retrieveproperties propset_type: %s' % propset_type)
-        '''
-        #if 'Datacenter' in postdata:
-        #    import pdb; pdb.set_trace()
 
         if 'TraversalSpec' in postdata:
             #print("# TRAVERSALSPEC ...")
@@ -549,7 +533,6 @@ class VCenter(BaseHTTPRequestHandler):
 
             fdata = TS(X).decode("utf-8")
                    
-
 
         elif requested == 'group-d1':
             # This is a request for the known datacenters
@@ -685,6 +668,7 @@ class VCenter(BaseHTTPRequestHandler):
             f.close()
 
         elif propset_type == 'HostSystem' and propset_path == 'vm':
+
             # make list of VMs for the host
             host = requested
             #print("# MAKING HOST W/ VMLIST")
@@ -1911,9 +1895,7 @@ class VCenter(BaseHTTPRequestHandler):
                         MO.set('xsi:type', 'ManagedObjectReference')
                         MO.text = rd
                         this_val.append(MO)
-                        #import pdb; pdb.set_trace()
 
-                #import pdb; pdb.set_trace()
                 return X                
 
         elif type(rdata) in [str,bytes]:
@@ -1941,9 +1923,6 @@ class VCenter(BaseHTTPRequestHandler):
                 MO.text = x
                 this_val.append(MO)
 
-
-        #if propname.lower() == 'resourcepool':
-        #    import pdb; pdb.set_trace()
 
         RPResponse.append(this_rval)
         return X
@@ -2032,7 +2011,6 @@ def servicecontent2xml():
         elem.append(child)
 
     '''
-    #import pdb; pdb.set_trace()
     # http://stackoverflow.com/questions/749796/pretty-printing-xml-in-python
     '''
     rxml = xml.dom.minidom.parseString(TS(elem))
@@ -2076,6 +2054,8 @@ def extend_inventory(hosts=2, vms=10):
 
     for x in range(0, hosts + 1):
         hkey = 'host-%s' % x
+        if hkey in INVENTORY['hosts']:
+            continue
         INVENTORY['hosts'][hkey] = {}
         INVENTORY['hosts'][hkey]['name'] = '10.0.0.%s' % x
         INVENTORY['hosts'][hkey]['vms'] = []
@@ -2100,7 +2080,8 @@ def extend_inventory(hosts=2, vms=10):
         INVENTORY['vm'][vkey]['datastore'] = ['datastore-1']
 
         # spread evenly across the hosts ...
-        INVENTORY['hosts']['host-%s' % xhost]['vms'].append(vkey)
+        if vkey not in INVENTORY['hosts']['host-%s' % xhost]['vms']:
+            INVENTORY['hosts']['host-%s' % xhost]['vms'].append(vkey)
         xhost += 1
         if xhost > hosts:
             xhost = 0
@@ -2108,6 +2089,7 @@ def extend_inventory(hosts=2, vms=10):
     logging.info('%s total DCs' % len(list(INVENTORY['datacenters'].keys())))
     logging.info('%s total HOSTs' % len(list(INVENTORY['hosts'].keys())))
     logging.info('%s total VMs' % len(list(INVENTORY['vm'].keys())))
+    #import pdb; pdb.set_trace()
 
 
 ########################################
