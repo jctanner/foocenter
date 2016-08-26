@@ -17,7 +17,7 @@ def main():
 
     results = []
 
-    for i in xrange(20, 1000, 10):
+    for i in xrange(50, 1000, 50):
 
         res = {'count': i}
 
