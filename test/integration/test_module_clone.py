@@ -2,15 +2,41 @@
 
 import atexit
 import os
-import requests
+import shutil
 import ssl
 import sys
 import time
+import vcr
+
+#import xml.etree.ElementTree as ET
+import xml.etree.cElementTree as ET
 
 from pprint import pprint
 from pyVim import connect
 from pyVmomi import vim
 from vmware_guest import PyVmomiHelper
+
+# Always clean out the fixture before re-executing 
+#   to avoid [SSL: CERTIFICATE_VERIFY_FAILED]
+if os.path.isdir('/tmp/fixtures'):
+    shutil.rmtree('/tmp/fixtures')
+os.makedirs('/tmp/fixtures')
+
+def record_requests(request):
+    # vcr interceptor
+    if request.body:
+        elem = ET.fromstring(request.body)
+        bits = elem.findall('.//')
+        print('%s %s %s' % (request.method, request.uri, bits[1].tag))
+    else:
+        print('%s %s' % (request.method, request.uri))
+    return request
+
+# Make a custom VCR instance so we can inject our spyware into it
+vcrshim = vcr.VCR(
+    cassette_library_dir='/tmp/fixtures',
+    before_record=record_requests,
+)
 
 def connect_to_api(module, disconnect_atexit=True):
     # FIXME ... the real code is not handling self-signed cert exceptions correctly
@@ -81,26 +107,32 @@ class PyVmomiHelperWrapper(PyVmomiHelper):
     def smartconnect(self):
         self.content = connect_to_api(self.module)
 
+@vcrshim.use_cassette('wrapper.yaml', 
+                  cassette_library_dir='/tmp/fixtures',
+                  record_mode='always')
 def main():
     module = FakeModule()
     pyv = PyVmomiHelperWrapper(module)
 
+    print('# Looking for existing VM')
     vm = pyv.getvm(name=module.params['name'],
                    folder=module.params['folder'],
                    uuid=module.params['uuid'],
                    name_match=module.params['name_match'])
 
     result = {}
-    print(vm)
     if vm:
+        print('# Removing existing vm: %s' % vm)
         result = pyv.set_powerstate(vm, 'poweredoff', module.params['force'])
         result = pyv.remove_vm(vm)
-    else:
-        poweron = (module.params['state'] != 'poweredoff')
-        result = pyv.deploy_template(
-                    poweron=poweron, 
-                    wait_for_ip=module.params['wait_for_ip_address']
-                 )
+        pprint(result)
+
+    print('# Cloning template')
+    poweron = (module.params['state'] != 'poweredoff')
+    result = pyv.deploy_template(
+                poweron=poweron, 
+                wait_for_ip=module.params['wait_for_ip_address']
+             )
 
     pprint(result)
 
