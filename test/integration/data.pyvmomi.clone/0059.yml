@@ -1,0 +1,68 @@
+request:
+  body: |
+    <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+        <RetrievePropertiesEx xmlns="urn:vim25">
+          <_this type="PropertyCollector">propertyCollector</_this>
+          <specSet>
+            <propSet>
+              <type>Task</type>
+              <all>false</all>
+              <pathSet>info</pathSet>
+            </propSet>
+            <objectSet>
+              <obj type="Task">task-319</obj>
+              <skip>false</skip>
+            </objectSet>
+          </specSet>
+          <options>
+            <maxObjects>1</maxObjects>
+          </options>
+        </RetrievePropertiesEx>
+      </soapenv:Body>
+    </soapenv:Envelope>
+  headers: {Accept-Encoding: 'gzip, deflate', Content-Type: text/xml; charset=UTF-8, Cookie: vmware_soap_session="0e9c66b800d5552d36f580bbd84c7fe03f17176b"; Path=/; HttpOnly; Secure;, SOAPAction: '"urn:vim25/6.0"'}
+  method: POST
+  uri: https://192.168.121.129/sdk
+response:
+  body: |
+    <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+        <RetrievePropertiesExResponse xmlns="urn:vim25">
+          <returnval>
+            <objects>
+              <obj type="Task">task-319</obj>
+              <propSet>
+                <name>info</name>
+                <val xsi:type="TaskInfo">
+                  <key>task-319</key>
+                  <task type="Task">task-319</task>
+                  <name>Destroy_Task</name>
+                  <descriptionId>VirtualMachine.destroy</descriptionId>
+                  <entity type="VirtualMachine">vm-145</entity>
+                  <entityName>testvm1</entityName>
+                  <state>running</state>
+                  <cancelled>false</cancelled>
+                  <cancelable>false</cancelable>
+                  <progress>0</progress>
+                  <reason xsi:type="TaskReasonUser">
+                    <userName>VSPHERE.LOCAL\Administrator</userName>
+                  </reason>
+                  <queueTime>2016-09-22T19:43:44.980149Z</queueTime>
+                  <startTime>2016-09-22T19:43:44.984088Z</startTime>
+                  <eventChainId>2806</eventChainId>
+                </val>
+              </propSet>
+            </objects>
+          </returnval>
+        </RetrievePropertiesExResponse>
+      </soapenv:Body>
+    </soapenv:Envelope>
+  headers:
+    cache-control: [no-cache]
+    connection: [Keep-Alive]
+    content-length: ['1079']
+    content-type: [text/xml; charset=utf-8]
+    date: ['Thu, 22 Sep 2016 19:43:45 GMT']
+    x-frame-options: [DENY]
+  status: {code: 200, message: OK}

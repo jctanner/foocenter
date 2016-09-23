@@ -1,0 +1,44 @@
+request:
+  body: |
+    <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+        <Login xmlns="urn:vim25">
+          <_this type="SessionManager">SessionManager</_this>
+          <userName>administrator@vsphere.local</userName>
+          <password>vmware1234</password>
+        </Login>
+      </soapenv:Body>
+    </soapenv:Envelope>
+  headers: {Accept-Encoding: 'gzip, deflate', Content-Type: text/xml; charset=UTF-8, Cookie: '', SOAPAction: '"urn:vim25/6.0"'}
+  method: POST
+  uri: https://192.168.121.129/sdk
+response:
+  body: |
+    <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+        <LoginResponse xmlns="urn:vim25">
+          <returnval>
+            <key>52d26a0a-a130-2087-0107-a1fe26b22f67</key>
+            <userName>VSPHERE.LOCAL\Administrator</userName>
+            <fullName>Administrator vsphere.local</fullName>
+            <loginTime>2016-09-22T19:43:43.874635Z</loginTime>
+            <lastActiveTime>2016-09-22T19:43:43.874635Z</lastActiveTime>
+            <locale>en</locale>
+            <messageLocale>en</messageLocale>
+            <extensionSession>false</extensionSession>
+            <ipAddress>192.168.121.1</ipAddress>
+            <userAgent/>
+            <callCount>0</callCount>
+          </returnval>
+        </LoginResponse>
+      </soapenv:Body>
+    </soapenv:Envelope>
+  headers:
+    cache-control: [no-cache]
+    connection: [Keep-Alive]
+    content-length: ['829']
+    content-type: [text/xml; charset=utf-8]
+    date: ['Thu, 22 Sep 2016 19:43:43 GMT']
+    set-cookie: [vmware_soap_session="0e9c66b800d5552d36f580bbd84c7fe03f17176b"; Path=/; HttpOnly; Secure;]
+    x-frame-options: [DENY]
+  status: {code: 200, message: OK}

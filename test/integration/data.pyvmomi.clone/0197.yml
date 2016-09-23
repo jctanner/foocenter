@@ -1,0 +1,32 @@
+request:
+  body: |
+    <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+        <CreateContainerView xmlns="urn:vim25">
+          <_this type="ViewManager">ViewManager</_this>
+          <container type="Folder">group-d1</container>
+          <type>HostSystem</type>
+          <recursive>true</recursive>
+        </CreateContainerView>
+      </soapenv:Body>
+    </soapenv:Envelope>
+  headers: {Accept-Encoding: 'gzip, deflate', Content-Type: text/xml; charset=UTF-8, Cookie: vmware_soap_session="0e9c66b800d5552d36f580bbd84c7fe03f17176b"; Path=/; HttpOnly; Secure;, SOAPAction: '"urn:vim25/6.0"'}
+  method: POST
+  uri: https://192.168.121.129/sdk
+response:
+  body: |
+    <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+        <CreateContainerViewResponse xmlns="urn:vim25">
+          <returnval type="ContainerView">session[523abbc6-87e5-df9b-fbe0-2857dea59076]529a9e2a-434f-7865-5e90-362fe78b7adb</returnval>
+        </CreateContainerViewResponse>
+      </soapenv:Body>
+    </soapenv:Envelope>
+  headers:
+    cache-control: [no-cache]
+    connection: [Keep-Alive]
+    content-length: ['529']
+    content-type: [text/xml; charset=utf-8]
+    date: ['Thu, 22 Sep 2016 19:43:48 GMT']
+    x-frame-options: [DENY]
+  status: {code: 200, message: OK}

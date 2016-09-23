@@ -1,0 +1,36 @@
+request:
+  body: ""
+  headers: !!python/object:vcr.request.HeadersDict
+    _store: {}
+  method: GET
+  uri: https://192.168.121.129:443/sdk/vimServiceVersions.xml
+response:
+  body: |
+    <namespaces version="1.0">
+      <namespace>
+        <name>urn:vim25</name>
+        <version>6.0</version>
+        <priorVersions>
+          <version>5.5</version>
+          <version>5.1</version>
+          <version>5.0</version>
+          <version>4.1</version>
+          <version>4.0</version>
+          <version>2.5u2server</version>
+          <version>2.5u2</version>
+          <version>2.5</version>
+        </priorVersions>
+      </namespace>
+      <namespace>
+        <name>urn:vim2</name>
+        <version>2.0</version>
+      </namespace>
+    </namespaces>
+  headers:
+    cache-control: [no-cache]
+    connection: [Keep-Alive]
+    content-length: ['429']
+    content-type: [text/xml; charset=utf-8]
+    date: ['Thu, 22 Sep 2016 19:43:43 GMT']
+    x-frame-options: [DENY]
+  status: {code: 200, message: OK}

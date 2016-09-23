@@ -1,0 +1,51 @@
+request:
+  body: |
+    <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+        <RetrievePropertiesEx xmlns="urn:vim25">
+          <_this type="PropertyCollector">propertyCollector</_this>
+          <specSet>
+            <propSet>
+              <type>ResourcePool</type>
+              <all>false</all>
+              <pathSet>name</pathSet>
+            </propSet>
+            <objectSet>
+              <obj type="ResourcePool">resgroup-43</obj>
+              <skip>false</skip>
+            </objectSet>
+          </specSet>
+          <options>
+            <maxObjects>1</maxObjects>
+          </options>
+        </RetrievePropertiesEx>
+      </soapenv:Body>
+    </soapenv:Envelope>
+  headers: {Accept-Encoding: 'gzip, deflate', Content-Type: text/xml; charset=UTF-8, Cookie: vmware_soap_session="0e9c66b800d5552d36f580bbd84c7fe03f17176b"; Path=/; HttpOnly; Secure;, SOAPAction: '"urn:vim25/6.0"'}
+  method: POST
+  uri: https://192.168.121.129/sdk
+response:
+  body: |
+    <soapenv:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <soapenv:Body>
+        <RetrievePropertiesExResponse xmlns="urn:vim25">
+          <returnval>
+            <objects>
+              <obj type="ResourcePool">resgroup-43</obj>
+              <propSet>
+                <name>name</name>
+                <val xsi:type="xsd:string">Resources</val>
+              </propSet>
+            </objects>
+          </returnval>
+        </RetrievePropertiesExResponse>
+      </soapenv:Body>
+    </soapenv:Envelope>
+  headers:
+    cache-control: [no-cache]
+    connection: [Keep-Alive]
+    content-length: ['568']
+    content-type: [text/xml; charset=utf-8]
+    date: ['Thu, 22 Sep 2016 19:43:49 GMT']
+    x-frame-options: [DENY]
+  status: {code: 200, message: OK}
