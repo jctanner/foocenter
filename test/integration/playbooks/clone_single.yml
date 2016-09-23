@@ -1,0 +1,31 @@
+# clone a single template to a new guest
+- hosts: localhost
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: create the VM
+      vmware_guest:
+        validate_certs: False
+        hostname: 192.168.1.39
+        username: root
+        password: vmware
+        name: testvm_ansible_1
+        state: poweredon
+        folder: testvms
+        disk:
+            - size_gb: 10
+              type: thin
+              datastore: datastore1
+        nic:
+            - type: vmxnet3
+              network: VM Network
+              network_type: standard
+        hardware:
+            memory_mb: 256
+            num_cpus: 1
+            osid: centos64guest
+            scsi: paravirtual
+        datacenter: datacenter1
+        esxi_hostname: 192.168.1.40
+        template: template_el7
+        wait_for_ip_address: yes
