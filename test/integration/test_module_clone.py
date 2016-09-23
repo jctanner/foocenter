@@ -6,10 +6,13 @@ import shutil
 import ssl
 import sys
 import time
+import yaml
 import vcr
 
 #import xml.etree.ElementTree as ET
 import xml.etree.cElementTree as ET
+from lxml import etree as LET
+from string import rjust
 
 from pprint import pprint
 from pyVim import connect
@@ -22,25 +25,61 @@ if os.path.isdir('/tmp/fixtures'):
     shutil.rmtree('/tmp/fixtures')
 os.makedirs('/tmp/fixtures')
 
+REQUESTS = []
+REQUESTID = 0
 def record_requests(request):
     # vcr interceptor
-    if request.body:
-        elem = ET.fromstring(request.body)
-        bits = elem.findall('.//')
-        print('%s %s %s' % (request.method, request.uri, bits[1].tag))
+
+    global REQUESTS
+    global REQUESTID
+
+    thistype = None
+    method = None
+    uri = None
+    body = None
+
+    if type(request) == dict:
+        thistype = 'response'
     else:
-        print('%s %s' % (request.method, request.uri))
+        REQUESTID += 1
+        thistype = 'request'
+
+    if thistype == 'request':
+        ydata = {}
+        ydata['request'] = {}
+        ydata['request']['method'] = request.method
+        ydata['request']['uri'] = request.uri
+        if request.headers:
+            ydata['request']['headers'] = {}
+            for x in request.headers.items():
+                ydata['request']['headers'][x[0]] = x[1]
+        else:
+            ydata['request']['headers'] = request.headers
+        ydata['request']['body'] = request.body
+        REQUESTS.append(ydata)
+    else:
+        ydata = REQUESTS[-1]
+        ydata['response'] = request.copy()
+        REQUESTS[-1]['response'] = request.copy()
+        REQUESTS[-1]['response']['body'] = request['body']['string']
+        fid = str(REQUESTID).rjust(4, '0')
+        fname = os.path.join('/tmp', 'fixtures', '%s.yml' % (fid))
+        with open(fname, 'wb') as f:
+            yaml.dump(REQUESTS[-1], f, width=1000, indent=2)
+
     return request
 
 # Make a custom VCR instance so we can inject our spyware into it
 vcrshim = vcr.VCR(
     cassette_library_dir='/tmp/fixtures',
     before_record=record_requests,
+    before_record_response=record_requests
 )
 
 def connect_to_api(module, disconnect_atexit=True):
     # FIXME ... the real code is not handling self-signed cert exceptions correctly
     hostname = module.params['hostname']
+    port = module.params['port']
     username = module.params['username']
     password = module.params['password']
     validate_certs = module.params['validate_certs']
@@ -49,13 +88,13 @@ def connect_to_api(module, disconnect_atexit=True):
         module.fail_json(msg='pyVim does not support changing verification mode with python < 2.7.9. Either update python or or use validate_certs=false')
 
     try:
-        service_instance = connect.SmartConnect(host=hostname, user=username, pwd=password)
+        service_instance = connect.SmartConnect(host=hostname, port=port, user=username, pwd=password)
     except vim.fault.InvalidLogin, invalid_login:
         module.fail_json(msg=invalid_login.msg, apierror=str(invalid_login))
     except ssl.SSLError as e:
         context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
         context.verify_mode = ssl.CERT_NONE
-        service_instance = connect.SmartConnect(host=hostname, user=username, pwd=password, sslContext=context)
+        service_instance = connect.SmartConnect(host=hostname, port=port, user=username, pwd=password, sslContext=context)
 
     # Disabling atexit should be used in special cases only.
     # Such as IP change of the ESXi host which removes the connection anyway.
@@ -65,11 +104,18 @@ def connect_to_api(module, disconnect_atexit=True):
     #import epdb; epdb.st()
     return service_instance.RetrieveContent()
 
+def pretty_xml(rawxml):
+    parser = LET.XMLParser(remove_blank_text=True)
+    root = LET.fromstring(rawxml, parser)
+    pxml = LET.tostring(root, pretty_print=True)
+    return pxml
+
 class FakeModule(object):
     def __init__(self):
         self.params = {}
         self.params['validate_certs'] = False
         self.params['hostname'] = '192.168.121.129'
+        self.params['port'] = '443'
         self.params['username'] = 'administrator@vsphere.local'
         self.params['password'] = 'vmware1234'
 
