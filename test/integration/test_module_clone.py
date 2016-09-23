@@ -9,6 +9,7 @@ import time
 import yaml
 import vcr
 
+from collections import OrderedDict
 #import xml.etree.ElementTree as ET
 import xml.etree.cElementTree as ET
 from lxml import etree as LET
@@ -25,6 +26,26 @@ if os.path.isdir('/tmp/fixtures'):
     shutil.rmtree('/tmp/fixtures')
 os.makedirs('/tmp/fixtures')
 
+###################################################################
+# http://stackoverflow.com/a/8641732
+class quoted(str): pass
+
+def quoted_presenter(dumper, data):
+    return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='"')
+yaml.add_representer(quoted, quoted_presenter)
+
+class literal(str): pass
+
+def literal_presenter(dumper, data):
+    return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
+yaml.add_representer(literal, literal_presenter)
+
+def ordered_dict_presenter(dumper, data):
+    return dumper.represent_dict(data.items())
+yaml.add_representer(OrderedDict, ordered_dict_presenter)
+###################################################################
+
+
 REQUESTS = []
 REQUESTID = 0
 def record_requests(request):
@@ -32,11 +53,6 @@ def record_requests(request):
 
     global REQUESTS
     global REQUESTID
-
-    thistype = None
-    method = None
-    uri = None
-    body = None
 
     if type(request) == dict:
         thistype = 'response'
@@ -55,13 +71,13 @@ def record_requests(request):
                 ydata['request']['headers'][x[0]] = x[1]
         else:
             ydata['request']['headers'] = request.headers
-        ydata['request']['body'] = request.body
+        ydata['request']['body'] = literal(pretty_xml(request.body))
         REQUESTS.append(ydata)
     else:
         ydata = REQUESTS[-1]
         ydata['response'] = request.copy()
         REQUESTS[-1]['response'] = request.copy()
-        REQUESTS[-1]['response']['body'] = request['body']['string']
+        REQUESTS[-1]['response']['body'] = literal(pretty_xml(request['body']['string']))
         fid = str(REQUESTID).rjust(4, '0')
         fname = os.path.join('/tmp', 'fixtures', '%s.yml' % (fid))
         with open(fname, 'wb') as f:
@@ -105,10 +121,17 @@ def connect_to_api(module, disconnect_atexit=True):
     return service_instance.RetrieveContent()
 
 def pretty_xml(rawxml):
-    parser = LET.XMLParser(remove_blank_text=True)
-    root = LET.fromstring(rawxml, parser)
-    pxml = LET.tostring(root, pretty_print=True)
-    return pxml
+    if rawxml:    
+        try:
+            parser = LET.XMLParser(remove_blank_text=True)
+            root = LET.fromstring(rawxml, parser)
+            pxml = LET.tostring(root, pretty_print=True)
+        except Exception as e:
+            print(e)
+            import epdb; epdb.st()
+        return pxml
+    else:
+        return ''
 
 class FakeModule(object):
     def __init__(self):
