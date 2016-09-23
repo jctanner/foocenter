@@ -1,11 +1,14 @@
-#!/usr/bin/env python3.5
+#!/usr/bin/env python3.5.2
 
 #############################################
 #               REFERENCES                  #
 #############################################
 
+# http://pubs.vmware.com/vsphere-60/topic/com.vmware.wssdk.apiref.doc/right-pane.html
+# https://pubs.vmware.com/vsphere-50/index.jsp#com.vmware.wssdk.pg.doc_50/PG_ChB_Using_MOB.20.2.html?path=5_0_1_17_0_0#994707
 # http://velemental.com/2012/03/09/a-deep-dive-doing-it-the-manual-way-with-vmware-vim-and-powershell/
 # https://github.com/vmware/pyvmomi/blob/master/tests/fixtures/basic_connection.yaml
+# https://pubs.vmware.com/vsphere-50/index.jsp#com.vmware.wssdk.pg.doc_50/PG_Ch4_Introduction_Inventory.6.3.html
 
 
 #############################################
@@ -35,12 +38,113 @@ from collections import OrderedDict
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pprint import pprint
 
-USERNAME = 'root'
-PASSWORD = 'vmware'
-PORT = 443
+USERNAME = 'administrator@vsphere.local'
+PASSWORD = 'vmware1234'
+#PORT = 443
 
+# https://192.168.121.129/mob/?moid=domain-s44
+INVENTORY = {
+         'datacenters': {
+              'datacenter-2': {
+                'name': "datacenter1",
+                'hosts': ['host-9', 
+                          'host-16'],
+                'folders': {
+                    'group-d1': ['datacenter-2'],
+                    'group-h4': ['domain-s42', 
+                                 'domain-s44'],
+                    'group-n6': ['network-11'],
+                    'group-s5': ['datastore-10', 
+                                 'datastore-17'],
+                    'group-v3': ['group-v15', 
+                                 'group-v12', 
+                                 'group-v49', 
+                                 'vm-20'] 
+                }
+             }
+         },
+         'clusters': {}, 
+         'clustercomputeresources': {},
+         'computeresources': {
+            'domain-s42': {
+                'name': '192.168.121.130',
+                'host': 'host-16',
+            },
+            'domain-s44': {
+                'name': '192.168.121.128',
+                'host': 'host-9',
+                'resourcePool': 'resgroup-45'
+            }
+         },
+         'folders': {
+            'group-v3': {'name': 'vm'},
+            'group-v12': {'name': 'testvms'},
+            'group-v49': {'name': 'testvms2'},
+            'group-v50': {'name': 'testvms1'},
+         },
+         'hosts':{
+                    'host-9': {
+                               'name': '192.168.121.128',
+                               'vms': [],
+                               'datastores': ['datastore-10']
+                              },
+                    'host-16': {
+                               'name': '192.168.121.130',
+                               'vms': [],
+                               'datastores': ['datastore-17']
+                              },
+
+         }, 
+         'resourcepool': {
+                'resgroup-43': {
+                    'name': 'Resources',
+                    'owner': 'domain-s42',
+                    'vm': []
+                 },
+                'resgroup-45': {
+                    'name': 'Resources',
+                    'owner': 'domain-s44',
+                    'vm': []
+                 },
+         },
+         'datastores': {
+                'datastore-10': {'name': 'datastore1'},
+                'datastore-17': {'name': 'datastore2'},
+         },
+         'networks': {
+                'network-11': {
+                    'name': 'VM Network'
+                }
+         },
+         'vm': {
+            'vm-20': {
+                '_meta': {
+                    'guestState': 'notrunning', 
+                    'powerState': 'poweredOff', 
+                    'ipAddress': '', 
+                    'uuid': '4211dc52-25bf-981a-7ba8-729436f9b699', 
+                    'template': True
+                },
+                'parent': 'group-v3',
+                'name': "template_el7",
+                'guest': {},
+                'network': ['network-11'],
+                'resourcePool': None,
+                'datastore': ["datastore-10"]
+            }
+         }
+}
+
+'''
 INVENTORY = {
              'datacenters': {
+                              'datacenter-2': {
+                                'name': "DC2",
+                                'hosts': ['host-2', 'host-3'],
+                                'folders': {
+                                    'group-v0': {}
+                                }
+                              },
                               'datacenter-1': {
                                 'name': "DC1",
                                 'hosts': ['host-0', 'host-1'],
@@ -68,6 +172,11 @@ INVENTORY = {
                               }
              },
              'clusters': {}, 
+             'computeresources': {
+                'domain-s0': {
+                    'hosts': ['host-0', 'host-1', 'host-2']
+                }
+             },
              'hosts':{
                         'host-0': {
                                    'name': '10.10.10.1',
@@ -78,8 +187,17 @@ INVENTORY = {
                                    'name': '10.10.10.2',
                                    'vms': ['vm-1', 'vm-3'],
                                    'datastores': ['datastore-1']
+                                  },
+                        'host-2': {
+                                   'name': '10.10.10.3',
+                                   'vms': [],
+                                   'datastores': ['datastore-2']
+                                  },
+                        'host-3': {
+                                   'name': '10.10.10.4',
+                                   'vms': [],
+                                   'datastores': ['datastore-3']
                                   }
-
                      }, 
              'resourcepool': {
                     'resgroup-0': {
@@ -144,43 +262,42 @@ INVENTORY = {
                      }
                  }
         }
-
 '''
+
 ##########################
 # Build up the inventory
 ##########################
-TOTAL_HOSTS = 2
-for x in range(0, TOTAL_HOSTS + 1):
-    hkey = 'host-%s' % x
-    INVENTORY['hosts'][hkey] = {}
-    INVENTORY['hosts'][hkey]['name'] = '10.0.0.%s' % x
-    INVENTORY['hosts'][hkey]['vms'] = []
-    INVENTORY['hosts'][hkey]['datastores'] = ['datastore-1']
-
-TOTAL_VMS = 10
-xhost = 0
-_ip = 104
-for x in range(0, TOTAL_VMS + 1):
-    vkey = 'vm-%s' % x
-    if vkey in INVENTORY['vm']:
-        continue
-    _ip += 1
-    thisip = '10.0.0.%s' % _ip
-    INVENTORY['vm'][vkey] = {}
-    INVENTORY['vm'][vkey]['_meta'] = {'guestState': 'running', 'ipAddress': thisip}
-    INVENTORY['vm'][vkey]['_meta']['uuid'] = str(uuid.uuid4())
-    INVENTORY['vm'][vkey]['name'] = 'testvm%s' % x
-    INVENTORY['vm'][vkey]['guest'] = {}
-    INVENTORY['vm'][vkey]['network'] = ['network-0']
-    INVENTORY['vm'][vkey]['resourcePool'] = 'resgroup-0'
-    INVENTORY['vm'][vkey]['datastore'] = ['datastore-1']
-
-    # spread evenly across the hosts ...
-    INVENTORY['hosts']['host-%s' % xhost]['vms'].append(vkey)
-    xhost += 1
-    if xhost > TOTAL_HOSTS:
-        xhost = 0
-'''
+#TOTAL_HOSTS = 2
+#for x in range(0, TOTAL_HOSTS + 1):
+#    hkey = 'host-%s' % x
+#    INVENTORY['hosts'][hkey] = {}
+#    INVENTORY['hosts'][hkey]['name'] = '10.0.0.%s' % x
+#    INVENTORY['hosts'][hkey]['vms'] = []
+#    INVENTORY['hosts'][hkey]['datastores'] = ['datastore-1']
+#
+#TOTAL_VMS = 10
+#xhost = 0
+#_ip = 104
+#for x in range(0, TOTAL_VMS + 1):
+#    vkey = 'vm-%s' % x
+#    if vkey in INVENTORY['vm']:
+#        continue
+#    _ip += 1
+#    thisip = '10.0.0.%s' % _ip
+#    INVENTORY['vm'][vkey] = {}
+#    INVENTORY['vm'][vkey]['_meta'] = {'guestState': 'running', 'ipAddress': thisip}
+#    INVENTORY['vm'][vkey]['_meta']['uuid'] = str(uuid.uuid4())
+#    INVENTORY['vm'][vkey]['name'] = 'testvm%s' % x
+#    INVENTORY['vm'][vkey]['guest'] = {}
+#    INVENTORY['vm'][vkey]['network'] = ['network-0']
+#    INVENTORY['vm'][vkey]['resourcePool'] = 'resgroup-0'
+#    INVENTORY['vm'][vkey]['datastore'] = ['datastore-1']
+#
+#    # spread evenly across the hosts ...
+#    INVENTORY['hosts']['host-%s' % xhost]['vms'].append(vkey)
+#    xhost += 1
+#    if xhost > TOTAL_HOSTS:
+#        xhost = 0
 
 #############################################
 #                 GLOBALS                   #
@@ -873,21 +990,24 @@ class VCenter(BaseHTTPRequestHandler):
                         continue
                     if type(v) != dict:
                         continue
+                    if not 'name' in x:
+                        continue
                     if v['name'] == x:
                         found = True
                         lastfolder = v
                         continue
 
-        if not found:
-            raise "ERROR: folder path not found"
+        #if not found:
+        #    raise "ERROR: folder path not found"
 
         X = self._get_soap_element()
         Body = SE(X, 'soapenv:Body')
         FIPR = SE(Body, 'FindByInventoryPathResponse')
         FIPR.set('xmlns', 'urn:vim25')
-        RVAL = SE(FIPR, 'returnval')
-        RVAL.set('type', 'Folder')
-        RVAL.text = lastfolder['id']
+        if found:
+            RVAL = SE(FIPR, 'returnval')
+            RVAL.set('type', 'Folder')
+            RVAL.text = lastfolder['id']
         fdata = TS(X).decode("utf-8")
         return fdata
 
@@ -2099,8 +2219,10 @@ def extend_inventory(hosts=2, vms=10):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
+    parser.add_argument("--port", type=int, default=443, help='enable debug logging')
     parser.add_argument("--debug", action='store_true', help='enable debug logging')
     parser.add_argument("--vms", type=int, help="total VMs to create")
+    parser.add_argument("--extend", action='store_true', help="total VMs to create")
     args = parser.parse_args()
 
     if args.debug:
@@ -2108,13 +2230,14 @@ if __name__ == "__main__":
     else:
         logging.basicConfig(level=logging.INFO)
 
-    if args.vms:
-        extend_inventory(vms=args.vms)
-    else:
-        extend_inventory()
+    if args.extend or args.vms:
+        if args.vms:
+            extend_inventory(vms=args.vms)
+        else:
+            extend_inventory()
 
     logging.debug('creating server')
-    service = HTTPServer(('localhost', PORT), VCenter)
+    service = HTTPServer(('localhost', args.port), VCenter)
     logging.debug('adding ssl wrapper')
     service.socket = ssl.wrap_socket(service.socket,
                                server_side=True,
