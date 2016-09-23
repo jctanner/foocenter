@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import argparse
 import atexit
 import os
 import shutil
@@ -176,11 +177,24 @@ class PyVmomiHelperWrapper(PyVmomiHelper):
     def smartconnect(self):
         self.content = connect_to_api(self.module)
 
-@vcrshim.use_cassette('wrapper.yaml', 
-                  cassette_library_dir='/tmp/fixtures',
-                  record_mode='always')
+#@vcrshim.use_cassette('wrapper.yaml', 
+#                  cassette_library_dir='/tmp/fixtures',
+#                  record_mode='always')
 def main():
+
+    parser = argparse.ArgumentParser()    
+    parser.add_argument('--host', type=str, default='localhost')
+    parser.add_argument('--port', type=int, default=443)
+    parser.add_argument('--username', type=str, default='administrator@vsphere.local')
+    parser.add_argument('--password', type=str, default='vmware1234')
+    args = parser.parse_args()
+
     module = FakeModule()
+    module.params['hostname'] = args.host
+    module.params['port'] = args.port
+    module.params['username'] = args.username
+    module.params['password'] = args.password
+
     pyv = PyVmomiHelperWrapper(module)
 
     print('# Looking for existing VM')
