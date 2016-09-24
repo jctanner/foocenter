@@ -38,6 +38,9 @@ from collections import OrderedDict
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pprint import pprint
 
+from lib.utils import *
+from lib.datasets.vm import *
+
 USERNAME = 'administrator@vsphere.local'
 PASSWORD = 'vmware1234'
 #PORT = 443
@@ -49,6 +52,7 @@ INVENTORY = {
                 'name': "datacenter1",
                 'hosts': ['host-9', 
                           'host-16'],
+                'vmFolder': 'group-v3',
                 'folders': {
                     'group-d1': ['datacenter-2'],
                     'group-h4': ['domain-s42', 
@@ -77,10 +81,28 @@ INVENTORY = {
             }
          },
          'folders': {
-            'group-v3': {'name': 'vm'},
-            'group-v12': {'name': 'testvms'},
-            'group-v49': {'name': 'testvms2'},
-            'group-v50': {'name': 'testvms1'},
+            'group-v3': {
+                'name': 'vm',
+                'children': [
+                    'vm-20',
+                    'group-v12',
+                    'group-v49'
+                ]    
+            },
+            'group-v12': {
+                'name': 'testvms',
+                'children': [
+                ]
+            },
+            'group-v49': {
+                'name': 'testvms2'
+            },
+            'group-v50': {
+                'name': 'testvms1'
+            },
+            'group-v154': {
+                'name': 'testvms2_1'
+            }
          },
          'hosts':{
                     'host-9': {
@@ -304,11 +326,15 @@ INVENTORY = {
 #############################################
 
 # Properties for a VirtualMachine Object ...
-VM_EX_PROPS = ['alarmActionsEnabled', 'availableField', 'capability', 'config', 'configIssue', 'configStatus',
-               'customValue', 'datastore', 'effectiveRole', 'environmentBrowser', 'guest', 'guestHeartbeatStatus', 
-               'layout', 'layoutEx', 'name', 'network', 'overallStatus', 'parent', 'parentVApp', 'permission',
-               'recentTask', 'resourceConfig', 'resourcePool', 'rootSnapshot', 'runtime', 'snapshot',
-               'storage', 'summary', 'tag', 'triggeredAlarmState', 'value']
+VM_EX_PROPS = ['alarmActionsEnabled', 'availableField', 
+               'capability', 'config', 'configIssue', 'configStatus',
+               'customValue', 'datastore', 'effectiveRole', 
+               'environmentBrowser', 'guest', 'guestHeartbeatStatus', 
+               'layout', 'layoutEx', 'name', 'network', 'overallStatus', 
+               'parent', 'parentVApp', 'permission', 'recentTask', 
+               'resourceConfig', 'resourcePool', 'rootSnapshot', 'runtime', 
+               'snapshot', 'storage', 'summary', 'tag', 'triggeredAlarmState', 
+               'value']
 
 # Properties for a VirtualMachine.guest Object ...
 VM_EX_GUEST_PROPS = [('toolsStatus', 'toolsNotInstalled'), 
@@ -1039,6 +1065,12 @@ class VCenter(BaseHTTPRequestHandler):
         #if '-' in requested and propset_type == 'VirtualMachine':
         #    import pdb; pdb.set_trace()
 
+        #if propset_path == 'vmFolder':
+        #    import pdb; pdb.set_trace()
+
+        #if propset_type == 'VirtualMachine' and propset_path == 'config':
+        #    import pdb; pdb.set_trace()        
+
         if requested.startswith('session['):
 
             type_map = {'Datacenter': 'datacenters',
@@ -1086,7 +1118,8 @@ class VCenter(BaseHTTPRequestHandler):
             if key not in root and cview['type'] == 'Folder':
                 # if group-d1 and Folder ... return list of datacenters?
                 root = INVENTORY
-                foldermap = self._get_folder_map()
+                #foldermap = self._get_folder_map()
+                foldermap = INVENTORY['folders'].copy()
                 for k,v in foldermap.items():
                     MO = E('ManagedObjectReference')
                     MO.set('type', 'Folder')
@@ -1210,7 +1243,8 @@ class VCenter(BaseHTTPRequestHandler):
             elif propset_type == 'Folder':
 
                 # Get the requested folder meta ...
-                folder_map = self._get_folder_map()
+                #folder_map = self._get_folder_map()
+                folder_map = INVENTORY['folders'].copy()
 
                 X = self._get_soap_element()
                 Body = SE(X, 'soapenv:Body')
@@ -1248,9 +1282,15 @@ class VCenter(BaseHTTPRequestHandler):
                     folder_children = self._get_folder_children(requested)
                     for child in folder_children:
                         MO = E('ManagedObjectReference')
-                        MO.set('type', child[1])
                         MO.set('xsi:type', 'ManagedObjectReference')
-                        MO.text = child[0]
+                        MO.text = child
+                        if child.startswith('vm-'):
+                            MO.set('type', 'VirtualMachine')
+                        elif child.startswith('group-'):
+                            MO.set('type', 'Folder')
+                        else:
+                            print("UNMAPPED TYPE FOR: %s" % child)
+                            import pdb; pdb.set_trace()
                         this_val.append(MO)
                 else:
                     print('%s for folder %s requested' % (propset_path, requested))
@@ -1552,40 +1592,18 @@ class VCenter(BaseHTTPRequestHandler):
                 break
         return thisfolder['datacenter']
         
-
     def _get_folder_map(self):
         ''' Make a hashmap of folders and their names '''
-        folders = {}
-        for dcname,datacenter in INVENTORY['datacenters'].items():
-            if 'folders' in datacenter:
-                folders.update(
-                                self._get_recursive_folders(
-                                    datacenter['folders'],
-                                    datacenter=dcname
-                                )
-                              )
+
+        # fid: datacenter=datacenter1        
+        # fid: datacenter=datacenter2
+
+        folders = INVENTORY['folders'].copy()
+        import pdb; pdb.set_trace()
+
+        #for dcname,datacenter in INVENTORY['datacenters'].items():
         return folders
 
-    def _get_recursive_folders(self, root, datacenter=None):
-        '''Recurse through folder objects and return a hash '''
-        folders = {}
-        for k,v in root.items():
-            if k.startswith('group-'):
-                #folders[k] = v['name']        
-                folders[k] = v
-                folders[k]['datacenter'] = datacenter
-            if type(v) == dict:
-                vkeys = v.keys()
-                vkeys = list(vkeys)
-                vkeys = [x for x in vkeys if x.startswith('group-')]
-                if len(vkeys) > 0:
-                    folders.update(
-                                    self._get_recursive_folders(
-                                        v, 
-                                        datacenter=datacenter
-                                    )
-                                  )
-        return folders
 
     def _get_folder_by_id(self, folderid):
         foldermap = self._get_folder_map()
@@ -1594,6 +1612,7 @@ class VCenter(BaseHTTPRequestHandler):
     def _get_folder_children(self, folderid):
         '''Get children of a folder'''
 
+        '''
         foldermap = self._get_folder_map()
         children = []
 
@@ -1609,7 +1628,11 @@ class VCenter(BaseHTTPRequestHandler):
         for k,v in foldermap[folderid].items():
             if k.startswith('group-'):
                 children.append((k, 'Folder'))
-
+        '''
+        if not folderid in INVENTORY['folders']:
+            import pdb; pdb.set_trace()
+        children = INVENTORY['folders'][folderid].get('children', [])
+        #import pdb; pdb.set_trace()
         return children
 
 
@@ -1787,6 +1810,11 @@ class VCenter(BaseHTTPRequestHandler):
                     x.text = str(vm[ckey])
                 elif ckey in vm['_meta']:
                     x.text = str(vm['_meta'][ckey])
+                elif ckey == 'hardware':
+                    # need to add a hardware managed object w/ disks
+                    print("Creating HARDWARE...")
+                    hw = VMHardware()
+                    import pdb; pdb.set_trace()
                 elif ckey == 'modified':
                     x.text = '1970-01-01T00:00:00Z'
                 elif ckey == 'version':
@@ -1959,6 +1987,29 @@ class VCenter(BaseHTTPRequestHandler):
 
             return X
 
+        elif propname == 'vmFolder':
+            #print('VMFOLDER!!!!')
+            folder = INVENTORY['datacenters'][oval]['vmFolder']
+
+            X = self._get_soap_element()
+            Body = SE(X, 'soapenv:Body')
+            RPResponse = SE(Body, responsetype)
+            RPResponse.set('xmlns', "urn:vim25")
+            this_rval = SE(RPResponse, 'returnval')
+            this_objects = SE(this_rval, 'objects')
+            this_obj = SE(this_objects, 'obj')
+            this_obj.set('type', oneup(okey))
+            this_obj.text = oval
+            this_propset = SE(this_objects, 'propSet')
+            this_name = SE(this_propset, 'name')
+            this_name.text = propname
+            this_val = SE(this_propset, 'val')
+            this_val.set('xsi:type', 'ManagedObjectReference')
+            this_val.set('type', 'Folder')
+            this_val.text = folder
+            #import pdb; pdb.set_trace()
+            return X
+
         elif responsetype == 'RetrievePropertiesExResponse':
 
             # This is probably asking for an attribute of a single object (such as a vm)
@@ -1977,8 +2028,11 @@ class VCenter(BaseHTTPRequestHandler):
                 this_name.text = propname
                 this_val = SE(this_propset, 'val')
                 this_val.set('xsi:type', 'xsd:string')
-                this_val.text = INVENTORY['datacenters'][oval][propname]
-                #import pdb; pdb.set_trace()
+
+                if propname in INVENTORY['datacenters'][oval]:
+                    this_val.text = INVENTORY['datacenters'][oval][propname]
+                else:
+                    import pdb; pdb.set_trace()
                 return X
 
             elif okey != 'vm':
@@ -2047,122 +2101,12 @@ class VCenter(BaseHTTPRequestHandler):
         RPResponse.append(this_rval)
         return X
 
-def splitxml(xmlobj, stdout=False):
-    if type(xmlobj) in [str, bytes]:
-        rxml = xml.dom.minidom.parseString(xmlobj)
-    else:
-        rxml = xml.dom.minidom.parseString(TS(xmlobj).decode("utf-8"))
-    pxml = rxml.toprettyxml()
-    lines = [x for x in pxml.split('\n') if x.strip()]
-    for line in lines:
-        if stdout:
-            print(line)
-        else:
-            logging.debug(line)
-
-
-def oneup(text):
-    '''Capitalize the first letter of a string'''
-    newstr = []
-    for idx,x in enumerate(text):
-        if idx == 0:
-            newstr.append(x.upper())
-        else:    
-            newstr.append(x)
-    return ''.join(newstr)
-
-
-def xml2dict(data):
-    ddict = {}
-    root = ET.fromstring(data)
-    if len(root) > 0:
-        ddict = children2dict(root)
-    return ddict
-
-def children2dict(root):
-    ddict = {}
-    for child in root:
-        key = remove_urn(child.tag)
-
-        # what is the name of this child?
-        if len(child) == 0:
-            if hasattr(child, 'itertext'):
-                ddict[key] = ''.join([x for x in child.itertext()])
-            else:
-                ddict[key] = None
-            #import pdb; pdb.set_trace()
-        else:
-            ddict[key] = children2dict(child)
-    return ddict
-
-def remove_urn(urnstring):
-    #{http://schemas.xmlsoap.org/soap/envelope/}Body
-    #{urn:vim25}_this
-    inphase = False
-    new = ""
-    for x in urnstring:
-        if x == '{':
-            inphase = True
-            continue
-        if x == '}':
-            inphase = False
-            continue
-        if not inphase:
-            new += x
-    return new
-
-def servicecontent2xml():
-
-    # https://www.safaribooksonline.com/library/view/python-cookbook-3rd/9781449357337/ch06s05.html
-
-    elem = E('returnval')
-    #elem = E()
-    for k,v in servicecontent.items():
-        child = E(k)
-        if type(v.get('value', None)) == dict:
-            for k2,v2 in v['value'].items():
-                newchild = E(k2)
-                newchild.text = v2
-                child.append(newchild)
-        else:
-            child.text = v.get('value', capfirst(k))
-        if v.get('type') != 'UNSET':
-            child.set('type', v.get('type', capfirst(k)))
-        elem.append(child)
-
-    '''
-    # http://stackoverflow.com/questions/749796/pretty-printing-xml-in-python
-    '''
-    rxml = xml.dom.minidom.parseString(TS(elem))
-    pxml = rxml.toprettyxml()
-
-    # get rid of the xml header
-    lines = [x for x in pxml.split('\n')]
-    pxml = '\n'.join(lines[1:])
-    return pxml
-
-def capfirst(s):
-    new = ''
-    for idx,x in enumerate(s):
-        if idx == 0:
-            new += x.upper()
-        else:
-            new += x
-    return new
-
-
-def run_command(args):
-    p = subprocess.Popen(args, stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE, shell=True)
-    (so, se) = p.communicate()
-    return (p.returncode, so, se)
-
 
 ########################################
 #         INVENTORY EXPANDER           #
 ########################################
 
-def extend_inventory(hosts=2, vms=10):
+def _extend_inventory(hosts=2, vms=10):
     ''' Create more fake inventory '''
 
     global INVENTORY
