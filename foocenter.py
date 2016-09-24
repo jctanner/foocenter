@@ -321,40 +321,6 @@ INVENTORY = {
 #    if xhost > TOTAL_HOSTS:
 #        xhost = 0
 
-#############################################
-#                 GLOBALS                   #
-#############################################
-
-# Properties for a VirtualMachine Object ...
-VM_EX_PROPS = ['alarmActionsEnabled', 'availableField', 
-               'capability', 'config', 'configIssue', 'configStatus',
-               'customValue', 'datastore', 'effectiveRole', 
-               'environmentBrowser', 'guest', 'guestHeartbeatStatus', 
-               'layout', 'layoutEx', 'name', 'network', 'overallStatus', 
-               'parent', 'parentVApp', 'permission', 'recentTask', 
-               'resourceConfig', 'resourcePool', 'rootSnapshot', 'runtime', 
-               'snapshot', 'storage', 'summary', 'tag', 'triggeredAlarmState', 
-               'value']
-
-# Properties for a VirtualMachine.guest Object ...
-VM_EX_GUEST_PROPS = [('toolsStatus', 'toolsNotInstalled'), 
-                     ('toolsVersionStatus', 'guestToolsNotInstalled'), 
-                     ('toolsVersionStatus2', 'guestToolsNotInstalled'), 
-                     ('toolsRunningStatus', 'guestToolsNotRunning'),
-                     ('toolsVersion', '0'), 
-                     ('screen', None), 
-                     ('guestId', 'centos64Guest'),
-                     ('guestFamily', 'linuxGuest'),
-                     ('guestFullName', 'CentOS 4/5/6/7 (64-bit)'),
-                     ('guestState', 'notRunning'),
-                     ('ipAddress', None),
-                     ('hostName', 'localhost.localdomain'),
-                     ('appHeartbeatStatus', 'appStatusGray'), 
-                     ('appState', 'none'),
-                     ('disk', []),
-                     ('guestOperationsReady', 'false'),
-                     ('interactiveGuestOperationsReady', 'false')]
-
 
 #############################################
 #            CLIENT SESSIONS                #
