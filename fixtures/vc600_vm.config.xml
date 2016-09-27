@@ -479,9 +479,11 @@
                 <upgradePolicy>never</upgradePolicy>
                 <scheduledHardwareUpgradeStatus>none</scheduledHardwareUpgradeStatus>
               </scheduledHardwareUpgradeInfo>
+              <!--
               <forkConfigInfo>
                 <parentEnabled>false</parentEnabled>
               </forkConfigInfo>
+              -->
               <vFlashCacheReservation>0</vFlashCacheReservation>
               <vmxConfigChecksum>M5V/ckjpTiHFYP0d9JP+8dPCDtE=</vmxConfigChecksum>
               <messageBusTunnelEnabled>false</messageBusTunnelEnabled>
