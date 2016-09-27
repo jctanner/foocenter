@@ -82,7 +82,8 @@ def die():
     import os; os.system('kill -9 %d' % os.getpid())
 
 class VirtualMachineConfigInfo(object):
-    def __init__(self, meta={}):
+    def __init__(self, vid='vm-1', meta={}):
+        self.vid = vid
         self.meta = meta
         self.datafile = 'fixtures/vc600_vm.config.xml'
         #self.datafile = 'fixtures/unknown_method.xml'
@@ -134,6 +135,9 @@ class VirtualMachineConfigInfo(object):
                     prop = getattr(prop, x)
                 prop._setText(str(v))
 
+        # set the vim id
+        self.data.Body["{urn:vim25}RetrievePropertiesExResponse"]["returnval"]["objects"]["obj"]._setText(str(self.vid))
+
         #pprint(splitxml(LTS(self.data), stdout=True))
         #pprint(splitxml(LTS(val), stdout=True))
         #import ipdb; ipdb.set_trace()
@@ -153,54 +157,4 @@ class VirtualMachineConfigInfo(object):
         #import ipdb; ipdb.set_trace()
         return data
 
-    '''
-    def obj2dict(self, val, meta={}):
-        reserved = ['sourceline', 'nsmap', 'prefix', 'tag', 'tail', 'text', 'annotation', 'base']
-        attributes = dir(val)
-        attributes = [x for x in attributes if x not in reserved and not x.startswith('_')]
 
-        for att in attributes:
-            print('ATTRIBUTE: %s' % att)
-            method = getattr(val, att)
-
-            if callable(method):
-                continue
-
-            if hasattr(method, 'pyval'):
-                meta[att] = method.pyval
-                continue
-
-            if hasattr(method, 'countchildren'):
-                meta[att] = self.obj2dict(method)
-                import ipdb; ipdb.set_trace()
-                continue
-
-
-            if isinstance(method, type(None)):
-                meta[att] = None
-            elif isinstance(method, bool) or isinstance(method, objectify.BoolElement):
-                meta[att] = bool(val)
-            elif isinstance(method, str) or isinstance(method, objectify.StringElement):
-                meta[att] = str(val)
-            elif isinstance(method, bytes):
-                meta[att] = val
-            elif isinstance(method, int) or isinstance(method, objectify.IntElement):
-                meta[att] = val
-            elif isinstance(method, list):
-                print('LIST!!!')
-            elif isinstance(method, dict):
-                print('DICT!!!')
-                #import ipdb; ipdb.set_trace()
-            elif isinstance(method, objectify.ObjectifiedElement):
-                print('ELEMENT!!!')
-                meta[att] = self.obj2dict(method)
-                #if att == 'vAppConfig':
-                #    import ipdb; ipdb.set_trace()
-            elif isinstance(method, lxml.etree._Attrib):
-                pass
-            else:
-                print('type of %s is %s' % (att, type(method)))
-                #import ipdb; ipdb.set_trace()
-
-        return meta
-    '''
