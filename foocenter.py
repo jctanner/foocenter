@@ -1001,6 +1001,9 @@ class VCenter(BaseHTTPRequestHandler):
         except:
             pass
 
+        #if propset_type == 'HostSystem':
+        #    import pdb; pdb.set_trace()
+
         #if '-' in requested and propset_type == 'VirtualMachine':
         #    import pdb; pdb.set_trace()
 
@@ -1012,6 +1015,7 @@ class VCenter(BaseHTTPRequestHandler):
             vmc = VirtualMachineConfigInfo(vid=requested, meta=INVENTORY['vm'].get(requested, {}).get('meta', {}))
             return vmc.generate_xml()
 
+        ''' PARENT
         # Parents are the owner for the object based on the tree hierarchy
         if propset_path == 'parent':
             parent = None
@@ -1044,9 +1048,10 @@ class VCenter(BaseHTTPRequestHandler):
             propSet_val.text = parent
             fdata = TS(X).decode("utf-8")
             return fdata
+        '''
 
-        if propset_path == 'name' and propset_type == 'ResourcePool':
-            import pdb; pdb.set_trace()
+        #if propset_path == 'name' and propset_type == 'ResourcePool':
+        #    import pdb; pdb.set_trace()
 
         if requested.startswith('session['):
 
@@ -1217,6 +1222,21 @@ class VCenter(BaseHTTPRequestHandler):
 
                 return fdata
 
+            elif propset_type == 'HostSystem':
+                X = self.get_soap_properties_response('hostsystem', 
+                                                      propset_type, 
+                                                      requested, 
+                                                      propset_path, 
+                                                      propset_path, 
+                                                      responsetype='RetrievePropertiesExResponse')
+                try:
+                    fdata = TS(X).decode("utf-8")
+                except Exception as e:
+                    print(e)
+                    import pdb; pdb.set_trace()
+
+                return fdata
+
             elif propset_type == 'ResourcePool':
                 X = self.get_soap_properties_response('resourcepool', 
                                                       propset_type, 
@@ -1231,6 +1251,7 @@ class VCenter(BaseHTTPRequestHandler):
                     import pdb; pdb.set_trace()
 
                 return fdata
+
 
 
             elif propset_type == 'Folder':
@@ -2015,17 +2036,14 @@ class VCenter(BaseHTTPRequestHandler):
             this_rval = SE(RPResponse, 'returnval')
             this_objects = SE(this_rval, 'objects')
             this_obj = SE(this_objects, 'obj')
-            if okey == 'resourcepool':
-                this_obj.set('type', 'ResourcePool')
-            else:
-                this_obj.set('type', oneup(okey))
+            this_obj.set('type', oneup(okey))
             this_obj.text = oval
             this_propset = SE(this_objects, 'propSet')
             this_name = SE(this_propset, 'name')
             this_name.text = propname
             this_val = SE(this_propset, 'val')
 
-            # This is probably asking for an attribute of a single object (such as a vm)
+            # This is probably asking for an attribute of a single object (such as a datacenter name)
             if okey == 'datacenter':
 
                 this_val.set('xsi:type', 'xsd:string')
@@ -2037,9 +2055,34 @@ class VCenter(BaseHTTPRequestHandler):
 
             elif okey == 'resourcepool':
 
+                this_obj.set('type', 'ResourcePool')
                 this_val.set('xsi:type', 'xsd:string')
                 if propname in INVENTORY['resourcepool'][oval]:
                     this_val.text = INVENTORY['resourcepool'][oval][propname]
+                elif propname == 'parent':
+                    this_val.text = INVENTORY['resourcepool'][oval]['owner']
+                else:
+                    import pdb; pdb.set_trace()
+                return X
+
+            elif okey == 'hostsystem':
+
+                this_obj.set('type', 'HostSystem')
+                this_val.set('xsi:type', 'xsd:string')
+                if propname in INVENTORY['hosts'][oval]:
+                    this_val.text = INVENTORY['hosts'][oval][propname]
+                elif propname == 'parent':
+                    this_val.set('type', 'ComputeResource')
+                    this_val.set('xsi:type', 'ManagedObjectReference')
+                    # what is the parent for this host?
+                    parent = None
+                    for dcitem in INVENTORY['datacenters'].items():
+                        k = dcitem[0]
+                        v = dcitem[1]
+                        if oval in v['hosts']:
+                            parent = k
+                            break
+                    this_val.text = parent    
                 else:
                     import pdb; pdb.set_trace()
                 return X
