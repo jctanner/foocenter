@@ -2060,6 +2060,8 @@ class VCenter(BaseHTTPRequestHandler):
                 if propname in INVENTORY['resourcepool'][oval]:
                     this_val.text = INVENTORY['resourcepool'][oval][propname]
                 elif propname == 'parent':
+                    this_val.set('type', 'ComputeResource')
+                    this_val.set('xsi:type', 'ManagedObjectReference')
                     this_val.text = INVENTORY['resourcepool'][oval]['owner']
                 else:
                     import pdb; pdb.set_trace()
@@ -2072,14 +2074,17 @@ class VCenter(BaseHTTPRequestHandler):
                 if propname in INVENTORY['hosts'][oval]:
                     this_val.text = INVENTORY['hosts'][oval][propname]
                 elif propname == 'parent':
-                    this_val.set('type', 'ComputeResource')
+
+                    #import pdb; pdb.set_trace()
+
+                    this_val.set('type', 'ComputeResource') # Datacenter?
                     this_val.set('xsi:type', 'ManagedObjectReference')
                     # what is the parent for this host?
                     parent = None
-                    for dcitem in INVENTORY['datacenters'].items():
+                    for dcitem in INVENTORY['computeresources'].items():
                         k = dcitem[0]
                         v = dcitem[1]
-                        if oval in v['hosts']:
+                        if oval == v['host']:
                             parent = k
                             break
                     this_val.text = parent    
