@@ -1042,9 +1042,11 @@ class VCenter(BaseHTTPRequestHandler):
                 import pdb; pdb.set_trace()
             propSet_val.set('xsi:type', 'ManagedObjectReference')
             propSet_val.text = parent
-            #import pdb; pdb.set_trace()
             fdata = TS(X).decode("utf-8")
             return fdata
+
+        if propset_path == 'name' and propset_type == 'ResourcePool':
+            import pdb; pdb.set_trace()
 
         if requested.startswith('session['):
 
@@ -1214,6 +1216,22 @@ class VCenter(BaseHTTPRequestHandler):
                     import pdb; pdb.set_trace()
 
                 return fdata
+
+            elif propset_type == 'ResourcePool':
+                X = self.get_soap_properties_response('resourcepool', 
+                                                      propset_type, 
+                                                      requested, 
+                                                      propset_path, 
+                                                      propset_path, 
+                                                      responsetype='RetrievePropertiesExResponse')
+                try:
+                    fdata = TS(X).decode("utf-8")
+                except Exception as e:
+                    print(e)
+                    import pdb; pdb.set_trace()
+
+                return fdata
+
 
             elif propset_type == 'Folder':
 
@@ -1990,25 +2008,38 @@ class VCenter(BaseHTTPRequestHandler):
 
         elif responsetype == 'RetrievePropertiesExResponse':
 
+            X = self._get_soap_element()
+            Body = SE(X, 'soapenv:Body')
+            RPResponse = SE(Body, responsetype)
+            RPResponse.set('xmlns', "urn:vim25")
+            this_rval = SE(RPResponse, 'returnval')
+            this_objects = SE(this_rval, 'objects')
+            this_obj = SE(this_objects, 'obj')
+            if okey == 'resourcepool':
+                this_obj.set('type', 'ResourcePool')
+            else:
+                this_obj.set('type', oneup(okey))
+            this_obj.text = oval
+            this_propset = SE(this_objects, 'propSet')
+            this_name = SE(this_propset, 'name')
+            this_name.text = propname
+            this_val = SE(this_propset, 'val')
+
             # This is probably asking for an attribute of a single object (such as a vm)
             if okey == 'datacenter':
-                X = self._get_soap_element()
-                Body = SE(X, 'soapenv:Body')
-                RPResponse = SE(Body, responsetype)
-                RPResponse.set('xmlns', "urn:vim25")
-                this_rval = SE(RPResponse, 'returnval')
-                this_objects = SE(this_rval, 'objects')
-                this_obj = SE(this_objects, 'obj')
-                this_obj.set('type', oneup(okey))
-                this_obj.text = oval
-                this_propset = SE(this_objects, 'propSet')
-                this_name = SE(this_propset, 'name')
-                this_name.text = propname
-                this_val = SE(this_propset, 'val')
-                this_val.set('xsi:type', 'xsd:string')
 
+                this_val.set('xsi:type', 'xsd:string')
                 if propname in INVENTORY['datacenters'][oval]:
                     this_val.text = INVENTORY['datacenters'][oval][propname]
+                else:
+                    import pdb; pdb.set_trace()
+                return X
+
+            elif okey == 'resourcepool':
+
+                this_val.set('xsi:type', 'xsd:string')
+                if propname in INVENTORY['resourcepool'][oval]:
+                    this_val.text = INVENTORY['resourcepool'][oval][propname]
                 else:
                     import pdb; pdb.set_trace()
                 return X
