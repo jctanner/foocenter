@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import logging
 import subprocess
 import uuid
@@ -11,6 +12,9 @@ import xml.dom.minidom
 from collections import OrderedDict
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pprint import pprint
+
+def die():
+    import os; os.system('kill -9 %d' % os.getpid())
 
 def capfirst(s):
     new = ''

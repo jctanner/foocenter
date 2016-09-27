@@ -26,6 +26,7 @@ import argparse
 import datetime
 import json
 import logging
+import lxml
 import ssl
 import subprocess
 import uuid
@@ -286,42 +287,6 @@ INVENTORY = {
         }
 '''
 
-##########################
-# Build up the inventory
-##########################
-#TOTAL_HOSTS = 2
-#for x in range(0, TOTAL_HOSTS + 1):
-#    hkey = 'host-%s' % x
-#    INVENTORY['hosts'][hkey] = {}
-#    INVENTORY['hosts'][hkey]['name'] = '10.0.0.%s' % x
-#    INVENTORY['hosts'][hkey]['vms'] = []
-#    INVENTORY['hosts'][hkey]['datastores'] = ['datastore-1']
-#
-#TOTAL_VMS = 10
-#xhost = 0
-#_ip = 104
-#for x in range(0, TOTAL_VMS + 1):
-#    vkey = 'vm-%s' % x
-#    if vkey in INVENTORY['vm']:
-#        continue
-#    _ip += 1
-#    thisip = '10.0.0.%s' % _ip
-#    INVENTORY['vm'][vkey] = {}
-#    INVENTORY['vm'][vkey]['_meta'] = {'guestState': 'running', 'ipAddress': thisip}
-#    INVENTORY['vm'][vkey]['_meta']['uuid'] = str(uuid.uuid4())
-#    INVENTORY['vm'][vkey]['name'] = 'testvm%s' % x
-#    INVENTORY['vm'][vkey]['guest'] = {}
-#    INVENTORY['vm'][vkey]['network'] = ['network-0']
-#    INVENTORY['vm'][vkey]['resourcePool'] = 'resgroup-0'
-#    INVENTORY['vm'][vkey]['datastore'] = ['datastore-1']
-#
-#    # spread evenly across the hosts ...
-#    INVENTORY['hosts']['host-%s' % xhost]['vms'].append(vkey)
-#    xhost += 1
-#    if xhost > TOTAL_HOSTS:
-#        xhost = 0
-
-
 #############################################
 #            CLIENT SESSIONS                #
 #############################################
@@ -330,7 +295,6 @@ EVENTCHAINS = {}
 TASKS = {}
 VIEWMANAGERS = {}
 CONTAINERVIEWS = {}
-
 
 
 class VCenter(BaseHTTPRequestHandler):
@@ -458,7 +422,16 @@ class VCenter(BaseHTTPRequestHandler):
         else:
             self.send_header("msg", "Internal Server Error")
         self.end_headers()
-        self.wfile.write(bytes(resp, 'utf-8'))
+
+        #try:
+        #    bytes(resp, 'utf-8')
+        #except TypeError:
+        #    import pdb; pdb.set_trace()
+
+        if type(resp) == bytes:
+            self.wfile.write(resp)
+        else:
+            self.wfile.write(bytes(resp, 'utf-8'))
 
 
     def __combine_soap_resp(self, rtype, urn, rval):
@@ -1034,8 +1007,10 @@ class VCenter(BaseHTTPRequestHandler):
         #if propset_path == 'vmFolder':
         #    import pdb; pdb.set_trace()
 
-        #if propset_type == 'VirtualMachine' and propset_path == 'config':
-        #    import pdb; pdb.set_trace()        
+        if propset_type == 'VirtualMachine' and propset_path == 'config':
+            vmc = VirtualMachineConfigInfo(meta=INVENTORY['vm'].get(requested, {}).get('meta', {}))
+            #import pdb; pdb.set_trace()        
+            return vmc.generate_xml()
 
         if requested.startswith('session['):
 
@@ -1771,74 +1746,77 @@ class VCenter(BaseHTTPRequestHandler):
                      'initialOverhead', 'nestedHVEnabled', 'vPMCEnabled', 'scheduledHardwareUpgradeInfo',
                      'vFlashCacheReservation']
             for ckey in ckeys:
-                x = E(ckey)
-                if ckey in vm:
-                    x.text = str(vm[ckey])
-                elif ckey in vm['_meta']:
-                    x.text = str(vm['_meta'][ckey])
-                elif ckey == 'hardware':
+                if ckey == 'hardware':
                     # need to add a hardware managed object w/ disks
                     print("Creating HARDWARE...")
                     hw = VMHardware()
+                    hwe = hw.to_element()
                     import pdb; pdb.set_trace()
-                elif ckey == 'modified':
-                    x.text = '1970-01-01T00:00:00Z'
-                elif ckey == 'version':
-                    x.text = 'vmx-10'
-                elif ckey == 'npivTemporaryDisabled':
-                    x.text = 'true'
-                elif ckey == 'template':
-                    x.text = 'false'
-                elif ckey == 'latencySensitivity':
-                    latency = SE(x, 'level')
-                    latency.text = 'normal'
-                elif ckey == 'cpuHotAddEnabled' or ckey == 'cpuHotRemoveEnabled':
-                    x.text = 'false'
-                elif ckey == 'memoryHotAddEnabled':
-                    x.text = 'false'
-                elif ckey == 'memoryAllocation':
-                    reservation = SE(x, 'reservation')
-                    reservation.text = '0'
-                    expandableres = SE(x, 'expandableReservation')
-                    expandableres.text = 'false'
-                    limit = SE(x, 'limit')
-                    limit.text = '-1'
-                    shares = SE(x, 'shares')
-                    shares2 = SE(shares, 'shares')
-                    shares2.text = '2560'
-                    level2 = SE(shares, 'level')
-                    level2.text = 'normal'
-                elif ckey == 'bootOptions':
-                    bootdelay = SE(x, 'bootDelay')
-                    bootdelay.text = '0'
-                    entersetup = SE(x, 'enterBIOSSetup')
-                    entersetup.text = 'false'
-                    retryenabled = SE(x, 'bootRetryEnabled')
-                    retryenabled.text = 'false'
-                    retrydelay = SE(x, 'bootRetryDelay')
-                    retrydelay.text = '10000'
-                elif ckey == 'firmware':
-                    x.text = 'bios'
-                elif ckey == 'maxMksConnections':
-                    x.text = '40'
-                elif ckey == 'memoryReservationLockedToMax':
-                    x.text = 'false'
-                elif ckey == 'vFlashCacheReservation':
-                    x.text = '0'
-                elif ckey == 'files':
-                    pathname = SE(x, 'vmPathName')
-                    pathname.text = '[datastore1] testvm1/testvm1.vmx'
-                    snapshotdir = SE(x, 'snapshotDirectory')
-                    snapshotdir.text = '[datastore1] testvm1/'
-                    suspenddir = SE(x, 'suspendDirectory')
-                    suspenddir.text = '[datastore1] testvm1/'
-                    logdir = SE(x, 'logDirectory')
-                    logdir.text = '[datastore1] testvm1/'
-                elif 'enabled' in ckey.lower():
-                    x.text = 'false'
+
                 else:
-                    x.text = 'null'
-                this_val.append(x)
+                    x = E(ckey)
+                    if ckey in vm:
+                        x.text = str(vm[ckey])
+                    elif ckey in vm['_meta']:
+                        x.text = str(vm['_meta'][ckey])
+                    elif ckey == 'modified':
+                        x.text = '1970-01-01T00:00:00Z'
+                    elif ckey == 'version':
+                        x.text = 'vmx-10'
+                    elif ckey == 'npivTemporaryDisabled':
+                        x.text = 'true'
+                    elif ckey == 'template':
+                        x.text = 'false'
+                    elif ckey == 'latencySensitivity':
+                        latency = SE(x, 'level')
+                        latency.text = 'normal'
+                    elif ckey == 'cpuHotAddEnabled' or ckey == 'cpuHotRemoveEnabled':
+                        x.text = 'false'
+                    elif ckey == 'memoryHotAddEnabled':
+                        x.text = 'false'
+                    elif ckey == 'memoryAllocation':
+                        reservation = SE(x, 'reservation')
+                        reservation.text = '0'
+                        expandableres = SE(x, 'expandableReservation')
+                        expandableres.text = 'false'
+                        limit = SE(x, 'limit')
+                        limit.text = '-1'
+                        shares = SE(x, 'shares')
+                        shares2 = SE(shares, 'shares')
+                        shares2.text = '2560'
+                        level2 = SE(shares, 'level')
+                        level2.text = 'normal'
+                    elif ckey == 'bootOptions':
+                        bootdelay = SE(x, 'bootDelay')
+                        bootdelay.text = '0'
+                        entersetup = SE(x, 'enterBIOSSetup')
+                        entersetup.text = 'false'
+                        retryenabled = SE(x, 'bootRetryEnabled')
+                        retryenabled.text = 'false'
+                        retrydelay = SE(x, 'bootRetryDelay')
+                        retrydelay.text = '10000'
+                    elif ckey == 'firmware':
+                        x.text = 'bios'
+                    elif ckey == 'maxMksConnections':
+                        x.text = '40'
+                    elif ckey == 'memoryReservationLockedToMax':
+                        x.text = 'false'
+                    elif ckey == 'vFlashCacheReservation':
+                        x.text = '0'
+                    elif ckey == 'files':
+                        pathname = SE(x, 'vmPathName')
+                        pathname.text = '[datastore1] testvm1/testvm1.vmx'
+                        snapshotdir = SE(x, 'snapshotDirectory')
+                        snapshotdir.text = '[datastore1] testvm1/'
+                        suspenddir = SE(x, 'suspendDirectory')
+                        suspenddir.text = '[datastore1] testvm1/'
+                        logdir = SE(x, 'logDirectory')
+                        logdir.text = '[datastore1] testvm1/'
+                    elif 'enabled' in ckey.lower():
+                        x.text = 'false'
+                    else:
+                        x.text = 'null'
+                    this_val.append(x)
 
             return X
 
