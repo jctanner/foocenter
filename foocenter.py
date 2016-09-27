@@ -1007,10 +1007,44 @@ class VCenter(BaseHTTPRequestHandler):
         #if propset_path == 'vmFolder':
         #    import pdb; pdb.set_trace()
 
+        # VM Config responses have a -lot- of data, so we edit a captured response
         if propset_type == 'VirtualMachine' and propset_path == 'config':
-            vmc = VirtualMachineConfigInfo(meta=INVENTORY['vm'].get(requested, {}).get('meta', {}))
-            #import pdb; pdb.set_trace()        
+            vmc = VirtualMachineConfigInfo(vid=requested, meta=INVENTORY['vm'].get(requested, {}).get('meta', {}))
             return vmc.generate_xml()
+
+        # Parents are the owner for the object based on the tree hierarchy
+        if propset_path == 'parent':
+            parent = None
+            if propset_type == 'ResourcePool':
+                parent = INVENTORY[propset_type.lower()][requested]['owner'] 
+            else:
+                print('WHAT IS PARENT FOR %s !?' % requested)
+                import pdb; pdb.set_trace()
+
+            X = self._get_soap_element()
+            Body = SE(X, 'soapenv:Body')
+            RPResponse = SE(Body, 'RetrievePropertiesExResponse')
+            RPResponse.set('xmlns', "urn:vim25")
+            returnval = SE(RPResponse, 'returnval')
+            objects = SE(returnval, 'objects')
+            obj = SE(objects, 'obj')
+            obj.set('type', propset_type)
+            obj.text = requested
+            propSet = SE(objects, 'propSet')
+            propSet_name = SE(propSet, 'name')
+            propSet_name.text = propset_path
+            propSet_val = SE(propSet, 'val')
+            if propset_type == 'ResourcePool':
+                propSet_val.set('type', 'ComputeResource')
+            else:
+                #FIXME ... this is different for every object
+                print('WHAT IS THE VAL TYPE FOR %s' % requested)
+                import pdb; pdb.set_trace()
+            propSet_val.set('xsi:type', 'ManagedObjectReference')
+            propSet_val.text = parent
+            #import pdb; pdb.set_trace()
+            fdata = TS(X).decode("utf-8")
+            return fdata
 
         if requested.startswith('session['):
 
