@@ -84,6 +84,7 @@ INVENTORY = {
          'folders': {
             'group-v3': {
                 'name': 'vm',
+                'parent': 'datacenter-2',
                 'children': [
                     'vm-20',
                     'group-v12',
@@ -92,17 +93,21 @@ INVENTORY = {
             },
             'group-v12': {
                 'name': 'testvms',
+                'parent': 'group-v3',
                 'children': [
                 ]
             },
             'group-v49': {
-                'name': 'testvms2'
+                'name': 'testvms2',
+                'parent': 'group-v3',
             },
             'group-v50': {
-                'name': 'testvms1'
+                'name': 'testvms1',
+                'parent': 'group-v3',
             },
             'group-v154': {
-                'name': 'testvms2_1'
+                'name': 'testvms2_1',
+                'parent': 'group-v50',
             }
          },
          'hosts':{
@@ -309,7 +314,11 @@ class VCenter(BaseHTTPRequestHandler):
         xparts = path.split('/')
         xparts = [x for x in xparts if x]
 
-        if xparts[1] == 'inventory':
+        print(xparts)
+
+        if len(xparts) == 1 and method == 'GET':
+            resp = json.dumps(INVENTORY)
+        elif xparts[1] == 'inventory':
 
             if method == 'POST':
                 # assume the caller wants to increase the inventory size
@@ -344,7 +353,9 @@ class VCenter(BaseHTTPRequestHandler):
         rparts = requestline.split()
         url = rparts[1]
 
-        if url == '/sdk/vimServiceVersions.xml':
+        if url.startswith('/xapi'):
+            self.do_REST('GET', url)
+        elif url == '/sdk/vimServiceVersions.xml':
             self.send_response(200)
             self.send_header("Content-type", "text/xml")
 
@@ -366,6 +377,7 @@ class VCenter(BaseHTTPRequestHandler):
             self.wfile.write(bytes("<body><p>This is a test.</p>", "utf-8"))
             self.wfile.write(bytes("<p>You accessed path: %s</p>" % self.path, "utf-8"))
             self.wfile.write(bytes("</body></html>", "utf-8"))
+
 
     def do_POST(self):
 
@@ -1468,7 +1480,6 @@ class VCenter(BaseHTTPRequestHandler):
             powerstate = 'poweredOn'
         template = INVENTORY['vm'][templateid]
         folder = self._get_folder_by_id(folderid)
-        
 
         events = EVENTCHAINS.keys()
         events = list(events)
@@ -1522,11 +1533,13 @@ class VCenter(BaseHTTPRequestHandler):
         dcid = spec['location'].get('datcenter', None)
         if not dcid:
             dcid = self._get_datacenterid_for_vmid(templateid)
+
         #self._add_vmid_to_folder(dcid, folderid, key)
-        if folderid != 'group-v0':
-            INVENTORY['datacenters'][dcid]['folders']['group-v0'][folderid]['vms'].append(key)
-        else:
-            INVENTORY['datacenters'][dcid]['folders'][folderid]['vms'].append(key)
+        #if folderid != 'group-v0':
+        #    INVENTORY['datacenters'][dcid]['folders']['group-v0'][folderid]['vms'].append(key)
+        #else:
+        #    INVENTORY['datacenters'][dcid]['folders'][folderid]['vms'].append(key)
+        INVENTORY['folders'][folderid]['children'].append(key)
 
         # Create the taskid response
         X = self._get_soap_element()
@@ -1596,15 +1609,26 @@ class VCenter(BaseHTTPRequestHandler):
             INVENTORY['datacenters'][dcid]['folders'][folderid]['vms'].append(vmid)
 
     def _get_datacenterid_for_vmid(self, vmid):
-        foldermap = self._get_folder_map()
+        #foldermap = self._get_folder_map()
+        foldermap = INVENTORY['folders'].copy()
+
         thisfolder = None
         for k,v in foldermap.items():
-            if not 'vms' in v:
-                continue
-            if vmid in v['vms']:
-                thisfolder = v
+            if vmid in v.get('children', []):
+                thisfolder = k
                 break
-        return thisfolder['datacenter']
+
+        if not thisfolder:
+            import pdb; pdb.set_trace()
+            pass
+
+        # what is the datacenter?
+        datacenter = foldermap[thisfolder].get('parent', None)
+        while not datacenter.startswith('datacenter'):
+            datacenter = foldermap[datacenter].get('parent', None)
+
+        #import pdb; pdb.set_trace()
+        return datacenter
         
     def _get_folder_map(self):
         ''' Make a hashmap of folders and their names '''
@@ -1613,9 +1637,6 @@ class VCenter(BaseHTTPRequestHandler):
         # fid: datacenter=datacenter2
 
         folders = INVENTORY['folders'].copy()
-        import pdb; pdb.set_trace()
-
-        #for dcname,datacenter in INVENTORY['datacenters'].items():
         return folders
 
 
