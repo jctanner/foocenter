@@ -1473,6 +1473,7 @@ class VCenter(BaseHTTPRequestHandler):
         folderid = query.get('Body', {}).get('CloneVM_Task', {}).get('folder', None)
         vmname = query.get('Body', {}).get('CloneVM_Task', {}).get('name', None)
         spec = query.get('Body', {}).get('CloneVM_Task', {}).get('spec', {})
+
         powerstate = spec.get('powerOn', False)
         if not powerstate:
             powerstate = 'poweredOff'
@@ -1528,17 +1529,32 @@ class VCenter(BaseHTTPRequestHandler):
             vdict[i[0]] = spec['location'].get(i[1], template.get(i[0], None))
         INVENTORY['vm'][key] = vdict
         vmid = key
+
+        # Check for a devicechange [disk resizes]
+        if 'deviceChange' in spec['config']:
+            dc = spec['config']['deviceChange']
+            device = dc.get('device', {})
+
+            if 'devices' not in INVENTORY['vm'][key]['_meta']:
+                INVENTORY['vm'][key]['_meta']['devices'] = {}
+
+            did = device['diskObjectId']
+            INVENTORY['vm'][key]['_meta']['devices'][did] = {}
+
+            for k,v in device.items():
+                if k.startswith('capacity'):
+                    INVENTORY['vm'][key]['_meta']['devices'][did][k] = v
+            #import pdb; pdb.set_trace()
         
         # Add to a datacenter + folder
-        dcid = spec['location'].get('datcenter', None)
+        dcid = spec['location'].get('datacenter', None)
         if not dcid:
             dcid = self._get_datacenterid_for_vmid(templateid)
 
-        #self._add_vmid_to_folder(dcid, folderid, key)
-        #if folderid != 'group-v0':
-        #    INVENTORY['datacenters'][dcid]['folders']['group-v0'][folderid]['vms'].append(key)
-        #else:
-        #    INVENTORY['datacenters'][dcid]['folders'][folderid]['vms'].append(key)
+        # Put the guest into the expected host
+        INVENTORY['hosts'][spec['location']['host']]['vms'].append(key)
+
+        # Put the guest into the expected folder
         INVENTORY['folders'][folderid]['children'].append(key)
 
         # Create the taskid response
@@ -1550,6 +1566,7 @@ class VCenter(BaseHTTPRequestHandler):
         rval.set('type', 'Task')
         rval.text = taskkey
 
+        # Save the task
         TASKS[taskkey] =  {}
         TASKS[taskkey]['type'] = 'CloneVM_Task'
         TASKS[taskkey]['eventid'] = eventid
