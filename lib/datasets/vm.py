@@ -116,14 +116,18 @@ class VirtualMachineConfigInfo(object):
         # <name py:pytype="str" xmlns:py="http://codespeak.net/lxml/objectify/pytype">foobar</name>
 
         val = self.data.Body["{urn:vim25}RetrievePropertiesExResponse"]["returnval"]["objects"]["propSet"]["val"]
-        for item in self.meta.items():
-            k = item[0]
-            v = item[1]
-            #print(item)
+        for k,v in self.meta.items():
 
             if not '.' in k:
                 if hasattr(val, k):
                     val[k]._setText(str(v))
+                elif k == 'devices':
+                    for dev in val.hardware.device:
+                        if hasattr(dev, 'diskObjectId'):
+                            if dev.diskObjectId == k:
+                                for k2,v2 in v.iteritems():
+                                    setattr(dev, k2, v2)
+                                break
                 else:
                     print('%s not in val' % k)
                     import ipdb; ipdb.set_trace()

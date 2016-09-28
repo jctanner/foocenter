@@ -35,3 +35,30 @@ class TestVMConfigInfo(unittest.TestCase):
         assert val.uuid == '42110d45-320d-c2e7-d7d9-f6c9da6735f3'
         assert val.hardware.memoryMB == 1000
         #import ipdb; ipdb.set_trace()
+
+
+    def test_set_disk_meta(self):
+        meta = {
+            'name': 'foobar',
+            'uuid': '42110d45-320d-c2e7-d7d9-f6c9da6735f3',
+            'hardware.memoryMB': 1000,
+            "devices": {
+              "105-2000": {
+                "capacityInBytes": "26843545600",
+                "capacityInKB": "26214400"
+              } 
+            }
+        }
+        vmc = VirtualMachineConfigInfo(meta=meta, vid='vm-666')
+        val = vmc.data.Body["{urn:vim25}RetrievePropertiesExResponse"]["returnval"]["objects"]["propSet"]["val"]
+
+        device = None
+        for dev in val.hardware.device:
+            if hasattr(dev, 'diskObjectId'):
+                if dev.diskObjectId == '105-2000':
+                    device = dev
+        assert device != None
+        assert int(device.capacityInBytes) == 26843545600, '%s' % type(device.capacityInBytes)
+        assert int(device.capacityInKB) == 26214400, '%s' % type(device.capacityInKB)
+
+
